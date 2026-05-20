@@ -539,9 +539,9 @@ char * get_info_call()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -608,9 +608,9 @@ char * get_infomobile_call()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -679,9 +679,9 @@ char * get_infoobj_call()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -750,9 +750,9 @@ char * get_infowx_call()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -799,7 +799,7 @@ char * get_infowx_call()
 		"Last heard ##LAST_HEARD## ago</font></p>\r\n"
 
 		"<p align=center><font size=+1>Weather Data</font></p>\r\n"
-		"<table align=center border=2 bgcolor=white>\r\n"
+		"<table align=center border=2 >\r\n"
 		"<tr><td><b>Measurement</b></td><td><b>Imperial</b></td></tr>\r\n"
 		"<tr><td>Wind speed</td><td>##WIND_SPEED_MPH## mph</td></tr>\r\n"
 		"<tr><td>Wind gust</td><td>##WIND_GUST_MPH## mph</td></tr>\r\n"
@@ -834,9 +834,9 @@ char * get_all()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -871,7 +871,7 @@ char * get_all()
 		"<p align=center><font size=4>The following is a list of all the stations heard in the past ##EXPIRE_TIME## minutes,<BR>both on RF and on the internet.</font></p>"
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center border=3 cellpadding=3 bgcolor=\"#FFFFCC\">"
+		"<table align=center border=3 cellpadding=3>"
 		"<tr>##STATION_TABLE##</tr></table>\r\n"
 		"</td></tr></tbody></table>\r\n"
 		"</body></html>\r\n";
@@ -891,9 +891,9 @@ char * get_mobileall()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -928,7 +928,7 @@ char * get_mobileall()
 		"<p align=center><font size=4>The following is a list of all the mobile stations heard in the past ##EXPIRE_TIME## minutes,<BR>both on RF and on the internet.</font></p>"
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center border=3 cellpadding=3 bgcolor=\"#FFFFCC\">"
+		"<table align=center border=3 cellpadding=3>"
 		"<tr>##STATION_TABLE##</tr></table>\r\n"
 		"</td></tr></tbody></table>\r\n"
 		"</body></html>\r\n";
@@ -948,9 +948,9 @@ char * get_obj()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -985,7 +985,7 @@ char * get_obj()
 		"<p align=center><font size=4>The following is a list of all the objects heard in the past ##EXPIRE_TIME## minutes,<BR>both on RF and on the internet.</font></p>"
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center border=3 cellpadding=3 bgcolor=\"#FFFFCC\">"
+		"<table align=center border=3 cellpadding=3>"
 		"<tr>##STATION_TABLE##</tr></table>\r\n"
 		"</td></tr></tbody></table>\r\n"
 		"</body></html>\r\n";
@@ -1006,9 +1006,9 @@ char * get_noinfo()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1053,9 +1053,9 @@ char * get_wxall()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1090,7 +1090,7 @@ char * get_wxall()
 		"<p align=center><font size=4>The following is a list of all the WX stations heard in the past ##EXPIRE_TIME## minutes,<BR>both on RF and on the internet.</font></p>"
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center border=3 cellpadding=3 bgcolor=\"#FFFFCC\">"
+		"<table align=center border=3 cellpadding=3>"
 		"<tr>##STATION_TABLE##</tr></table>\r\n"
 		"</td></tr></tbody></table>\r\n"
 		"</body></html>\r\n";
@@ -1106,9 +1106,9 @@ char * get_info()
 		"<head>"
 		"<meta http-equiv=\"content-type\" content=\"text/html; charset=iso-8859-1\">"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1174,9 +1174,9 @@ char * get_allrf()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1220,7 +1220,7 @@ char * get_allrf()
 
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center cellpadding=3 border=3 bgcolor=\"#FFFFCC\">\r\n"
+		"<table align=center cellpadding=3 border=3>\r\n"
 		"<tr><td align=left><b>Callsign</b></td><td align=left><b>Symbol</b></td><td align=center><b>Location</b></td>\r\n"
 		"<td align=right><b>##MILES_KM##</b></td><td align=right><b>Bearing</b></td><td align=left><b>Last heard</b></td></tr>\r\n"
 		"##STATION_TABLE##</table>\r\n"
@@ -1243,9 +1243,9 @@ char * get_mobilesrf()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1289,7 +1289,7 @@ char * get_mobilesrf()
 
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center cellpadding=3 border=3 bgcolor=\"#FFFFCC\">\r\n"
+		"<table align=center cellpadding=3 border=3>\r\n"
 		"<tr><td align=left><b>Callsign</b></td><td align=left><b>Symbol</b></td><td align=center><b>Location</b></td>\r\n"
 		"<td align=right><b>##MILES_KM##</b></td><td align=right><b>Bearing</b></td><td align=left><b>Last heard</b></td></tr>\r\n"
 		"##STATION_TABLE##</table>\r\n"
@@ -1312,9 +1312,9 @@ char * get_objrf()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1358,7 +1358,7 @@ char * get_objrf()
 
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center cellpadding=3 border=3 bgcolor=\"#FFFFCC\">\r\n"
+		"<table align=center cellpadding=3 border=3>\r\n"
 		"<tr><td align=left><b>Callsign</b></td><td align=left><b>Symbol</b></td><td align=center><b>Location</b></td>\r\n"
 		"<td align=right><b>##MILES_KM##</b></td><td align=right><b>Bearing</b></td><td align=left><b>Last heard</b></td></tr>\r\n"
 		"##STATION_TABLE##</table>\r\n"
@@ -1381,9 +1381,9 @@ char * get_wxrf()
 		"<meta http-equiv=\"expires\" content=\"0\"> \r\n"
 		"<meta http-equiv=\"refresh\" content=\"300\">\r\n"
 		"<title>##MY_CALLSIGN##'s BPQ32 Web Server</title>\r\n"
-		"</head>\r\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-		"<body background=\"Images/clouds.jpg\" bgcolor=\"white\" text=\"black\">\r\n"
+		"<body>\r\n"
 
 		"<table\r\n"
 		"style=\"text-align: left; width: 900; margin-left: auto; margin-right: auto;\"\r\n"
@@ -1427,7 +1427,7 @@ char * get_wxrf()
 
 		"<p align=center><font size=4>There are ##TABLE_COUNT## callsigns in the list,<BR>click a callsign to get an information page for that station.</font></p>"
 
-		"<table align=center cellpadding=3 border=3 bgcolor=\"#FFFFCC\">\r\n"
+		"<table align=center cellpadding=3 border=3>\r\n"
 		"<tr><td align=left><b>Callsign</b></td><td align=left><b>Symbol</b></td><td align=center><b>Location</b></td>\r\n"
 		"<td align=right><b>##MILES_KM##</b></td><td align=right><b>Bearing</b></td><td align=left><b>Last heard</b></td></tr>\r\n"
 		"##STATION_TABLE##</table>\r\n"
@@ -3233,7 +3233,7 @@ char * get_portstats()
 		"\n"
 		"<head>\n"
 		"<script src=\"https://code.jquery.com/jquery-3.6.0.min.js\"> </script>\n"
-		"</head>\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\n"
 		"\n"
 		"\n"
 		"<body>\n"
@@ -3702,7 +3702,7 @@ char * get_aprs()
 		"function resize()\n"
 		"{}\n"
 		"</script>\n"
-		"</head>\n"
+		"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\n"
 		"\n"
 		"<BODY onload=initialize() onresize='resize()'>\n"
 		"<div class=\"topnav\" id=menu>\n"

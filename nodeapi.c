@@ -50,6 +50,7 @@ void add_token_to_list(Token* token);
 
 Token* find_token(const char* token);
 Token* generate_token();
+static int get_random_bytes(unsigned char * Buffer, int Len);
 
 int sendPortList(char * response, char * token, char * Rest, int Local);
 int sendNodeList(char * response, char * token, char * Rest, int Local);
@@ -226,7 +227,8 @@ int request_token(char * response)
 	Token * token = generate_token();
 	char scope[] = "create";
 
-	printf("Token generated: %s\n", token->token);
+	if (token == NULL)
+		return send_http_response(response, "500 Token Generation Failed");
 
 	sprintf(response, "{\"access_token\":\"%s\", \"expires_at\":%ld,\"scope\":\"create\"}\r\n",
 		token->token, token->expiration_time);
@@ -238,17 +240,56 @@ Token * generate_token()
 {
 	// Generate a random authentication token
 
+	static char Hex[] = "0123456789ABCDEF";
+	unsigned char Bytes[TOKEN_SIZE / 2];
 	int i;
 
 	Token * token = malloc(sizeof(Token));
-	for (i = 0; i < TOKEN_SIZE; i++)
+
+	if (get_random_bytes(Bytes, sizeof(Bytes)) == 0)
 	{
-		token->token[i] = 'A' + rand() % 26; // Random uppercase alphabet character
+		free(token);
+		return NULL;
+	}
+
+	for (i = 0; i < (TOKEN_SIZE / 2); i++)
+	{
+		token->token[i * 2] = Hex[Bytes[i] >> 4];
+		token->token[(i * 2) + 1] = Hex[Bytes[i] & 15];
 	}
 	token->token[TOKEN_SIZE] = '\0'; // Null-terminate the token
 	token->expiration_time = time(NULL) + TOKEN_EXPIRATION; // Set token expiration time
 	add_token_to_list(token);
 	return token;
+}
+
+static int get_random_bytes(unsigned char * Buffer, int Len)
+{
+#ifdef WIN32
+	unsigned int Value;
+	int n;
+
+	for (n = 0; n < Len; n += sizeof(Value))
+	{
+		if (rand_s(&Value))
+			return 0;
+
+		memcpy(&Buffer[n], &Value, (Len - n) > (int)sizeof(Value) ? (int)sizeof(Value) : Len - n);
+	}
+
+	return 1;
+#else
+	FILE * hFile = fopen("/dev/urandom", "rb");
+	int ReadLen;
+
+	if (hFile == 0)
+		return 0;
+
+	ReadLen = (int)fread(Buffer, 1, Len, hFile);
+	fclose(hFile);
+
+	return ReadLen == Len;
+#endif
 }
 
 // Function to add the token to the token_list

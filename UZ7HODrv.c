@@ -1327,7 +1327,7 @@ static int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 		"function Refresh( )\n"
 		"{location.reload()}\n"
 		"</script>"
-		"</head><title>UZ7HO Status</title></head><body id=Text onload=\"ScrollOutput()\">"
+		"<head><title>UZ7HO Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text onload=\"ScrollOutput()\">"
 		"<h2><form method=post target=\"POPUPW\" onsubmit=\"POPUPW = window.open('about:blank','POPUPW',"
 		"'width=440,height=150');\" action=ARDOPAbort?%d>UZ7HO Status"
 		"<input name=Save value=\"Abort Session\" type=submit style=\"position: absolute; right: 10;top:10;\"></form></h2>",

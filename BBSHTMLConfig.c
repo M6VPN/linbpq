@@ -134,11 +134,11 @@ static char BusyError[] = "<p align=center>Sorry, No sessions available - please
 
 extern char WebMailSignon[];
 
-char MailSignon[] = "<html><head><title>BPQ32 Mail Server Access</title></head><body background=\"/background.jpg\">"
+char MailSignon[] = "<html><head><title>BPQ32 Mail Server Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 	"<h3 align=center>BPQ32 Mail Server %s Access</h3>"
 	"<h3 align=center>Please enter Callsign and Password to access the BBS</h3>"
 	"<form method=post action=/Mail/Signon?Mail>"
-	"<table align=center  bgcolor=white>"
+	"<table align=center  >"
 	"<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 	"<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 	"<p align=center><input type=submit class='btn' value=Submit /><input type=submit class='btn' value=Cancel name=Cancel /></form>";
@@ -149,9 +149,9 @@ char MailPage[] = "<html><head><title>%s's BBS Web Server</title>"
 	"input.btn:active {background:black;color:white;} "
 	"submit.btn:active {background:black;color:white;} "
 	"</style>"
-	"</head>"
-	"<body background=\"/background.jpg\"><h3 align=center>BPQ32 BBS %s</h3><P>"
-	"<P align=center><table border=1 cellpadding=2 bgcolor=white><tr>"
+	"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+	"<body><h3 align=center>BPQ32 BBS %s</h3><P>"
+	"<P align=center><table border=1 cellpadding=2 ><tr>"
 	"<td><a href=/Mail/Status?%s>Status</a></td>"
 	"<td><a href=/Mail/Conf?%s>Configuration</a></td>"
 	"<td><a href=/Mail/Users?%s>Users</a></td>"
@@ -170,9 +170,9 @@ char RefreshMainPage[] = "<html><head>"
 	"input.btn:active {background:black;color:white;} "
 	"submit.btn:active {background:black;color:white;} "
 	"</style>"
-	"<title>%s's BBS Web Server</title></head>"
-	"<body background=\"/background.jpg\"><h3 align=center>BPQ32 BBS %s</h3><P>"
-	"<P align=center><table border=1 cellpadding=2 bgcolor=white><tr>"
+	"<title>%s's BBS Web Server</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+	"<body><h3 align=center>BPQ32 BBS %s</h3><P>"
+	"<P align=center><table border=1 cellpadding=2 ><tr>"
 	"<td><a href=/Mail/Status?%s>Status</a></td>"
 	"<td><a href=/Mail/Conf?%s>Configuration</a></td>"
 	"<td><a href=/Mail/Users?%s>Users</a></td>"
@@ -285,7 +285,7 @@ char FWDUpdate[] =
 
 static char MailDetailPage[] = 
 "<html><head><meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">"
-"<title>MsgEdit</title></head><body><h4>Message %d</h4>"
+"<title>MsgEdit</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body><h4>Message %d</h4>"
 "<form style=\"font-family: monospace;\" method=post action=/Mail/Msg?%s name=Msgs>"
 "From&nbsp; <input style=\"font-family: monospace;\" size=10 name=From value=%s> Sent&nbsp;&nbsp;&nbsp;"
 "&nbsp; &nbsp; &nbsp; <input readonly=readonly size=12 name=Sent value=\"%s\">&nbsp;"
@@ -343,7 +343,7 @@ char Welcome[] = "<form style=\"font-family: monospace; text-align: center;\""
 "<input name=Save value=Save type=submit class='btn'> <inputcname=Cancel value=Cancel type=submit class='btn'></form>";
 
 static char MsgEditPage[] = "<html><head><meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">"
-"<title></title></head><body>"
+"<title></title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<form style=\"font-family: monospace;  text-align: center;\"method=post action=EMSave?%s>"
 "<textarea cols=90 rows=33 name=Msg>%s</textarea><br><br>"
 "<input name=Save value=Save type=submit class='btn'><input name=Cancel value=Cancel type=submit class='btn'><br></form>";
@@ -369,7 +369,7 @@ static char WPDetail[] = "<form style=\"font-family: monospace;\" method=post ac
 "<input name=Cancel value=Cancel type=submit class='btn'></form>";
 
 
-static char LostSession[] = "<html><body>"
+static char LostSession[] = "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<form style=\"font-family: monospace; text-align: center;\" method=post action=/Mail/Lost?%s>"
 "Sorry, Session had been lost<br><br>&nbsp;&nbsp;&nbsp;&nbsp;"
 "<input name=Submit value=Restart type=submit class='btn'> <input type=submit class='btn' value=Exit name=Cancel><br></form>";
@@ -472,7 +472,7 @@ void ProcessMailHTTPMessage(struct HTTPConnectionInfo * Session, char * Method, 
 		}
 		else
 		{
-			*RLen = sprintf(Reply, "<html><script>window.location.href = '/Mail/Header?%s';</script>", Session->Key);
+			*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.location.href = '/Mail/Header?%s';</script>", Session->Key);
 		}
 		
 		GotFirstMessage = 1;
@@ -2286,7 +2286,7 @@ VOID SaveMessageText(struct HTTPConnectionInfo * Session, char * MsgPtr, char * 
 	{
 		if (strstr(input, "Cancel=Cancel"))
 		{
-			*RLen = sprintf(Reply, "%s", "<html><script>window.close();</script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.close();</script></html>");
 			return;
 		}
 
@@ -2350,7 +2350,7 @@ VOID SaveMessageText(struct HTTPConnectionInfo * Session, char * MsgPtr, char * 
 
 			SaveMessageDatabase();
 
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"Message Saved\");window.close();</script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Message Saved\");window.close();</script></html>");
 
 		}
 	}

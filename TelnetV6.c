@@ -1313,7 +1313,7 @@ static int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 	}
 
 	Len = sprintf(Buff, "<html><meta http-equiv=expires content=0><meta http-equiv=refresh content=15>"
-	"<head><title>Telnet Status</title></head><body><b>Telnet Status &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%s</b>", CMSStatus);
+	"<head><title>Telnet Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body><b>Telnet Status &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%s</b>", CMSStatus);
 
 	Len += sprintf(&Buff[Len], "<table style=\"text-align: left; width: 250px; font-family: monospace; align=center \" border=1 cellpadding=2 cellspacing=2>");
 
@@ -5303,8 +5303,7 @@ int DataSocket_ReadHTTP(struct TNCINFO * TNC, struct ConnectionInfo * sockptr, S
 
 	if(strstr(MsgPtr, "Upgrade: websocket"))
 	{
-		int LOCAL = sockptr->LOCALAuth, COOKIE = 0;
-		char * ptr;
+		int LOCAL = sockptr->LOCALAuth;
 
 		sockptr->WebSocks = 1;
 		ShowConnections(TNC);
@@ -5314,12 +5313,7 @@ int DataSocket_ReadHTTP(struct TNCINFO * TNC, struct ConnectionInfo * sockptr, S
 		if (RigWebPage)
 			RigWebPage[0] = 0;
 
-		ptr = strstr(MsgPtr, "BPQSessionCookie=N");
-
-		if (ptr)
-			COOKIE = TRUE;
-
-		sockptr->WebSecure = LOCAL | COOKIE;
+		sockptr->WebSecure = LOCAL;
 	}
 
 

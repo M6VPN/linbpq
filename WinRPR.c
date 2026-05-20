@@ -744,7 +744,7 @@ int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 	}
 
 	Len = sprintf(Buff, "<html><meta http-equiv=expires content=0><meta http-equiv=refresh content=%d>"
-	"<head><title>WinRPR Status</title></head><body><h2>WinRPR Status</h2>", Interval);
+	"<head><title>WinRPR Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body><h2>WinRPR Status</h2>", Interval);
 
 	Len += sprintf(&Buff[Len], "<table style=\"text-align: left; width: 480px; font-family: monospace; align=center \" border=1 cellpadding=2 cellspacing=2>");
 

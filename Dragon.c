@@ -610,7 +610,7 @@ ok:
 static int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 {
 	int Len = sprintf(Buff, "<html><meta http-equiv=expires content=0><meta http-equiv=refresh content=15>"
-	"<head><title>SCS Pactor Status</title></head><body><h3>SCS Pactor Status</h3>");
+	"<head><title>SCS Pactor Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body><h3>SCS Pactor Status</h3>");
 
 	Len += sprintf(&Buff[Len], "<table style=\"text-align: left; width: 480px; font-family: monospace; align=center \" border=1 cellpadding=2 cellspacing=2>");
 

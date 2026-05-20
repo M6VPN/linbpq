@@ -1103,7 +1103,7 @@ static int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 		"function ScrollOutput()\r\n"
 		"{var textarea = document.getElementById('textarea');"
 		"textarea.scrollTop = textarea.scrollHeight;}</script>"
-		"</head><title>FreDATA Status</title></head><body id=Text onload=\"ScrollOutput()\">"
+		"<head><title>FreDATA Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text onload=\"ScrollOutput()\">"
 		"<h2><form method=post target=\"POPUPW\" onsubmit=\"POPUPW = window.open('about:blank','POPUPW',"
 		"'width=440,height=150');\" action=ARDOPAbort?%d>FreeData Status"
 		"<input name=Save value=\"Abort Session\" type=submit style=\"position: absolute; right: 20;\"></form></h2>",

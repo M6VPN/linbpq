@@ -1118,7 +1118,7 @@ static int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 		"function ScrollOutput()\r\n"
 		"{var textarea = document.getElementById('textarea');"
 		"textarea.scrollTop = textarea.scrollHeight;}</script>"
-		"</head><title>FLDigi Status</title></head><body id=Text onload=\"ScrollOutput()\">"
+		"<head><title>FLDigi Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text onload=\"ScrollOutput()\">"
 		"<h2>FLDIGI Status</h2>");
 
 

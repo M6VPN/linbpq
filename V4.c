@@ -926,7 +926,7 @@ static int WebProc(struct TNCINFO * TNC, char * Buff, BOOL LOCAL)
 		"function ScrollOutput()\r\n"
 		"{var textarea = document.getElementById('textarea');"
 		"textarea.scrollTop = textarea.scrollHeight;}</script>"
-		"</head><title>V4 Status</title></head><body id=Text onload=\"ScrollOutput()\">"
+		"<head><title>V4 Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text onload=\"ScrollOutput()\">"
 		"<h2>V4 Status</h2>");
 
 	Len += sprintf(&Buff[Len], "<table style=\"text-align: left; width: 500px; font-family: monospace; align=center \" border=1 cellpadding=2 cellspacing=2>");

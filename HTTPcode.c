@@ -130,13 +130,13 @@ char Mycall[10];
 char MAILPipeFileName[] = "\\\\.\\pipe\\BPQMAILWebPipe";
 char CHATPipeFileName[] = "\\\\.\\pipe\\BPQCHATWebPipe";
 
-char Index[] = "<html><head><title>%s's BPQ32 Web Server</title></head><body><P align=center>"
-"<table border=2 cellpadding=2 cellspacing=2 bgcolor=white>"
+char Index[] = "<html><head><title>%s's BPQ32 Web Server</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body><P align=center>"
+"<table border=2 cellpadding=2 cellspacing=2 >"
 "<tr><td align=center><a href=/Node/NodeMenu.html>Node Pages</a></td>"
 "<td align=center><a href=/aprs>APRS Pages</a></td></tr></table></body></html>";
 
 char IndexNoAPRS[] = "<meta http-equiv=\"refresh\" content=\"0;url=/Node/NodeIndex.html\">"
-"<html><head></head><body></body></html>";
+"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body></body></html>";
 
 //char APRSBit[] = "<td><a href=../aprs>APRS Pages</a></td>";
 
@@ -146,7 +146,7 @@ char IndexNoAPRS[] = "<meta http-equiv=\"refresh\" content=\"0;url=/Node/NodeInd
 
 char Tail[] = "</body></html>";
 
-char RouteHddr[] = "<h2 align=center>Routes</h2><table align=center border=2 style=font-family:monospace bgcolor=white>"
+char RouteHddr[] = "<h2 align=center>Routes</h2><table align=center border=2 style=font-family:monospace >"
 "<tr><th>Port</th><th>Call</th><th>Quality</th><th>Node Count</th><th>Frame Count</th><th>Retries</th><th>Percent</th><th>Maxframe</th>"
 "<th>Frack</th><th>Last Heard</th><th>Queued</th><th>Rem Qual</th><th>SRTT</th><th>Rem SRTT</th></tr>";
 
@@ -157,32 +157,32 @@ char RouteLineINP3[] = "<tr><td>%s%d</td><td>%s%s</td><td>%d</td><td>%d</td><td>
 "<td>%02d:%02d</td><td>%d</td><td>%d</td><td>%4.2fs</td><td>%4.2fs</td></tr>";
 
 char xNodeHddr[] = "<align=center><form align=center method=get action=/Node/Nodes.html>"
-"<table align=center  bgcolor=white>"
+"<table align=center  >"
 "<tr><td><input type=submit class='btn' name=a value=\"Nodes Sorted by Alias\"></td><td>"
 "<input type=submit class='btn' name=c value=\"Nodes Sorted by Call\"></td><td>"
 "<input type=submit class='btn' name=t value=\"Nodes with traffic\"></td></tr></form></table>"
-"<h2 align=center>Nodes %s</h2><table style=font-family:monospace align=center border=2 bgcolor=white><tr>";
+"<h2 align=center>Nodes %s</h2><table style=font-family:monospace align=center border=2 ><tr>";
 
 char NodeHddr[] = "<center><form method=get action=/Node/Nodes.html>"
 "<input type=submit class='btn' name=a value=\"Nodes Sorted by Alias\">"
 "<input type=submit class='btn' name=c value=\"Nodes Sorted by Call\">"
 "<input type=submit class='btn' name=t value=\"Nodes with traffic\"></form></center>"
-"<h2 align=center>Nodes %s</h2><table style=font-family:monospace align=center border=2 bgcolor=white><tr>";
+"<h2 align=center>Nodes %s</h2><table style=font-family:monospace align=center border=2 ><tr>";
 
 char NodeLine[] = "<td><a href=NodeDetail?%s>%s:%s</td>";
 
 
-char StatsHddr[] = "<h2 align=center>Node Stats</h2><table align=center cellpadding=2 bgcolor=white>"
+char StatsHddr[] = "<h2 align=center>Node Stats</h2><table align=center cellpadding=2 >"
 "<col width=250 /><col width=80 /><col width=80 /><col width=80 /><col width=80 /><col width=80 />";
 
-char PortStatsHddr[] = "<h2 align=center>Stats for Port %d</h2><table align=center border=2 cellpadding=2 bgcolor=white>";
+char PortStatsHddr[] = "<h2 align=center>Stats for Port %d</h2><table align=center border=2 cellpadding=2 >";
 
 char PortStatsLine[] = "<tr><td> %s </td><td> %d </td></tr>";
 
 
-char Beacons[] = "<h2 align=center>Beacon Configuration for Port %d</h2><h3 align=center>You need to be signed in to save changes</h3><table align=center border=2 cellpadding=2 bgcolor=white>"
+char Beacons[] = "<h2 align=center>Beacon Configuration for Port %d</h2><h3 align=center>You need to be signed in to save changes</h3><table align=center border=2 cellpadding=2 >"
 "<form method=post action=BeaconAction>"
-"<table align=center  bgcolor=white>"
+"<table align=center  >"
 "<tr><td>Send Interval (Minutes)</td><td><input type=text name=Every tabindex=1 size=5 value=%d></td></tr>" 
 "<tr><td>To</td><td><input name=Dest style=\"text-transform:uppercase;\" tabindex=2 size=5 value=%s></td></tr>"  
 "<tr><td>Path</td><td><input type=text name=Path style=\"text-transform:uppercase;\" size=50 maxlength=50 value=%s></td></tr>"
@@ -195,20 +195,20 @@ char Beacons[] = "<h2 align=center>Beacon Configuration for Port %d</h2><h3 alig
 "</form>";
 
 
-char LinkHddr[] = "<h2 align=center>Links</h2><table align=center border=2 bgcolor=white>"
+char LinkHddr[] = "<h2 align=center>Links</h2><table align=center border=2 >"
 "<tr><th>Far Call</th><th>Our Call</th><th>Port</th><th>ax.25 state</th><th>Link Type</th><th>ax.25 Version</th></tr>";
 
 char LinkLine[] = "<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td><td align=center >%d</td></tr>";
 
-char UserHddr[] = "<h2 align=center>Sessions</h2><table align=center border=2 cellpadding=2 bgcolor=white>";
+char UserHddr[] = "<h2 align=center>Sessions</h2><table align=center border=2 cellpadding=2 >";
 
 char UserLine[] = "<tr><td>%s</td><td>%s</td><td>%s</td></tr>";
 
-char TermSignon[] = "<html><head><title>BPQ32 Node %s Terminal Access</title></head><body background=\"/background.jpg\">"
+char TermSignon[] = "<html><head><title>BPQ32 Node %s Terminal Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<h2 align=center>BPQ32 Node %s Terminal Access</h2>"
 "<h3 align=center>Please enter username and password to access the node</h3>"
 "<form method=post action=TermSignon>"
-"<table align=center  bgcolor=white>"
+"<table align=center  >"
 "<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 "<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 "<p align=center><input type=submit class='btn' value=Submit><input type=submit class='btn' value=Cancel name=Cancel>"
@@ -219,11 +219,11 @@ char PassError[] = "<p align=center>Sorry, User or Password is invalid - please 
 
 char BusyError[] = "<p align=center>Sorry, No sessions available - please try later</p>";
 
-char LostSession[] = "<html><body>Sorry, Session had been lost - refresh page to sign in again";
-char NoSessions[] = "<html><body>Sorry, No Sessions available - refresh page to try again";
+char LostSession[] = "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>Sorry, Session had been lost - refresh page to sign in again";
+char NoSessions[] = "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>Sorry, No Sessions available - refresh page to try again";
 
 char TermPage[] = "<!DOCTYPE html><html><meta http-equiv=Content-Type content='text/html; charset=UTF-8' />"
-"<head><title>BPQ32 Node %s</title></head>"
+"<head><title>BPQ32 Node %s</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
 "<script>function resize(){"
 "var w=window,d=document,e=d.documentElement,g=d.getElementsByTagName('body')[0];"
 "x=w.innerWidth;"
@@ -246,7 +246,7 @@ char TermOutput[] = "<!DOCTYPE html><html><head>"
 "<script type=\"text/javascript\">\r\n"
 "function ScrollOutput()\r\n"
 "{window.scrollBy(0,document.body.scrollHeight)}</script>"
-"</head><body id=Text>"
+"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text>"
 "<div style=\"font-family:monospace;%s>\"";
 
 
@@ -255,7 +255,7 @@ char TermOutput[] = "<!DOCTYPE html><html><head>"
 char TermOutputTail[] = "</div><script type=\"text/javascript\">\r\nsetTimeout(ScrollOutput, 1)</script></body></html>";
 
 /*
-char InputLine[] = "<html><head></head><body onload='resize()' onresize='resize()'>"
+char InputLine[] = "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body onload='resize()' onresize='resize()'>"
 "<form name=inputform method=post action=/TermInput?%s>"
 "<script>document.inputform.input.focus();"
 "function resize(){"
@@ -265,7 +265,7 @@ char InputLine[] = "<html><head></head><body onload='resize()' onresize='resize(
 "inp.style.width =  x + 'px';}</script>"
 "<input id=inp type=text width=100%% name=input /></form>";
 */
-char InputLine[] = "<!DOCTYPE html><html><head></head><body onload='resize()' onresize='resize()'>"
+char InputLine[] = "<!DOCTYPE html><html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body onload='resize()' onresize='resize()'>"
 "<form name=inputform method=post action=/TermInput?%s>"
 "<input style=\"font-family:monospace;%s>\" id=inp type=text text width=100%% name=input />"
 "<script>document.inputform.input.focus();"
@@ -275,44 +275,44 @@ char InputLine[] = "<!DOCTYPE html><html><head></head><body onload='resize()' on
 "var inp=document.getElementById('inp');"
 "inp.style.width=x-20+'px';}</script></form>";
 
-static char NodeSignon[] = "<html><head><title>BPQ32 Node SYSOP Access</title></head><body background=\"/background.jpg\">"
+static char NodeSignon[] = "<html><head><title>BPQ32 Node SYSOP Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<h3 align=center>BPQ32 Node %s SYSOP Access</h3>"
 "<h3 align=center>This page sets Cookies. Don't continue if you object to this</h3>"
 "<h3 align=center>Please enter Callsign and Password to access the Node</h3>"
 "<form method=post action=/Node/Signon?Node>"
-"<table align=center  bgcolor=white>"
+"<table align=center  >"
 "<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 "<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 "<p align=center><input type=submit class='btn' value=Submit /><input type=submit class='btn' value=Cancel name=Cancel /></form>";
 
 
-static char MailSignon[] = "<html><head><title>BPQ32 Mail Server Access</title></head><body background=\"/background.jpg\">"
+static char MailSignon[] = "<html><head><title>BPQ32 Mail Server Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<h3 align=center>BPQ32 Mail Server %s Access</h3>"
 "<h3 align=center>Please enter Callsign and Password to access the BBS</h3>"
 "<form method=post action=/Mail/Signon?Mail>"
-"<table align=center  bgcolor=white>"
+"<table align=center  >"
 "<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 "<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 "<p align=center><input type=submit class='btn' value=Submit /><input type=submit class='btn' value=Cancel name=Cancel /></form>";
 
-static char ChatSignon[] = "<html><head><title>BPQ32 Chat Server Access</title></head><body background=\"/background.jpg\">"
+static char ChatSignon[] = "<html><head><title>BPQ32 Chat Server Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<h3 align=center>BPQ32 Chat Server %s Access</h3>"
 "<h3 align=center>Please enter Callsign and Password to access the Chat Server</h3>"
 "<form method=post action=/Chat/Signon?Chat>"
-"<table align=center  bgcolor=white>"
+"<table align=center  >"
 "<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 "<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 "<p align=center><input type=submit class='btn' value=Submit /><input type=submit class='btn' value=Cancel name=Cancel /></form>";
 
 
-static char MailLostSession[] = "<html><body>"
+static char MailLostSession[] = "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<form style=\"font-family: monospace; text-align: center;\" method=post action=/Mail/Lost?%s>"
 "Sorry, Session had been lost<br><br>&nbsp;&nbsp;&nbsp;&nbsp;"
 "<input name=Submit value=Restart type=submit class='btn'> <input type=submit class='btn' value=Exit name=Cancel><br></form>";
 
 
 static char ConfigEditPage[] = "<html><head><meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">"
-"<title>Edit Config</title></head><body background=/background.jpg>"
+"<title>Edit Config</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body >"
 "<form style=\"font-family: monospace;  text-align: center;\"method=post action=CFGSave?%s>"
 "<textarea cols=100 rows=25 name=Msg>%s</textarea><br><br>"
 "<input name=Save value=Save type=submit class='btn'><input name=Cancel value=Cancel type=submit class='btn'><br></form>";
@@ -638,10 +638,39 @@ VOID HTTPTimer()
 	}
 }
 
+static int GetSecureRandomBytes(unsigned char * Buffer, int Len)
+{
+#ifdef WIN32
+	unsigned int Value;
+	int n;
+
+	for (n = 0; n < Len; n += sizeof(Value))
+	{
+		if (rand_s(&Value))
+			return 0;
+
+		memcpy(&Buffer[n], &Value, (Len - n) > (int)sizeof(Value) ? (int)sizeof(Value) : Len - n);
+	}
+
+	return 1;
+#else
+	FILE * hFile = fopen("/dev/urandom", "rb");
+	int ReadLen;
+
+	if (hFile == 0)
+		return 0;
+
+	ReadLen = (int)fread(Buffer, 1, Len, hFile);
+	fclose(hFile);
+
+	return ReadLen == Len;
+#endif
+}
+
 struct HTTPConnectionInfo * AllocateSession(SOCKET sock, char Mode)
 {
-	time_t KeyVal;
 	struct HTTPConnectionInfo * Session = zalloc(sizeof(struct HTTPConnectionInfo));
+	unsigned int KeyVal[2];
 	int i;
 
 	if (Session == NULL)
@@ -665,9 +694,13 @@ struct HTTPConnectionInfo * AllocateSession(SOCKET sock, char Mode)
 		SessionControl(Session->Stream, 1, 0);
 	}
 
-	KeyVal = (int)sock * time(NULL);
+	if (GetSecureRandomBytes((unsigned char *)KeyVal, sizeof(KeyVal)) == 0)
+	{
+		KeyVal[0] = (unsigned int)time(NULL);
+		KeyVal[1] = (unsigned int)sock;
+	}
 
-	sprintf(Session->Key, "%c%012X", Mode, (int)KeyVal);
+	sprintf(Session->Key, "%c%06X%06X", Mode, KeyVal[0] & 0xffffff, KeyVal[1] & 0xffffff);
 
 	if (SessionList)
 		Session->Next = SessionList;
@@ -1373,9 +1406,9 @@ int SetupNodeMenu(char * Buff, int LOCAL)
 
 	char NodeMenuLine[] = "dev_win(\"/Node/Port?%d\",%d,%d,%d,%d);";
 
-	char NodeMenuRest[] = "}</script></head>"
-		"<body id=body background=\"/background.jpg\"><h1 align=center>BPQ32 Node %s</h1><P>"
-		"<P align=center><table border=1 cellpadding=2 bgcolor=white><tr>"
+	char NodeMenuRest[] = "}</script><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+		"<body id=body><h1 align=center>BPQ32 Node %s</h1><P>"
+		"<P align=center><table border=1 cellpadding=2 ><tr>"
 		"<td><a href=/Node/Routes.html>Routes</a></td>"
 		"<td><a href=/Node/Nodes.html>Nodes</a></td>"
 		"<td><a href=/Node/Ports.html>Ports</a></td>"
@@ -1462,7 +1495,7 @@ VOID SaveConfigFile(SOCKET sock , char * MsgPtr, char * Rest, int LOCAL)
 		if (strstr(input, "Cancel=Cancel"))
 		{
 			ReplyLen = SetupNodeMenu(Reply, LOCAL);
-			//			ReplyLen = sprintf(Reply, "%s", "<html><script>window.close();</script></html>");
+			//			ReplyLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.close();</script></html>");
 			HeaderLen = sprintf(Header, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n", ReplyLen + (int)strlen(Tail));
 			send(sock, Header, HeaderLen, 0);
 			send(sock, Reply, ReplyLen, 0);
@@ -1565,7 +1598,7 @@ VOID SaveConfigFile(SOCKET sock , char * MsgPtr, char * Rest, int LOCAL)
 				STAT.st_size, MsgLen);
 		}
 
-		ReplyLen = sprintf(Reply, "<html><script>alert(\"%s\");window.close();</script></html>", Mess);
+		ReplyLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"%s\");window.close();</script></html>", Mess);
 		HeaderLen = sprintf(Header, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n", ReplyLen);
 		send(sock, Header, HeaderLen, 0);
 		send(sock, Reply, ReplyLen, 0);
@@ -1637,7 +1670,7 @@ int InnerProcessHTTPMessage(struct ConnectionInfo * conn)
 	int Len;
 	char * WebSock = 0;
 
-	char PortsHddr[] = "<h2 align=center>Ports</h2><table align=center border=2 bgcolor=white>"
+	char PortsHddr[] = "<h2 align=center>Ports</h2><table align=center border=2 >"
 		"<tr><th>Port</th><th>Driver</th><th>ID</th><th>Beacons</th><th>Driver Window</th><th>Stats Graph</th></tr>";
 
 //	char PortLine[] = "<tr><td>%d</td><td><a href=PortStats?%d&%s>&nbsp;%s</a></td><td>%s</td></tr>";
@@ -1689,7 +1722,6 @@ int InnerProcessHTTPMessage(struct ConnectionInfo * conn)
 
 		if (ptr)
 		{
-			COOKIE = TRUE;
 			Key = ptr + 17;
 			ptr = strchr(Key, ',');
 			if (ptr)
@@ -1708,6 +1740,9 @@ int InnerProcessHTTPMessage(struct ConnectionInfo * conn)
 					*ptr = 13;
 				}
 			}
+
+			if (Session)
+				COOKIE = TRUE;
 		}
 
 		if (WebSock)
@@ -2533,7 +2568,7 @@ doHeader:
 				int HeaderLen;
 				char * input = strstr(MsgPtr, "\r\n\r\n");	// End of headers
 				int Port;
-				char Param[100];
+				char Param[2048];
 #ifndef LINBPQ
 				int retCode, disp;
 				char Key[80];
@@ -2573,13 +2608,16 @@ doHeader:
 				PORT = GetPortTableEntryFromPortNum(Port); // Need slot not number
 				if (PORT)
 					Slot = PORT->PortSlot;
+				else
+					return 1;
 
 				GetParam(input, "Every=", &Param[0]);
 				Interval[Slot] = atoi(&Param[0]);
 
 				GetParam(input, "Dest=", &Param[0]);
 				_strupr(Param);
-				strcpy(UIUIDEST[Slot], &Param[0]);
+				strncpy(UIUIDEST[Slot], &Param[0], sizeof(UIUIDEST[Slot]) - 1);
+				UIUIDEST[Slot][sizeof(UIUIDEST[Slot]) - 1] = 0;
 
 				GetParam(input, "Path=", &Param[0]);
 				_strupr(Param);
@@ -2588,9 +2626,11 @@ doHeader:
 				UIUIDigi[Slot] = _strdup(&Param[0]);
 
 				GetParam(input, "File=", &Param[0]);
-				strcpy(FN[Slot], &Param[0]);
+				strncpy(FN[Slot], &Param[0], sizeof(FN[Slot]) - 1);
+				FN[Slot][sizeof(FN[Slot]) - 1] = 0;
 				GetParam(input, "Text=", &Param[0]);
-				strcpy(Message[Slot], &Param[0]);
+				strncpy(Message[Slot], &Param[0], sizeof(Message[Slot]) - 1);
+				Message[Slot][sizeof(Message[Slot]) - 1] = 0;
 
 				MinCounter[Slot] = Interval[Slot];
 
@@ -2688,7 +2728,7 @@ doHeader:
 						ReplyLen = TNC->WebWindowProc(TNC, _REPLYBUFFER, LOCAL);
 
 
-					ReplyLen = sprintf(Reply, "<html><script>alert(\"%s\");window.close();</script></html>", "Ok");
+					ReplyLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"%s\");window.close();</script></html>", "Ok");
 					HeaderLen = sprintf(Header, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n", ReplyLen + (int)strlen(Tail));
 					send(sock, Header, HeaderLen, 0);
 					send(sock, Reply, ReplyLen, 0);
@@ -2997,7 +3037,7 @@ doHeader:
 			{
 				char Test[] =
 					"<html><meta http-equiv=expires content=0>\r\n"
-					"<head><title>Rigcontrol</title></head>\r\n"
+					"<head><title>Rigcontrol</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 					"<script type = \"text/javascript\">\r\n"
 					"var ws;"
 					"function WebSocketTest()"
@@ -3045,7 +3085,7 @@ doHeader:
 					"  ws.send(p);"
 					"}" 
 					"</script>\r\n"
-					"</head>\r\n"
+					"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 					"<body height: 600px; onload=WebSocketTest()>\r\n"
 					"<div id = 'div'>Waiting for data...</div>\r\n"
 					"</body></html>\r\n";
@@ -3053,8 +3093,8 @@ doHeader:
 		
 				char NoRigCtl[] =
 					"<html><meta http-equiv=expires content=0>\r\n"
-					"<head><title>Rigcontrol</title></head>\r\n"
-					"</head>\r\n"
+					"<head><title>Rigcontrol</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
+					"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 					"<body height: 600px>\r\n"
 					"<div id = 'div'>RigControl Not Configured...</div>\r\n"
 					"</body></html>\r\n";
@@ -3068,15 +3108,15 @@ doHeader:
 			else if (_stricmp(NodeURL, "/Node/ShowLog.html") == 0)
 			{
 				char ShowLogPage[] =
-					"<html><script>"
+					"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>"
 					"function myResize() {"
 					" var h = document.getElementById('outer').clientHeight;"
 					" var offsets = document.getElementById('log').getBoundingClientRect();"
 					" document.getElementById('log').style.height = h - offsets.top;}"
 					"</script>"
 					"<head><meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\">"
-					"<title>Log Display</title></head>"
-					"<body style=\"margin: 4;\" background=/background.jpg onload='myResize()' onresize='myResize()'>"
+					"<title>Log Display</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+					"<body style=\"margin: 4;\"  onload='myResize()' onresize='myResize()'>"
 					"<div id=outer style=\"width: 100%%; height: 100%%;\">"
 					"<form id = form><input name=input value=Back type=submit class='btn'>"
 //					"<form id = doDate><input type=date value=Date name='date'><input type='submit'>"
@@ -3569,8 +3609,7 @@ doHeader:
 				ReplyLen += sprintf(&_REPLYBUFFER[ReplyLen],
 					"<h3 align=center>Info for Node %s:%s</h3><p style=font-family:monospace align=center>", Alias, Context);
 
-				ReplyLen += sprintf(&_REPLYBUFFER[ReplyLen], "<table border=1 bgcolor=white><tr><td>Frames</td><td>RTT</td><td>BPQ?</td><td>Hops</td></tr>");	
-
+				ReplyLen += sprintf(&_REPLYBUFFER[ReplyLen], "<table border=1><tr><td>Frames</td><td>RTT</td><td>BPQ?</td><td>Hops</td></tr>");
 				ReplyLen += sprintf(&_REPLYBUFFER[ReplyLen], "<tr><td align=center>%d</td><td align=center>%d</td><td align=center>%c</td><td align=center>%.0d</td></tr></table>",
 					Dest->DEST_COUNT, Dest->DEST_RTT /16,
 					(Dest->DEST_STATE & 0x40)? 'B':' ', (Dest->DEST_STATE & 63));
@@ -3578,7 +3617,7 @@ doHeader:
 				ReplyLen += sprintf(&_REPLYBUFFER[ReplyLen], "<h3 align=center>Neighbours</h3>");
 
 				ReplyLen += sprintf(&_REPLYBUFFER[ReplyLen], 
-					"<table border=1 style=font-family:monospace align=center bgcolor=white>"
+					"<table border=1 style=font-family:monospace align=center >"
 					"<tr><td> </td><td> Qual </td><td> Obs </td><td> Port </td><td> Call </td></tr>");	
 
 				NRRoute = &Dest->NRROUTE[0];
@@ -4270,7 +4309,7 @@ int StatusProc(char * Buff)
 	int AppNumber;
 	int OneBits;
 	int Len = sprintf(Buff, "<html><meta http-equiv=expires content=0><meta http-equiv=refresh content=15>"
-		"<head><title>Stream Status</title></head><body>");
+		"<head><title>Stream Status</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>");
 
 	Len += sprintf(&Buff[Len], "<table style=\"text-align: left; font-family: monospace; align=center \" border=1 cellpadding=1 cellspacing=0>");
 	Len += sprintf(&Buff[Len], "<tr><th>&nbsp;&nbsp;&nbsp;</th><th>&nbsp;RX&nbsp;&nbsp;</th><th>&nbsp;TX&nbsp;&nbsp;</th>");
@@ -4697,7 +4736,7 @@ int BuildRigCtlPage(char * _REPLYBUFFER)
 	char Page[] =
 		"<html><meta http-equiv=expires content=0>\r\n"
 		//					"<meta http-equiv=refresh content=5>\r\n"
-		"<head><title>Rigcontrol</title></head>\r\n"
+		"<head><title>Rigcontrol</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 		"<style type=text/css>form{margin:0px; padding:0px; display:inline;}</style>"
 		"<body height: 580px;><h3>Rigcontrol</h3>\r\n"
 		"<table style=\"text-align: left; width: 580px; font-family: monospace; align=center \" border=1 cellpadding=2 cellspacing=2><tr>\r\n"

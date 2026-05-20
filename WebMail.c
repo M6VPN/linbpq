@@ -124,11 +124,11 @@ static char BusyError[] = "<p align=center>Sorry, No sessions available - please
 
 extern char MailSignon[];
 
-char WebMailSignon[] = "<html><head><title>BPQ32 Mail Server Access</title></head><body background='/background.jpg'>"
+char WebMailSignon[] = "<html><head><title>BPQ32 Mail Server Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 	"<h3 align=center>BPQ32 Mail Server %s Access</h3>"
 	"<h3 align=center>Please enter Callsign and Password to access WebMail</h3>"
 	"<form method=post action=/WebMail/Signon>"
-	"<table align=center  bgcolor=white>"
+	"<table align=center  >"
 	"<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 	"<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 	"<p align=center><input type=submit class='btn' value=Submit /><input type=submit class='btn' value=Cancel name=Cancel /></form>";
@@ -139,8 +139,8 @@ static char MsgInputPage[] = "<html><head><meta content=\"text/html; charset=UTF
 	"input.btn:active {background:black;color:white;} "
 	"submit.btn:active {background:black;color:white;} "
 	"</style>"
-	"</head>"
-	"<body background=/background.jpg onload='initialize(185)' onresize='initialize(185)'>"
+	"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+	"<body  onload='initialize(185)' onresize='initialize(185)'>"
 	"<h3 align=center>Webmail Interface - Message Input Form</h3>"
 	"<form align=center id=myform style=\"font-family: monospace; \" method=post action=/WebMail/EMSave\?%s enctype=multipart/form-data>"
 	"<div style='text-align: center;'><div style='display: inline-block;'><span style='display:block; text-align: left;'>"
@@ -160,8 +160,8 @@ static char MsgInputPage[] = "<html><head><meta content=\"text/html; charset=UTF
 	"<input name=Send value=Send type=submit class='btn'> <input name=Cancel value=Cancel type=submit class='btn'></div></form>";
 
 static char CheckFormMsgPage[] = "<html><head><meta content=\"text/html; charset=UTF-8\" http-equiv=\"content-type\">"
-	"<title></title><script src='/WebMail/webscript.js'></script></head>"
-	"<body background=/background.jpg onload='initialize(210)' onresize='initialize(210)'>"
+	"<title></title><script src='/WebMail/webscript.js'></script><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+	"<body  onload='initialize(210)' onresize='initialize(210)'>"
 	"<h3 align=center>Webmail Forms Interface - Check Message</h3>"
 	"<form align=center id=myform style=\"font-family: monospace; \"method=post action=/WebMail/FormMsgSave\?%s>"
 
@@ -1700,7 +1700,7 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 
 				if (strstr(msg, "Cancel=Cancel"))
 				{
-					*RLen = sprintf(Reply, "<html><script>window.location.href = '/';</script>");
+					*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.location.href = '/';</script>");
 					return;
 				}
 				// Webmail Gets Here with a dummy Session
@@ -2035,11 +2035,11 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 
 			"</script>\r\n"
 			"<title>WebMail</title> \r\n"
-			"</head>\r\n"
+			"<link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>\r\n"
 
-			"<body background=/background.jpg onload=Init() onresize=initialize(120)>\r\n"
+			"<body  onload=Init() onresize=initialize(120)>\r\n"
 			"<h3 align=center> %s Webmail Interface - User %s - Message List</h3>\r\n"
-			"<table align=center border=1 cellpadding=2 bgcolor=white><tr>\r\n"
+			"<table align=center border=1 cellpadding=2 ><tr>\r\n"
 			"\r\n"
 			"<td><a href=/WebMail/WMB?%s>Bulls</a></td>\r\n"
 			"<td><a href=/WebMail/WMP?%s>Personal</a></td>\r\n"
@@ -2273,7 +2273,7 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 
 		// No More
 
-		*RLen = sprintf(Reply, "<html><script>alert(\"No More Messages\");window.location.href = '/Webmail/WebMail?%s';</script></html></script></html>", Session->Key);
+		*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"No More Messages\");window.location.href = '/Webmail/WebMail?%s';</script></html></script></html>", Session->Key);
 		return;
 
 	}
@@ -2333,7 +2333,7 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 
 		// No More 
 
-		*RLen = sprintf(Reply, "<html><script>alert(\"No More Messages\");window.location.href = '/Webmail/WebMail?%s';</script></html></script></html>", Session->Key);
+		*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"No More Messages\");window.location.href = '/Webmail/WebMail?%s';</script></html></script></html>", Session->Key);
 		return;
 
 	}
@@ -2412,7 +2412,7 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 
 		char popuphddr[] = 
 			
-			"<html><body align=center background='/background.jpg'>"
+			"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body align=center>"
 			"<script>function myFunction() {var x = document.getElementById(\"mySelect\").value;"
 			"var Key = \"%s\";"
 			"var param = \"toolbar=yes,location=yes,directories=yes,status=yes,menubar,=scrollbars=yes,resizable=yes,titlebar=yes,toobar=yes\";"
@@ -2514,7 +2514,7 @@ VOID SendTemplateSelectScreen(struct HTTPConnectionInfo * Session, char *Params,
 
 	char popuphddr[] = 
 			
-		"<html><body align=center background='/background.jpg'>"
+		"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body align=center>"
 		"<script>"
 		"function myFunction(val) {var x = document.getElementById(val).value;"
 		"var Key = \"%s\";"
@@ -2524,7 +2524,7 @@ VOID SendTemplateSelectScreen(struct HTTPConnectionInfo * Session, char *Params,
 		"</script>"
 		"<p align=center>"
 		" Select Required Template Folder from List<br><br>"
-		"<table border=1 cellpadding=2 bgcolor=white>"
+		"<table border=1 cellpadding=2 >"
 		"<tr>"
 		"<th>Standard Templates</th>"
 		"<th>Local Templates</th>"
@@ -2677,7 +2677,7 @@ VOID SaveNewMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, char * R
 		}
 		if (SaveInputValue(WebMail, Name, Value, ValLen) == FALSE)
 		{
-			*RLen = sprintf(Reply, "<html><script>window.location.href = '/Webmail/WebMail?%s';</script>", Session->Key);
+			*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.location.href = '/Webmail/WebMail?%s';</script>", Session->Key);
 			return;
 		}
 	}
@@ -2714,14 +2714,14 @@ VOID SaveNewMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, char * R
 
 	if (WebMail->To[0] == 0)
 	{
-		*RLen = sprintf(Reply, "%s", "<html><script>alert(\"To: Call missing!\");window.history.back();</script></html>");
+		*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"To: Call missing!\");window.history.back();</script></html>");
 		FreeWebMailFields(WebMail);		// We will reprocess message and attachments so reinitialise
 		return;
 	}
 
 	if (strlen(WebMail->To) > 255)
 	{
-		*RLen = sprintf(Reply, "%s", "<html><script>alert(\"To: Call too long!\");window.history.back();</script></html>");
+		*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"To: Call too long!\");window.history.back();</script></html>");
 		FreeWebMailFields(WebMail);		// We will reprocess message and attachments so reinitialise
 		return;
 	}
@@ -2733,7 +2733,7 @@ VOID SaveNewMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, char * R
 		if (LookupBID(WebMail->BID))
 		{
 			// Duplicate bid
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"Duplicate BID\");window.history.back();</script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Duplicate BID\");window.history.back();</script></html>");
 			FreeWebMailFields(WebMail);		// We will reprocess message and attachments so reinitialise
 			return;
 		}
@@ -2743,14 +2743,14 @@ VOID SaveNewMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, char * R
 	{
 		if (RefuseBulls)
 		{
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"This system doesn't allow sending Bulls\");window.history.back();script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"This system doesn't allow sending Bulls\");window.history.back();script></html>");
 			FreeWebMailFields(WebMail);		// We will reprocess message and attachments so reinitialise
 			return;
 		}
 
 		if (Session->User->flags & F_NOBULLS)
 		{
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"You are not allowed to send Bulls\");window.history.back();</script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"You are not allowed to send Bulls\");window.history.back();</script></html>");
 			FreeWebMailFields(WebMail);		// We will reprocess message and attachments so reinitialise
 			return;
 		}
@@ -2810,7 +2810,7 @@ VOID SaveNewMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, char * R
 						strcpy(Msg->to, "RMS");		// Routing will redirect it
 					else
 					{		
-						*RLen = sprintf(Reply, "%s", "<html><script>alert(\"This system doesn't allow Sending to Internet Email\");window.close();</script></html>");
+						*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"This system doesn't allow Sending to Internet Email\");window.close();</script></html>");
 						FreeWebMailFields(WebMail);		// We will reprocess message and attachments so reinitialise
 						return;
 
@@ -3129,7 +3129,7 @@ VOID GetPage(struct HTTPConnectionInfo * Session, char * NodeURL)
 
 	if (DirNo == -1)
 	{
-		*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"No Page Selected. \");window.location.href = '/Webmail/NewMsg?%s';</script></html>", Session->Key);
+		*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"No Page Selected. \");window.location.href = '/Webmail/NewMsg?%s';</script></html>", Session->Key);
 		return;
 	}
 
@@ -3819,7 +3819,7 @@ int DisplayWebForm(struct HTTPConnectionInfo * Session, struct MsgInfo * Msg, ch
 				"window.open(\"/WebMail/Reply/\" + Num + \"?\" + Key,\"_self\",param);"
 				"}</script>"
 				"<h3 align=center> %s Webmail Interface - User %s - Message %d</h3>"
-				"<table align=center border=1 cellpadding=2 bgcolor=white><tr>"
+				"<table align=center border=1 cellpadding=2 ><tr>"
 				"<td><a href=\"#\" onclick=\"Reply('%d' ,'%s'); return false;\">Reply</a></td>"
 				"<td><a href=/WebMail/WMDel/%d?%s>Kill Message</a></td>"
 				"<td><a href=/WebMail/DisplayText?%s&%d>Display as Text</a></td>"
@@ -4030,7 +4030,7 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 	
 	if (strstr(input, "Cancel=Cancel"))
 	{
-		*RLen = sprintf(Reply, "<html><script>window.location.href = '/Webmail/WebMail?%s';</script>", Session->Key);
+		*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.location.href = '/Webmail/WebMail?%s';</script>", Session->Key);
 		return;
 	}
 
@@ -4038,7 +4038,7 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 	{
 		// No template, so user must have used back button
 
-		*RLen = sprintf(Reply, "<html><script>alert(\"Template missing. Was back Button used? \");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
+		*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Template missing. Was back Button used? \");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
 		return;
 	}
 
@@ -4110,7 +4110,7 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 
 	if (HDest == NULL || HDest[0] == 0)
 	{
-		*RLen = sprintf(Reply, "%s", "<html><script>alert(\"To: Call Missing\");window.history.back();</script></html>");
+		*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"To: Call Missing\");window.history.back();</script></html>");
 		return;
 	}
 
@@ -4118,7 +4118,7 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 
 //	if (strlen(HDest) > 255)
 //	{
-//		*RLen = sprintf(Reply, "%s", "<html><script>alert(\"To: Call too long!\");window.history.back();</script></html>");
+//		*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"To: Call too long!\");window.history.back();</script></html>");
 //		return;
 //	}
 
@@ -4127,7 +4127,7 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 		if (LookupBID(BID))
 		{
 			// Duplicate bid
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"Duplicate BID\");window.history.back();</script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Duplicate BID\");window.history.back();</script></html>");
 			return;
 		}
 	}
@@ -4136,13 +4136,13 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 	{
 		if (RefuseBulls)
 		{
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"This system doesn't allow sending Bulls\");window.history.back();script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"This system doesn't allow sending Bulls\");window.history.back();script></html>");
 			return;
 		}
 
 		if (Session->User->flags & F_NOBULLS)
 		{
-			*RLen = sprintf(Reply, "%s", "<html><script>alert(\"You are not allowed to send Bulls\");window.history.back();</script></html>");
+			*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"You are not allowed to send Bulls\");window.history.back();</script></html>");
 			return;
 		}
 	}
@@ -4224,7 +4224,7 @@ VOID SaveTemplateMessage(struct HTTPConnectionInfo * Session, char * MsgPtr, cha
 					}
 					else
 					{		
-						*RLen = sprintf(Reply, "%s", "<html><script>alert(\"This system doesn't allow Sending to Internet Email\");window.close();</script></html>");
+						*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"This system doesn't allow Sending to Internet Email\");window.close();</script></html>");
 						return;
 
 					}
@@ -4422,7 +4422,7 @@ VOID BuildMessageFromHTMLInput(struct HTTPConnectionInfo * Session, char * Reply
 
 ///	if (strlen(HDest) > 255)
 ///	{
-//		*RLen = sprintf(Reply, "%s", "<html><script>alert(\"To: Call too long!\");</script></html>");
+//		*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"To: Call too long!\");</script></html>");
 //		return;
 //	}
 
@@ -4473,7 +4473,7 @@ VOID BuildMessageFromHTMLInput(struct HTTPConnectionInfo * Session, char * Reply
 					strcpy(Msg->to, "RMS");		// Routing will redirect it
 				else
 				{		
-					*RLen = sprintf(Reply, "%s", "<html><script>alert(\"This system doesn't allow Sending to Internet Email\");window.close();</script></html>");
+					*RLen = sprintf(Reply, "%s", "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"This system doesn't allow Sending to Internet Email\");window.close();</script></html>");
 					return;
 		
 				}
@@ -4607,7 +4607,7 @@ VOID BuildMessageFromHTMLInput(struct HTTPConnectionInfo * Session, char * Reply
 	SaveMessageDatabase();
 	SaveBIDDatabase();
 
-	*RLen = sprintf(Reply, "<html><script>alert(\"%s\");window.close();</script></html>", Prompt);
+	*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"%s\");window.close();</script></html>", Prompt);
 
 	return;
 }
@@ -4655,7 +4655,7 @@ void ProcessFormInput(struct HTTPConnectionInfo * Session, char * input, char * 
 	{
 		// No template, so user must have used back button
 
-		*RLen = sprintf(Reply, "<html><script>alert(\"Template missing. Was back Button used? \");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
+		*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Template missing. Was back Button used? \");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
 		return;
 	}
 
@@ -5512,7 +5512,7 @@ int ReplyToFormsMessage(struct HTTPConnectionInfo * Session, struct MsgInfo * Ms
 
 	// Missing template
 
-		*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"Reply Template %s missing. Display as Text then Reply\");;window.history.back();</script></html>", WebMail->txtFileName);
+		*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Reply Template %s missing. Display as Text then Reply\");;window.history.back();</script></html>", WebMail->txtFileName);
 		return *WebMail->RLen;
 
 
@@ -5563,7 +5563,7 @@ reEnter:
 	{
 			// Missing HTML
 
-		*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"Reply HTML %s missing. Display as Text then Reply\");;window.history.back();</script></html>", WebMail->InputHTMLName);
+		*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Reply HTML %s missing. Display as Text then Reply\");;window.history.back();</script></html>", WebMail->InputHTMLName);
 		return *WebMail->RLen;
 	}
 
@@ -5691,7 +5691,7 @@ BOOL DoSelectPrompt(struct HTTPConnectionInfo * Session, char * Select)
 
 	char popuphddr[] = 
 			
-		"<html><body align=center background='/background.jpg'>"
+		"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body align=center>"
 		"<script>"
 		"function myFunction() {var x = document.getElementById('Sel').value;"
 		"var Key = \"%s\";"
@@ -5700,7 +5700,7 @@ BOOL DoSelectPrompt(struct HTTPConnectionInfo * Session, char * Select)
 		"}"
 		"</script>"
 		"<div align=center>%s<br><br>"
-		"<table border=1 cellpadding=2 bgcolor=white>"
+		"<table border=1 cellpadding=2 >"
 		"<tr><td><select size=%d id='Sel' size=10 onclick=myFunction()>";
 	
 
@@ -5797,7 +5797,7 @@ BOOL DoSelectPrompt(struct HTTPConnectionInfo * Session, char * Select)
 	return TRUE;
 
 returnDuff:
-	*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"Template <select> Corrupt.\");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
+	*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Template <select> Corrupt.\");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
 	free(SelCopy);
 	return TRUE;
 
@@ -5823,7 +5823,7 @@ VOID ProcessSelectResponse(struct HTTPConnectionInfo * Session, char * URLParams
 	{
 		// Missing template
 
-		*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"Template missing. Was back Button used? \");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
+		*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Template missing. Was back Button used? \");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
 		return;
 	}
 
@@ -5831,7 +5831,7 @@ VOID ProcessSelectResponse(struct HTTPConnectionInfo * Session, char * URLParams
 
 	if (Select == 0)
 	{
-		*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"Template Corrupt.\");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
+		*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Template Corrupt.\");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
 		return;
 	}
 
@@ -5840,7 +5840,7 @@ VOID ProcessSelectResponse(struct HTTPConnectionInfo * Session, char * URLParams
 
 	if (endptr == NULL)
 	{
-		*WebMail->RLen = sprintf(WebMail->Reply, "<html><script>alert(\"Template Corrupt.\");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
+		*WebMail->RLen = sprintf(WebMail->Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Template Corrupt.\");window.location.href = '/Webmail/WebMail?%s';</script></html>", Session->Key);
 		return;
 	}
 
@@ -6310,7 +6310,7 @@ VOID DownloadAttachments(struct HTTPConnectionInfo * Session, char * Reply, int 
 		// User has gone back, then selected "No file Selected"
 		// Or no files
 
-		*RLen = sprintf(Reply, "<html><script>window.history.back();</script></html>");
+		*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>window.history.back();</script></html>");
 		return;
 	}
 
@@ -6334,7 +6334,7 @@ VOID getAttachmentList(struct HTTPConnectionInfo * Session, char * Reply, int * 
 {
 	char popuphddr[] = 
 			
-		"<html><body align=center background='/background.jpg'>"
+		"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body align=center>"
 		"<script>"
 		"function myFunction() {var x = document.getElementById('Sel').value;"
 		"var Key = \"%s\";"
@@ -6343,7 +6343,7 @@ VOID getAttachmentList(struct HTTPConnectionInfo * Session, char * Reply, int * 
 		"}"
 		"</script>"
 		"<div align=center>Note files over 100K long can't be downloaded<br><br>"
-		"<table border=1 cellpadding=2 bgcolor=white>"
+		"<table border=1 cellpadding=2 >"
 		"<tr><td><select size=%d id='Sel' size=10 onclick=myFunction()>";
 
 	char popup[10000];

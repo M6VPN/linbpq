@@ -367,6 +367,10 @@ int processRHCPOpen(struct ConnectionInfo * sockptr, SOCKET Socket, char * Msg, 
 	// ID seems to be used for control commands like open. SeqNo for data within a session (i Think!
 
 	ID = GetJSONInt(Msg, "\"id\":");
+
+	if (sockptr == NULL || sockptr->WebSecure == 0)
+		return sprintf(ReplyBuffer, "{\"type\": \"openReply\", \"id\": %d, \"handle\": %d, \"errCode\": 12, \"errText\": \"Not authorized\"}", ID, 0);
+
 	GetJSONValue(Msg, "\"pfam\":", pfam, 15);
 	GetJSONValue(Msg, "\"mode\":", Mode, 15);
 	Port = GetJSONInt(Msg, "\"port\":");

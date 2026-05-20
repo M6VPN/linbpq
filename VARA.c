@@ -1037,7 +1037,7 @@ char WebProcTemplate[] = "<html><meta http-equiv=expires content=0><meta http-eq
 		"req.open('POST', 'PortAction?%d', true);\r\n"
 		"req.send(data);alert(data + ' Sent');}\r\n"
 		"</script>"
-		"</head><title>%s</title></head><body id=Text onload=\"ScrollOutput()\">"
+		"<head><title>%s</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text onload=\"ScrollOutput()\">"
 		"<span class='dropdown'>"
 		"<button class='dropbtn'>Actions</button><span style=\"margin-left:120px;font-size:16px\"><b>%s</b></span>"
 		"<div class='dropdown-content'>"
@@ -1064,7 +1064,7 @@ char WebProcTemplate[] = "<html><meta http-equiv=expires content=0>"
 		"function Refresh( )\n"
 		"{location.reload()}\n"
 		"</script>\r\n"
-		"</head><title>%s</title></head><body id=Text onload=\"ScrollOutput()\">\r\n"
+		"<head><title>%s</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body id=Text onload=\"ScrollOutput()\">\r\n"
 		"<h2 style=\"margin-bottom: 0.2em; text-align:center\">%s</h2>";
 
 char Menubit[] = "<span class='dropdown' style=\"position: absolute; left: 10;top: 12;\">"

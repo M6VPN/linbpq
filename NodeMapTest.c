@@ -1637,7 +1637,7 @@ void UpdateHeardData(struct NodeData * HeardBy, struct NodeData * Heard, char * 
 static char *month[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 char reportHeader[] = 
-		"<html><body><h1>Chat Configuration Report</h1>"
+		"<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body><h1>Chat Configuration Report</h1>"
 		"This lists the status of all known Chat nodes. This includes all nodes sending"
 		" reports and all nodes which a reporting node is configured to link to. "
 		"The latter may not exist if there is a configuration error. Stations that have no configured"

@@ -56,6 +56,7 @@ static void remove_expired_tokens();
 static int  request_token(char * response);
 static void add_token_to_list(MailToken* token);
 static MailToken * find_token(const char* token); 
+static int get_random_bytes(unsigned char * Buffer, int Len);
 
 int sendMsgList(struct HTTPConnectionInfo * Session, char * response, char * Rest, int Auth);
 int sendFwdQueueLen(struct HTTPConnectionInfo * Session, char * response, char * Rest, int Auth);
@@ -117,20 +118,56 @@ void APIConvertTitletoUTF8(char * Title, char * UTF8Title, int Len)
 static MailToken * generate_token() 
 {
 	// Generate a random authentication token
+	static char Hex[] = "0123456789ABCDEF";
+	unsigned char Bytes[TOKEN_SIZE / 2];
 	int i;
 
 	MailToken * token = malloc(sizeof(MailToken));
 
-	srand(time(NULL));
-
-	for (i = 0; i < TOKEN_SIZE; i++)
+	if (get_random_bytes(Bytes, sizeof(Bytes)) == 0)
 	{
-		token->token[i] = 'A' + rand() % 26; // Random uppercase alphabet character
+		free(token);
+		return NULL;
+	}
+
+	for (i = 0; i < (TOKEN_SIZE / 2); i++)
+	{
+		token->token[i * 2] = Hex[Bytes[i] >> 4];
+		token->token[(i * 2) + 1] = Hex[Bytes[i] & 15];
 	}
 	token->token[TOKEN_SIZE] = '\0'; // Null-terminate the token
 	token->expiration_time = time(NULL) + TOKEN_EXPIRATION; // Set token expiration time
 	add_token_to_list(token);
 	return token;
+}
+
+static int get_random_bytes(unsigned char * Buffer, int Len)
+{
+#ifdef WIN32
+	unsigned int Value;
+	int n;
+
+	for (n = 0; n < Len; n += sizeof(Value))
+	{
+		if (rand_s(&Value))
+			return 0;
+
+		memcpy(&Buffer[n], &Value, (Len - n) > (int)sizeof(Value) ? (int)sizeof(Value) : Len - n);
+	}
+
+	return 1;
+#else
+	FILE * hFile = fopen("/dev/urandom", "rb");
+	int ReadLen;
+
+	if (hFile == 0)
+		return 0;
+
+	ReadLen = (int)fread(Buffer, 1, Len, hFile);
+	fclose(hFile);
+
+	return ReadLen == Len;
+#endif
 }
 
 // Function to add the token to the token_list
@@ -385,12 +422,15 @@ int WebMailAPIProcessHTTPMessage(char * response, char * Method, char * URL, cha
 				return send_http_response(response, "403 (Login Failed)");		
 			
 			n=sprintf_s(Msg, sizeof(Msg), "API Connect from %s", _strupr(Params));
-			WriteLogLine(NULL, '|',Msg, n, LOG_BBS);
+				WriteLogLine(NULL, '|',Msg, n, LOG_BBS);
 
-			Token = generate_token();
-			add_token_to_list(Token);
+				Token = generate_token();
+				if (Token == NULL)
+					return send_http_response(response, "500 Token Generation Failed");
 
-			Token->User = User;
+				add_token_to_list(Token);
+
+				Token->User = User;
 
 			strcpy(Token->Call, Params);
 

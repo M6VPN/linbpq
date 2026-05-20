@@ -122,19 +122,19 @@ static char CHKD[] = "checked=checked ";
 static char sel[] = "selected";
 
 
-char ChatSignon[] = "<html><head><title>BPQ32 Chat Server Access</title></head><body background=\"/background.jpg\">"
+char ChatSignon[] = "<html><head><title>BPQ32 Chat Server Access</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 	"<h3 align=center>BPQ32 Chat Server %s Access</h3>"
 	"<h3 align=center>Please enter Callsign and Password to access the Chat Server</h3>"
 	"<form method=post action=/Chat/Signon?Chat>"
-	"<table align=center  bgcolor=white>"
+	"<table align=center  >"
 	"<tr><td>User</td><td><input type=text name=user tabindex=1 size=20 maxlength=50 /></td></tr>" 
 	"<tr><td>Password</td><td><input type=password name=password tabindex=2 size=20 maxlength=50 /></td></tr></table>"  
 	"<p align=center><input type=submit value=Submit /><input type=submit value=Cancel name=Cancel /></form>";
 
 
-char ChatPage[] = "<html><head><title>%s's Chat Server</title></head>"
-	"<body background=\"/background.jpg\"><h3 align=center>BPQ32 Chat Node %s</h3><P>"
-	"<P align=center><table border=1 cellpadding=2 bgcolor=white><tr>"
+char ChatPage[] = "<html><head><title>%s's Chat Server</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+	"<body><h3 align=center>BPQ32 Chat Node %s</h3><P>"
+	"<P align=center><table border=1 cellpadding=2 ><tr>"
 	"<td><a href=/Chat/ChatStatus?%s>Status</a></td>"
 	"<td><a href=/Chat/ChatConf?%s>Configuration</a></td>"
 	"<td><a href=/>Node Menu</a></td>"
@@ -142,7 +142,7 @@ char ChatPage[] = "<html><head><title>%s's Chat Server</title></head>"
 
 
 
-static char LostSession[] = "<html><body>"
+static char LostSession[] = "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 "<form style=\"font-family: monospace; text-align: center;\" method=post action=/Chat/Lost?%s>"
 "Sorry, Session had been lost<br><br>&nbsp;&nbsp;&nbsp;&nbsp;"
 "<input name=Submit value=Restart type=submit> <input type=submit value=Exit name=Cancel><br></form>";

@@ -7238,9 +7238,9 @@ VOID APRSSendMessageFile(struct APRSConnectionInfo * sockptr, char * FN)
 
 char WebHeader[] = "<HTML><HEAD><meta http-equiv=\"expires\" content=\"-1\">"
 	"<meta http-equiv=\"pragma\" content=\"no-cache\">"
-	"<TITLE>APRS Messaging</TITLE></HEAD>"
-	"<BODY alink=\"#008000\" bgcolor=\"#F5F5DC\" link=\"#0000FF\" vlink=\"#000080\"  background=/background.jpg>"
-	"<table  align=center border=2 cellpadding=2 cellspacing=2 bgcolor=white><tr>"
+	"<TITLE>APRS Messaging</TITLE><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></HEAD>"
+	"<BODY>"
+	"<table  align=center border=2 cellpadding=2 cellspacing=2 ><tr>"
 	"<td align=center><a href=/aprs.html>APRS Map</a></td>"
 	"<td align=center><a href=/aprs/msgs>Received Messages</a></td>"
 	"<td align=center><a href=/aprs/txmsgs>Sent Messages</a></td>"
@@ -7253,9 +7253,9 @@ char WebHeader[] = "<HTML><HEAD><meta http-equiv=\"expires\" content=\"-1\">"
 
 char WebTXHeader[] = "<HTML><HEAD><meta http-equiv=\"expires\" content=\"-1\">"
 	"<meta http-equiv=\"pragma\" content=\"no-cache\">"
-	"<TITLE>APRS Messaging</TITLE></HEAD>"
-	"<BODY alink=\"#008000\" bgcolor=\"#F5F5DC\" link=\"#0000FF\" vlink=\"#000080\"  background=/background.jpg>"
-	"<table align=center border=2 cellpadding=2 cellspacing=2 bgcolor=white><tr>"
+	"<TITLE>APRS Messaging</TITLE><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></HEAD>"
+	"<BODY>"
+	"<table align=center border=2 cellpadding=2 cellspacing=2 ><tr>"
 	"<td align=center><a href=/aprs.html>APRS Map</a></td>"
 	"<td align=center><a href=/aprs/msgs>Received Messages</a></td>"
 	"<td align=center><a href=/aprs/txmsgs>Sent Messages</a></td>"
@@ -7275,18 +7275,18 @@ char WebTXLine[] = "<tr bgcolor=\"#ffcccc\">"
 
 char WebTrailer[] = "</table></BODY></HTML>";
 
-char SendMsgPage[] = "<html><head><title>BPQ32 APRS Messaging</title></head><body background=\"/background.jpg\">"
+char SendMsgPage[] = "<html><head><title>BPQ32 APRS Messaging</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><body>"
 	"<center><h2>APRS Message Input</h1>"
 	"<form method=post action=/APRS/Msgs/SendMsg>"
-	"<table align=center  bgcolor=white>"
+	"<table align=center  >"
 	"<tr><td>To</td><td><input type=text name=call tabindex=1 size=10 maxlength=12 value=\"%s\"/></td></tr>" 
 	"<tr><td>Message</td><td><input type=text name=message tabindex=2 size=80 maxlength=100 /></td></tr></table>"  
 	"<p align=center><input type=submit value=Submit /><input type=submit value=Cancel name=Cancel /></form>";
 
-char APRSIndexPage[] = "<html><head><title>BPQ32 Web Server APRS Pages</title></head>"
-	"<body background=/background.jpg><P align=center>"
+char APRSIndexPage[] = "<html><head><title>BPQ32 Web Server APRS Pages</title><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head>"
+	"<body ><P align=center>"
 	"<h2 align=center>BPQ32 APRS Server</h2><P align=center>"
-	"<table border=2 cellpadding=2 cellspacing=2 bgcolor=white><tr>"
+	"<table border=2 cellpadding=2 cellspacing=2 ><tr>"
 	"<td align=center><a href=/aprs.html>APRS Map</a></td>"
 	"<td align=center><a href=/aprs/msgs>Received Messages</a></td>"
 	"<td align=center><a href=/aprs/txmsgs>Sent Messages</a></td>"
@@ -7316,8 +7316,18 @@ VOID APRSProcessHTTPMessage(SOCKET sock, char * MsgPtr,	BOOL LOCAL, BOOL COOKIE)
 
 	if (memcmp(MsgPtr, "POST" , 3) == 0)
 	{
-		char * To;
+		char * To = NULL;
 		char * Msg = "";
+
+		if (LOCAL == FALSE && COOKIE == FALSE)
+		{
+			OutputLen = sprintf(OutBuffer, APRSIndexPage, "<br><B>Not authorized - please return to Node Menu and sign in</B>");
+			HeaderLen = sprintf(Header, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n", (int)(OutputLen + strlen(Tail)));
+			send(sock, Header, HeaderLen, 0);
+			send(sock, OutBuffer, OutputLen, 0);
+			send(sock, Tail, (int)strlen(Tail), 0);
+			return;
+		}
 
 		URL = &MsgPtr[5];
 
@@ -7358,11 +7368,12 @@ VOID APRSProcessHTTPMessage(SOCKET sock, char * MsgPtr,	BOOL LOCAL, BOOL COOKIE)
 				param = strtok_s(NULL,"&", &context);
 			}
 
-			strlop(To, ' ');
+			if (To)
+				strlop(To, ' ');
 
-			if (strlen(To) < 2)
+			if (To == NULL || strlen(To) < 2)
 			{
-				OutputLen = sprintf(OutBuffer, SendMsgPage, To);
+				OutputLen = sprintf(OutBuffer, SendMsgPage, To ? To : "");
 				OutputLen += sprintf(&OutBuffer[OutputLen], "<br><br><h2 align=center>Invalid Callsign</h2>");
 				HeaderLen = sprintf(Header, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html\r\n\r\n", OutputLen);
 				send(sockptr->sock, Header, HeaderLen, 0); 
