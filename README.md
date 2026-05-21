@@ -1,31 +1,93 @@
-# LinBPQ Security Fix Notes
+# LinBPQ Hardening Fork
 
-This copy includes minimal security fixes for confirmed high-impact issues found in the HTTP, API, APRS, and websocket handling paths.
+This repository is a working fork/copy of LinBPQ used for security hardening, Linux build verification, and small maintainability fixes. The tree tracks confirmed security fixes, known open problems, and command-level verification notes as the audit progresses.
 
-## Fixed Issues
+The upstream LinBPQ project by John Wiseman (G8BPQ) remains the original source and base for this work. Review diffs, configuration, and local runtime requirements before deploying changes from this fork.
 
-| Severity | Area | Fix |
-| -------- | ---- | --- |
-| Critical | HTTP session cookies | `BPQSessionCookie=N...` is only trusted when it resolves to a live session. |
-| Critical | APRS message POST | Direct APRS message POST now requires local access or a valid session. Missing callsign input is rejected safely. |
-| High     | RHP websocket | RHP stream open requests now require an authenticated secure websocket session. |
-| High     | Rig/RHP websocket auth | Websocket control paths no longer treat cookie presence alone as authentication. |
-| High     | Session and API tokens | Session keys and API tokens now use OS random bytes instead of time-derived values or `rand()`. |
-| High     | Beacon form input | Beacon form writes use bounded copies for destination, file, and text fields, and reject invalid ports. |
+Modernisation work is also a focus of this fork.
 
-## Patch Command
+73 de M6VPN
 
-Generate a patch file for the security fixes with:
+## Contents
+
+- [Project status](#project-status)
+- [What this fork changes](#what-this-fork-changes)
+- [Security tracking](#security-tracking)
+- [Build and runtime verification](#build-and-runtime-verification)
+- [Applying changes to another LinBPQ tree](#applying-changes-to-another-linbpq-tree)
+- [Notes for operators](#notes-for-operators)
+- [Disclaimer](#disclaimer)
+
+## Project status
+
+This is an active hardening and audit tree. Fixes are applied incrementally, with each pass focused on confirmed issues and narrow verification.
+
+The current audit state is tracked in [security.md](security.md). Dated changes and verification notes are tracked in [changelog.md](changelog.md).
+
+## What this fork changes
+
+This fork currently focuses on:
+
+- HTTP, session, and API authentication fixes
+- Websocket and RHP hardening
+- Telnet and APRS logging and buffer fixes
+- Node API bounds checks
+- BBS and mail attachment filename checks
+- Linux build and runtime smoke-test improvements
+- A modern design for the web interface, originally for M6VPN-7/1
+
+See [security.md](security.md) and [changelog.md](changelog.md) for the detailed fix history and open items.
+
+## Security tracking
+
+[security.md](security.md) is the source of truth for fixed security issues, known open problems, and verification status.
+
+[changelog.md](changelog.md) records dated changes, recent commits, and command results from audit and verification passes.
+
+## Build and runtime verification
+
+Basic Linux build and help checks:
 
 ```bash
-cd /home/dgm/Sync/Code/M6VPN/M6VPN-7/3rd/linbpq && git diff -- HTTPcode.c TelnetV6.c APRSCode.c RHP.c nodeapi.c mailapi.c README.md > linbpq-security-fixes.patch
+make all
+./linbpq -h
 ```
 
-## Verification Notes
+Local smoke test using the telnet-only example config:
 
-- `make all` compiles and links `linbpq` on Linux without running `sudo`.
-- `./linbpq -h` exits cleanly and prints usage.
-- `ldd ./linbpq` resolves the required shared libraries.
-- `getcap ./linbpq` reports no capabilities after the latest `make all` relink.
-- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` starts with `bpq32.cfg.example`, initializes Telnet, Chat, and Mail, stays running until timeout, and closes ports.
-- `sudo -n setcap "CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep" ./linbpq` is blocked in this shell by password prompting.
+```bash
+rm -rf /tmp/linbpq-runtime-test
+mkdir -p /tmp/linbpq-runtime-test/config /tmp/linbpq-runtime-test/data /tmp/linbpq-runtime-test/log
+cp bpq32.cfg.example /tmp/linbpq-runtime-test/config/bpq32.cfg
+timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log
+pgrep -af linbpq
+```
+
+This is a runtime smoke test, not full regression testing. `make all` relinks `linbpq` and may leave Linux file capabilities unset.
+
+## Applying changes to another LinBPQ tree
+
+Review [changelog.md](changelog.md) first to identify the relevant fixes and verification context. Then inspect or export the corresponding changes with normal Git tooling, such as:
+
+```bash
+git diff
+git format-patch
+```
+
+Apply changes to another LinBPQ tree only after reviewing local configuration, platform differences, and any open problems listed in [security.md](security.md).
+
+## Notes for operators
+
+Review configuration before exposing HTTP, Telnet, API, WebSocket, Mail, or BBS services. Change example credentials before use.
+
+If Linux capabilities are needed after a relink, reapply them manually:
+
+```bash
+sudo setcap "CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep" ./linbpq
+```
+
+This command is operator-run and is not required for a normal compile.
+
+## Disclaimer
+
+This fork is provided for hardening, testing, and review. It is not a claim that LinBPQ is fully audited or production-secure. Operators are responsible for testing, configuration review, and deployment risk in their own environment.
