@@ -2,7 +2,7 @@
 
 ## 2026-05-21
 
-Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, and `4b31822`, plus the current Telnet outward-connect fix in this working tree.
+Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, `4b31822`, `62b037b`, and `92f6e91`, plus the current node API port bounds fix in this working tree.
 
 ### Security
 
@@ -12,6 +12,7 @@ Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, and `4b3
 - Fixed APRS debug logging so APRS-IS, RF, NMEA, AIS, and weather text is logged with a literal format string.
 - Fixed Telnet outward-connect command parsing and signon assembly so oversized tokens are rejected before they can overflow fixed buffers.
 - Fixed Telnet, relay, and CMS login logging so oversized remote username, password, and signon text is bounded before writing to stack log buffers.
+- Fixed public node API port endpoints so invalid port numbers are rejected before indexing fixed port tables.
 
 ### Linux Build and Runtime
 
@@ -29,9 +30,11 @@ Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, and `4b3
 - `make -B mailapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
 - `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with remaining existing unrelated warnings; the outward-connect signon warnings are cleared.
 - `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security'` completed with remaining existing unrelated warnings; the fixed login logging sites no longer emit format overflow warnings.
-- `make all` completed and linked `linbpq`.
-- `./linbpq -h` exited cleanly and printed usage.
-- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports.
+- `make -B nodeapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed after the node API port bounds fix.
+- `make -B nodeapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security'` completed with remaining existing unrelated warnings; the fixed port parser no longer emits the assignment-as-condition warning.
+- `make all` completed and linked `linbpq` after the node API port bounds fix.
+- `./linbpq -h` exited cleanly and printed usage after the node API port bounds fix.
+- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports after the node API port bounds fix.
 - `pgrep -af linbpq` found no running `linbpq` process after the timeout test.
 
 ## 2026-05-20

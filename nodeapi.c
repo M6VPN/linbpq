@@ -850,8 +850,11 @@ int sendPortMHList(char * response, char * token, char * param, int Local)
 	int n;
 	int port = 0;
 
-	if (param[0] = '?' || param[0] == '/')
+	if (param[0] == '?' || param[0] == '/')
 		port = atoi(&param[1]);
+
+	if (port < 1 || port > MaxBPQPortNo)
+		return send_http_response(response, "401 Invalid API Call");
 
 	PORTVEC = GetPortTableEntryFromPortNum(port);
 	response[0] = 0;
@@ -894,8 +897,11 @@ int sendPortQState(char * response, char * token, char * param, int Local)
 	int radioport = 0;
 
 
-	if (param[0] = '?' || param[0] == '/')
+	if (param[0] == '?' || param[0] == '/')
 		port = atoi(&param[1]);
+
+	if (port < 1 || port > MaxBPQPortNo)
+		return send_http_response(response, "401 Invalid API Call");
 
 	TNC = TNCInfo[port];
 
