@@ -31,7 +31,7 @@ struct MSESSION * MSessions = NULL;
 
 #ifndef LINBPQ
 
-#include "AFXRES.h"
+#include "AFXRES.H"
 
 HWND hMCMonitor = NULL;
 HWND MCList;

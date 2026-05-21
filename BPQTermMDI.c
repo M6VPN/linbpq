@@ -66,7 +66,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "compatbits.h"
-#include "AsmStrucs.h"
+#include "asmstrucs.h"
 #include <htmlhelp.h>
 #include <Richedit.h> 
 #include <commctrl.h>

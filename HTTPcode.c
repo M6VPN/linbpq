@@ -1265,7 +1265,7 @@ int SendMessageFile(SOCKET sock, char * FN, BOOL OnlyifExists, int allowDeflate)
 
 #ifdef WIN32
 	}
-#include "StdExcept.c"
+#include "stdexcept.c"
 	Debugprintf("Sending FIle %s", FN);
 }
 #endif
@@ -4268,7 +4268,7 @@ SendResp:
 
 #ifdef WIN32xx
 	}
-#include "StdExcept.c"
+#include "stdexcept.c"
 }
 return 0;
 #endif

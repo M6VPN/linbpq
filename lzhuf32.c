@@ -1785,7 +1785,7 @@ File: 5566 NEWBOAT.HOMEPORT.JPG
 #ifndef LINBPQ
 		}
 			#define EXCEPTMSG "Error Decoding B2 Message"
-			#include "StdExcept.c"
+			#include "stdexcept.c"
 
 		BBSputs(conn, "*** Program Error Decoding B2 Message\r");
 		Flush(conn);

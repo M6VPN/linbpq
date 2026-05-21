@@ -33,7 +33,7 @@ along with LinBPQ/BPQ32.  If not, see http://www.gnu.org/licenses
 
 #include "compatbits.h"
 
-#include "BPQAPRS.h"
+#include "bpqaprs.h"
 
 #include <stdio.h>
 #include <stdlib.h>

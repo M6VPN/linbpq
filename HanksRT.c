@@ -688,7 +688,7 @@ VOID ProcessChatLine(ChatCIRCUIT * conn, struct UserInfo * user, char* OrigBuffe
 		}
 
 		#define EXCEPTMSG "Process Chat Line"
-		#include "StdExcept.c"
+		#include "stdexcept.c"
 
 		Debugprintf("CHAT *** Was procesing Chat Node Message %s", Buffer);
 		Disconnect(conn->BPQStream);
@@ -2154,7 +2154,7 @@ static void node_xmit(CHATNODE *node, char kind, ChatCIRCUIT *circuit)
 	}
 
 	#define EXCEPTMSG "node_xmit"
-	#include "StdExcept.c"
+	#include "stdexcept.c"
 
 	Debugprintf("Corrupt Rec %x %x %x", node, node->call, node->alias);
 	}

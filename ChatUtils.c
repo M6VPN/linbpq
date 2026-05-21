@@ -6,7 +6,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE 
 
-#include "BPQChat.h"
+#include "bpqchat.h"
 #include <new.h>
 
 #define MaxSockets 64
@@ -229,7 +229,7 @@ int Disconnected (int Stream)
 						logout(conn);
 					}
 					#define EXCEPTMSG "logout"
-					#include "StdExcept.c"
+					#include "stdexcept.c"
 					}
 				}
 
@@ -433,7 +433,7 @@ VOID ProcessLine(ChatCIRCUIT * conn, struct UserInfo * user, char* Buffer, int l
 			ProcessChatLine(conn, user, Buffer, len);
 		}
 			#define EXCEPTMSG "ProcessChatLine"
-			#include "StdExcept.c"
+			#include "stdexcept.c"
 
 			FreeSemaphore(&ChatSemaphore);
 	

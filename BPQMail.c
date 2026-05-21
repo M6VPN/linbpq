@@ -1697,7 +1697,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			}
 		}
 		#define EXCEPTMSG "GetMessageLoop"
-		#include "StdExcept.c"
+		#include "stdexcept.c"
 
 		CheckProgramErrors();
 		}

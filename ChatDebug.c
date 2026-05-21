@@ -2,7 +2,7 @@
 //
 //	Debug Window(s) Module
 
-#include "BPQChat.h"
+#include "bpqchat.h"
 
 static char ClassName[]="BPQDEBUGWINDOW";
 

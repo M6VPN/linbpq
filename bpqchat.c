@@ -77,7 +77,7 @@
 //	Fix sending BEL (CTRL/G) (81)
 
 
-#include "BPQChat.h"
+#include "bpqchat.h"
 #include "Dbghelp.h"
 
 #define CHAT
@@ -513,7 +513,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			}
 		}
 		#define EXCEPTMSG "GetMessageLoop"
-		#include "StdExcept.c"
+		#include "stdexcept.c"
 
 		CheckProgramErrors();
 		}

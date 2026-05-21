@@ -213,6 +213,9 @@ if (token[0] == 0)
 		{
 			rest = &request[4 + APIEntry->URLLen];	// Anything following?
 
+			if (APIEntry->Auth && LOCAL == 0)
+				return send_http_response(response, "401 Not Authorised");
+
 			if (rest[0] == ' ' || rest[0] == '/' || rest[0] == '?')
 				return APIEntry->APIRoutine(response, token, rest, LOCAL);
 		}

@@ -37,7 +37,7 @@ along with LinBPQ/BPQ32.  If not, see http://www.gnu.org/licenses
 
 #define MaxStreams 10			// First is used for Pactor, even though Pactor uses channel 31
 
-#include "CHeaders.h"
+#include "cheaders.h"
 #include "tncinfo.h"
 
 #include "bpq32.h"

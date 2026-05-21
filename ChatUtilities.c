@@ -4,7 +4,7 @@
 
 
 
-#include "BPQChat.h"
+#include "bpqchat.h"
 
 #include "Winspool.h"
 

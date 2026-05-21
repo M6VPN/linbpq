@@ -1334,14 +1334,14 @@ along with LinBPQ/BPQ32.  If not, see http://www.gnu.org/licenses
 #include <fcntl.h>		
 
 #include "compatbits.h"
-#include "AsmStrucs.h"
+#include "asmstrucs.h"
 
 #include "SHELLAPI.H"
 #include "kernelresource.h"
 
 #include <tlhelp32.h>
 #include <Iphlpapi.h>
-#include "BPQTermMDI.h"
+#include "BpqTermMDI.h"
 
 #include "GetVersion.h"
 
@@ -2343,7 +2343,7 @@ VOID TimerProcX()
 	}
 
 	}
-	#include "StdExcept.c"
+	#include "stdexcept.c"
 
 	if (Semaphore.Flag && Semaphore.SemProcessID == GetCurrentProcessId())
 		FreeSemaphore(&Semaphore);
@@ -2410,7 +2410,7 @@ VOID TimerProcX()
 		}
 	}
 	
-	#include "StdExcept.c"
+	#include "stdexcept.c"
 
 	if (Semaphore.Flag && Semaphore.SemProcessID == GetCurrentProcessId())
 		FreeSemaphore(&Semaphore);
@@ -6512,7 +6512,7 @@ int DoStatus()
 	}
 	}
 
-	#include "StdExcept.c"
+	#include "stdexcept.c"
 
 	if (Semaphore.Flag && Semaphore.SemProcessID == GetCurrentProcessId())
 		FreeSemaphore(&Semaphore);

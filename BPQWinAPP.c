@@ -137,7 +137,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 	
 	#define EXCEPTMSG "BPQ32.exe Main Loop"
-	#include "StdExcept.c"
+	#include "stdexcept.c"
 	}
 
 	Debugprintf("BPQ32.exe exiting %d", msg.message);

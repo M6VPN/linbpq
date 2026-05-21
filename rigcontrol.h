@@ -2,7 +2,7 @@
 #define RIGCONTROL
 
 #ifndef LINBPQ
-#include "Rigresource.h"
+#include "rigresource.h"
 #endif
 
 #define IDI_ICON2 2

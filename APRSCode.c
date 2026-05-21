@@ -1260,7 +1260,7 @@ Dll VOID APIENTRY Poll_APRS()
 
 		Station = ProcessRFFrame(MsgCopy, len, &ourMessage);
 		}
-		#include "StdExcept.c"
+		#include "stdexcept.c"
 
 		}
 #else
@@ -3254,7 +3254,7 @@ VOID ProcessAPRSISMsg(char * APRSMsg)
 	Station = DecodeAPRSISMsg(ISCopy);
 
 	}
-	#include "StdExcept.c"
+	#include "stdexcept.c"
 	Debugprintf(APRSMsg);
 	}
 #else
