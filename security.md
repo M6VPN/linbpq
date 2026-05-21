@@ -21,6 +21,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: TriMode telnet debug logging no longer uses network/session text as a `printf` format string.
 - [x] High: APRS debug logging no longer uses APRS-IS, RF, NMEA, AIS, or weather text as a `printf` format string.
 - [x] High: Telnet outward-connect command parsing and signon assembly reject oversized tokens instead of overflowing fixed buffers.
+- [x] High: Telnet, relay, and CMS login logging use bounded formatting for remote username, password, and signon text.
 
 ## Known Problems
 
@@ -49,3 +50,9 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with remaining existing unrelated warnings; the outward-connect signon warnings are cleared. |
 | `make -B APRSCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with existing unrelated warnings. |
 | `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` using `bpq32.cfg.example` | Started Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
+| `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` after the Telnet logging fix | Completed with remaining existing unrelated warnings. |
+| `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security'` after the Telnet logging fix | Completed with remaining existing unrelated warnings; the fixed login logging sites no longer emit format overflow warnings. |
+| `make all` after the Telnet logging fix | Completed and relinked `linbpq`; file capabilities may be unset after relink. |
+| `./linbpq -h` after the Telnet logging fix | Exited cleanly and printed usage. |
+| `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the Telnet logging fix | Started with the temporary runtime config, stayed running until timeout, and closed ports. |
+| `pgrep -af linbpq` after the Telnet logging fix | No running `linbpq` process remained after the timeout test. |

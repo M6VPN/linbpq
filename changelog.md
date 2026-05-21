@@ -11,6 +11,7 @@ Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, and `4b3
 - Fixed TriMode telnet debug logging so network/session text is logged with a literal format string.
 - Fixed APRS debug logging so APRS-IS, RF, NMEA, AIS, and weather text is logged with a literal format string.
 - Fixed Telnet outward-connect command parsing and signon assembly so oversized tokens are rejected before they can overflow fixed buffers.
+- Fixed Telnet, relay, and CMS login logging so oversized remote username, password, and signon text is bounded before writing to stack log buffers.
 
 ### Linux Build and Runtime
 
@@ -27,9 +28,11 @@ Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, and `4b3
 - `make -B APRSCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
 - `make -B mailapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
 - `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with remaining existing unrelated warnings; the outward-connect signon warnings are cleared.
+- `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security'` completed with remaining existing unrelated warnings; the fixed login logging sites no longer emit format overflow warnings.
 - `make all` completed and linked `linbpq`.
 - `./linbpq -h` exited cleanly and printed usage.
 - `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports.
+- `pgrep -af linbpq` found no running `linbpq` process after the timeout test.
 
 ## 2026-05-20
 

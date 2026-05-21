@@ -4029,7 +4029,7 @@ MsgLoop:
 				Debugprintf("Telnet Bad User Name %s", MsgPtr);
 			}
 
-			sprintf(logmsg,"%d %s User=%s\n", sockptr->Number, Addr, MsgPtr);
+			snprintf(logmsg, sizeof(logmsg), "%d %s User=%.*s\n", sockptr->Number, Addr, 700, MsgPtr);
 			WriteLog (logmsg);
 		}
 
@@ -4106,7 +4106,7 @@ MsgLoop:
 			}
 
 
-			sprintf(logmsg,"%d %s Password=%s\n", sockptr->Number, Addr, MsgPtr);
+			snprintf(logmsg, sizeof(logmsg), "%d %s Password=%.*s\n", sockptr->Number, Addr, 700, MsgPtr);
 			WriteLog (logmsg);
 		}
 
@@ -4300,10 +4300,10 @@ int DataSocket_ReadRelay(struct TNCINFO * TNC, struct ConnectionInfo * sockptr, 
 		{
 			unsigned char work[4];
 			memcpy(work, &sockptr->sin.sin_addr.s_addr, 4);
-			sprintf(logmsg,"%d %d.%d.%d.%d User=%s\n",
+			snprintf(logmsg, sizeof(logmsg), "%d %d.%d.%d.%d User=%.*s\n",
 					sockptr->Number,
 					work[0], work[1], work[2], work[3],
-					MsgPtr);
+					200, MsgPtr);
 
 			WriteLog (logmsg);
 		}
@@ -4341,10 +4341,10 @@ int DataSocket_ReadRelay(struct TNCINFO * TNC, struct ConnectionInfo * sockptr, 
 		{
 			unsigned char work[4];
 			memcpy(work, &sockptr->sin.sin_addr.s_addr, 4);
-			sprintf(logmsg,"%d %d.%d.%d.%d Password=%s\n",
+			snprintf(logmsg, sizeof(logmsg), "%d %d.%d.%d.%d Password=%.*s\n",
 					sockptr->Number,
 					work[0], work[1], work[2], work[3],
-					MsgPtr);
+					200, MsgPtr);
 
 			WriteLog (logmsg);
 		}
@@ -4390,10 +4390,10 @@ int DataSocket_ReadRelay(struct TNCINFO * TNC, struct ConnectionInfo * sockptr, 
 				{
 					unsigned char work[4];
 					memcpy(work, &sockptr->sin.sin_addr.s_addr, 4);
-					sprintf(logmsg,"%d %d.%d.%d.%d Gateway Connect Call=%s Command=%s\n",
-					sockptr->Number,
-					work[0], work[1], work[2], work[3],
-					sockptr->Callsign,ConMsg);
+					snprintf(logmsg, sizeof(logmsg), "%d %d.%d.%d.%d Gateway Connect Call=%s Command=%s\n",
+						sockptr->Number,
+						work[0], work[1], work[2], work[3],
+						sockptr->Callsign,ConMsg);
 
 					WriteLog (logmsg);
 				}
@@ -4426,7 +4426,7 @@ int DataSocket_ReadRelay(struct TNCINFO * TNC, struct ConnectionInfo * sockptr, 
 		{
 			unsigned char work[4];
 			memcpy(work, &sockptr->sin.sin_addr.s_addr, 4);
-			sprintf(logmsg,"%d %d.%d.%d.%d Call Accepted Callsign =%s\n",
+			snprintf(logmsg, sizeof(logmsg), "%d %d.%d.%d.%d Call Accepted Callsign =%s\n",
 					sockptr->Number,
 					work[0], work[1], work[2], work[3],
 					sockptr->Callsign);
@@ -4711,7 +4711,7 @@ MsgLoop:
 		
 		strlop(MsgPtr, 13);
 
-		sprintf(logmsg,"%d %s\r\n", Stream, MsgPtr);
+		snprintf(logmsg, sizeof(logmsg), "%d %.*s\r\n", Stream, 900, MsgPtr);
 		WriteCMSLog (logmsg);
 
 		if (strstr(MsgPtr, "Callsign :")) 
@@ -4905,7 +4905,7 @@ MsgLoop:
 				Debugprintf("Telnet Bad User Name %s", MsgPtr);
 			}
 
-			sprintf(logmsg,"%d %s User=%s\n", sockptr->Number, Addr, MsgPtr);
+			snprintf(logmsg, sizeof(logmsg), "%d %s User=%.*s\n", sockptr->Number, Addr, 700, MsgPtr);
 			WriteLog (logmsg);
 		}
 		for (i = 0; i < TCP->NumberofUsers; i++)
@@ -4989,7 +4989,7 @@ MsgLoop:
 				Debugprintf("Telnet Bad Password %s", MsgPtr);
 			}
 
-			sprintf(logmsg,"%d %s Password=%s\n", sockptr->Number, Addr, MsgPtr);
+			snprintf(logmsg, sizeof(logmsg), "%d %s Password=%.*s\n", sockptr->Number, Addr, 700, MsgPtr);
 			WriteLog (logmsg);
 		}
 		if (strcmp(MsgPtr, sockptr->UserPointer->Password) == 0)
