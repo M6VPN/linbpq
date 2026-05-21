@@ -475,6 +475,12 @@ int processRHCPSend(SOCKET Socket, char * Msg, char * ReplyBuffer)
 
 	RHPSession = RHPSessions[Handle - 1];
 
+	if (RHPSession->BPQStream == 0 || RHPSession->Socket != Socket)
+	{
+		free(Data);
+		return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 3, \"errtext\": \"Invalid handle\"}", ID, Handle);
+	}
+
 	// Look for \ escapes, Can now also get \u00c3
 
 	ptr = Data;
@@ -580,6 +586,10 @@ int processRHCPClose(SOCKET Socket, char * Msg, char * ReplyBuffer)
 
 
 	RHPSession = RHPSessions[Handle - 1];
+
+	if (RHPSession->BPQStream == 0 || RHPSession->Socket != Socket)
+		return sprintf(ReplyBuffer, "{\"id\": %d, \"type\": \"closeReply\", \"handle\": %d, \"errcode\": 3, \"errtext\": \"Invalid handle\"}", ID, Handle);
+
 	Disconnect(RHPSession->BPQStream);
 	RHPSession->Connected = 0;
 	RHPSession->Connecting = 0;
@@ -603,6 +613,9 @@ int processRHCPStatus(SOCKET Socket, char * Msg, char * ReplyBuffer)
 		return sprintf(ReplyBuffer, "{\"type\": \"statusReply\", \"handle\": %d, \"errcode\": 3, \"errtext\": \"Invalid handle\"}", Handle);
 
 	RHPSession = RHPSessions[Handle - 1];
+
+	if (RHPSession->BPQStream == 0 || RHPSession->Socket != Socket)
+		return sprintf(ReplyBuffer, "{\"type\": \"statusReply\", \"handle\": %d, \"errcode\": 3, \"errtext\": \"Invalid handle\"}", Handle);
 
 	return sprintf(ReplyBuffer, "{\"type\": \"status\", \"handle\": %d, \"flags\": 2}", RHPSession->Handle);
 
