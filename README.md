@@ -6,6 +6,8 @@ The upstream LinBPQ project by John Wiseman (G8BPQ) remains the original source 
 
 Modernisation work is also a focus of this fork.
 
+After the initial audit of this code it was clear there were multiple issues preventing telnet/web access from being 'production-ready' that would take considerable time to rectify by hand; I've automated much of the process with carefully restricted LLM use. Although care has been taken to verify changes made, as always there's always the chance something was missed.
+
 73 de M6VPN
 
 ## Contents
