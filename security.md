@@ -17,12 +17,13 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] Build blocker: Local quoted include references now match the actual file casing, including `rigresource.h`.
 - [x] Linux build: `make all` compiles and links `linbpq` without invoking `sudo`.
 - [x] Linux runtime smoke test: `./linbpq -h` exits cleanly and prints usage.
+- [x] Linux daemon runtime smoke test: temporary loopback config starts, initializes port 1, stays running until timeout, and closes ports.
 
 ## Known Problems
 
 - [ ] `RHP.c` still emits an existing warning during `make -B RHP.o`.
 - [ ] Linux full build emits existing format and buffer-size warnings across several C files.
-- [ ] Runtime packet/network capabilities require running the `setcap` command shown by `make setcap` as root.
+- [ ] `sudo setcap` testing is blocked in this shell by password prompting; current `linbpq` binary already has the required capabilities.
 - [ ] Full regression testing has not been completed after the security fixes.
 
 ## Verification
@@ -38,3 +39,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make all` | Completed and linked `linbpq` without running `sudo`. |
 | `./linbpq -h` | Exited cleanly and printed usage. |
 | `ldd ./linbpq` | Required shared libraries resolved. |
+| `getcap ./linbpq` | Reports `cap_net_bind_service,cap_net_admin,cap_net_raw=ep`. |
+| `sudo -n setcap "CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep" ./linbpq` | Blocked by `sudo: a password is required`. |
+| `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` | Started with a temporary internal loopback config, initialized port 1, stayed running until timeout, and closed ports. |
+| `pgrep -af linbpq` | No running `linbpq` process remained after the timeout test. |
