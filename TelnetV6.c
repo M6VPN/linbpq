@@ -2638,9 +2638,20 @@ nosocks:
 					unsigned int Port = 0;
 					int n;
 
-					n = sscanf(&MsgPtr[2], "%s %s %s %s %s %s %s",
+					n = sscanf(&MsgPtr[2], "%99s %99s %99s %99s %99s %99s %99s",
 							&Host[0], &P2[0], &P3[0], &P4[0], &P5[0], &P6[0], &P7[0]);
-	
+
+					if (strlen(Host) >= sizeof(Host) - 1 || strlen(P2) >= sizeof(P2) - 1 ||
+						strlen(P3) >= sizeof(P3) - 1 || strlen(P4) >= sizeof(P4) - 1 ||
+						strlen(P5) >= sizeof(P5) - 1 || strlen(P6) >= sizeof(P6) - 1 ||
+						strlen(P7) >= sizeof(P7) - 1)
+					{
+						buffptr->Len = sprintf(&buffptr->Data[0], "Error - Telnet Connect token too long\r");
+						C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+						STREAM->NeedDisc = 10;
+						return;
+					}
+
 					sockptr->Signon[0] = 0;		// Not outgoing;
 					sockptr->Keepalive = FALSE;	// No Keepalives
 					sockptr->NoCallsign = FALSE;
@@ -2786,10 +2797,12 @@ nosocks:
 					if (Port)
 					{
 						int useFBBMode = TRUE;
+						int SignonLen = 0;
 
 						STREAM->Connecting = TRUE;
 						STREAM->ConnectionInfo->CMSSession = FALSE;
 						STREAM->ConnectionInfo->RelaySession = FALSE;
+						STREAM->ConnectionInfo->Signon[0] = 0;
 
 						if (_stricmp(P3, "TELNET") == 0)
 						{
@@ -2821,24 +2834,32 @@ nosocks:
 								// Send LF after each param
 
 								if (P6[0])
-									sprintf(STREAM->ConnectionInfo->Signon, "%s\r\n%s\r\n%s\r\n", P4, P5, P6);
+									SignonLen = snprintf(STREAM->ConnectionInfo->Signon, sizeof(STREAM->ConnectionInfo->Signon), "%s\r\n%s\r\n%s\r\n", P4, P5, P6);
 								else
 									if (P5[0])
-										sprintf(STREAM->ConnectionInfo->Signon, "%s\r\n%s\r\n", P4, P5);
+										SignonLen = snprintf(STREAM->ConnectionInfo->Signon, sizeof(STREAM->ConnectionInfo->Signon), "%s\r\n%s\r\n", P4, P5);
 									else
 										if (P4[0])
-											sprintf(STREAM->ConnectionInfo->Signon, "%s\r\n", P4);
+											SignonLen = snprintf(STREAM->ConnectionInfo->Signon, sizeof(STREAM->ConnectionInfo->Signon), "%s\r\n", P4);
 							}
 							else
 							{
 								if (P5[0])
-									sprintf(STREAM->ConnectionInfo->Signon, "%s\r%s\r%s\r", P3, P4, P5);
+									SignonLen = snprintf(STREAM->ConnectionInfo->Signon, sizeof(STREAM->ConnectionInfo->Signon), "%s\r%s\r%s\r", P3, P4, P5);
 								else
 									if (P4[0])
-										sprintf(STREAM->ConnectionInfo->Signon, "%s\r%s\r", P3, P4);
+										SignonLen = snprintf(STREAM->ConnectionInfo->Signon, sizeof(STREAM->ConnectionInfo->Signon), "%s\r%s\r", P3, P4);
 									else
 										if (P3[0])
-											sprintf(STREAM->ConnectionInfo->Signon, "%s\r", P3);
+											SignonLen = snprintf(STREAM->ConnectionInfo->Signon, sizeof(STREAM->ConnectionInfo->Signon), "%s\r", P3);
+							}
+
+							if (SignonLen < 0 || SignonLen >= sizeof(STREAM->ConnectionInfo->Signon))
+							{
+								buffptr->Len = sprintf(&buffptr->Data[0], "Error - Telnet Outward Connect signon too long\r");
+								C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+								STREAM->NeedDisc = 10;
+								return;
 							}
 						}
 
