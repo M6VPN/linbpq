@@ -6793,7 +6793,7 @@ VOID ProcessTrimodeCommand(struct TNCINFO * TNC, struct ConnectionInfo * sockptr
 	struct STREAMINFO * STREAM = &TNC->Streams[sockptr->Number];
 	int Port = 4;
 
-	Debugprintf(MsgPtr);
+	Debugprintf("%s", MsgPtr);
 	
 	if (strcmp(MsgPtr, "CLOSE") == 0)
 	{
@@ -6892,7 +6892,7 @@ VOID ProcessTrimodeResponse(struct TNCINFO * TNC, struct STREAMINFO * STREAM, un
 	}
 
 	strlop(MsgPtr, 13);
-	Debugprintf(MsgPtr);
+	Debugprintf("%s", MsgPtr);
 
 	if (memcmp(MsgPtr, "*** Connected to ", 17) == 0)
 	{
