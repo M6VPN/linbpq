@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-05-22
+
+Source: current WebMail attachment index fix in this working tree.
+
+### Security
+
+- Fixed WebMail attachment downloads so invalid requested attachment numbers are rejected before indexing fixed attachment arrays.
+
+### Verification
+
+- `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing unrelated warnings.
+- `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings.
+- `make all` completed and relinked `linbpq`.
+- `getcap ./linbpq` reported no file capabilities after relink.
+- `./linbpq -h` exited cleanly and printed usage.
+- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports.
+- `pgrep -af linbpq` found no running `linbpq` process after the timeout test.
+
 ## 2026-05-21
 
 Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, `4b31822`, `62b037b`, `92f6e91`, `207953b`, and `8bb38e5`, plus the current RHP receive bounds fix in this working tree.

@@ -6314,6 +6314,14 @@ VOID DownloadAttachments(struct HTTPConnectionInfo * Session, char * Reply, int 
 		return;
 	}
 
+	if (file < 0 || file >= WebMail->Files || file >= 100 ||
+		WebMail->FileLen[file] < 0 || WebMail->FileName[file] == NULL ||
+		WebMail->FileBody[file] == NULL)
+	{
+		*RLen = sprintf(Reply, "HTTP/1.1 404 Not Found\r\nContent-Length: 16\r\n\r\nPage not found\r\n");
+		return;
+	}
+
 	FormatTime2(FileTimeString, time(NULL));
 	FormatTime2(TimeString, time(NULL));
 
