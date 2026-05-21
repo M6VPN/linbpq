@@ -2,7 +2,7 @@
 
 ## 2026-05-21
 
-Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, `4b31822`, `62b037b`, and `92f6e91`, plus the current node API port bounds fix in this working tree.
+Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, `4b31822`, `62b037b`, `92f6e91`, and `207953b`, plus the current BBS attachment filename bounds fix in this working tree.
 
 ### Security
 
@@ -13,6 +13,7 @@ Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, `4b31822
 - Fixed Telnet outward-connect command parsing and signon assembly so oversized tokens are rejected before they can overflow fixed buffers.
 - Fixed Telnet, relay, and CMS login logging so oversized remote username, password, and signon text is bounded before writing to stack log buffers.
 - Fixed public node API port endpoints so invalid port numbers are rejected before indexing fixed port tables.
+- Fixed BBS attachment download parsing so malformed or oversized stored attachment filenames are rejected before fixed-buffer copies.
 
 ### Linux Build and Runtime
 
@@ -35,6 +36,12 @@ Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, `1946167`, `4b31822
 - `make all` completed and linked `linbpq` after the node API port bounds fix.
 - `./linbpq -h` exited cleanly and printed usage after the node API port bounds fix.
 - `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports after the node API port bounds fix.
+- `pgrep -af linbpq` found no running `linbpq` process after the timeout test.
+- `make -B BBSHTMLConfig.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing unrelated format-overflow warnings after the BBS attachment filename bounds fix.
+- `make -B BBSHTMLConfig.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security'` completed with remaining existing unrelated warnings after the BBS attachment filename bounds fix.
+- `make all` completed and relinked `linbpq` after the BBS attachment filename bounds fix.
+- `./linbpq -h` exited cleanly and printed usage after the BBS attachment filename bounds fix.
+- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports after the BBS attachment filename bounds fix.
 - `pgrep -af linbpq` found no running `linbpq` process after the timeout test.
 
 ## 2026-05-20

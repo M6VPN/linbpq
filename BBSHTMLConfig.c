@@ -858,6 +858,7 @@ void ProcessMailHTTPMessage(struct HTTPConnectionInfo * Session, char * Method, 
 		char FileName[100][MAX_PATH] = {""};
 		int FileLen[100];
 		char Noatt[] = "Message has no attachments";
+		char Badatt[] = "Invalid attachment header";
 
 
 		MailBuffer = ReadMessageFile(Msg->number);
@@ -879,6 +880,15 @@ void ProcessMailHTTPMessage(struct HTTPConnectionInfo * Session, char * Method, 
 		{
 			char * ptr2 = strchr(ptr, 10);	// Find CR
 
+			if (ptr2 == NULL)
+			{
+				sprintf(Reply, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s",
+					(int)strlen(Badatt), Badatt);
+				*RLen = (int)strlen(Reply);
+				free(MailBuffer);
+				return;
+			}
+
 			if (memcmp(ptr, "Body: ", 6) == 0)
 			{
 				BodyLen = atoi(&ptr[6]);
@@ -887,10 +897,32 @@ void ProcessMailHTTPMessage(struct HTTPConnectionInfo * Session, char * Method, 
 			if (memcmp(ptr, "File: ", 6) == 0)
 			{
 				char * ptr1 = strchr(&ptr[6], ' ');	// Find Space
+				int NameLen;
+
+				if (Files >= 100 || ptr1 == NULL || ptr1 >= ptr2)
+				{
+					sprintf(Reply, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s",
+						(int)strlen(Badatt), Badatt);
+					*RLen = (int)strlen(Reply);
+					free(MailBuffer);
+					return;
+				}
+
+				NameLen = (int)(ptr2 - ptr1 - 2);
+
+				if (NameLen <= 0 || NameLen >= MAX_PATH)
+				{
+					sprintf(Reply, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s",
+						(int)strlen(Badatt), Badatt);
+					*RLen = (int)strlen(Reply);
+					free(MailBuffer);
+					return;
+				}
 
 				FileLen[Files] = atoi(&ptr[6]);
-
-				memcpy(FileName[Files++], &ptr1[1], (ptr2-ptr1 - 2));
+				memcpy(FileName[Files], &ptr1[1], NameLen);
+				FileName[Files][NameLen] = 0;
+				Files++;
 			}
 				
 			ptr = ptr2;
