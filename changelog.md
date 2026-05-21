@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-05-21
+
+Sources: commits `75e083c`, `bfff949`, `66478d8`, `fbf82a0`, and `1946167`, plus the current APRS debug logging fix in this working tree.
+
+### Security
+
+- Fixed protected node API routes so read-only endpoints remain public while mutating and protected routes require a valid API key.
+- Fixed local include casing so quoted includes match the actual `rigresource.h` filename on case-sensitive Linux filesystems.
+- Fixed TriMode telnet debug logging so network/session text is logged with a literal format string.
+- Fixed APRS debug logging so APRS-IS, RF, NMEA, AIS, and weather text is logged with a literal format string.
+
+### Linux Build and Runtime
+
+- Updated the GNU/Linux build workflow so `make all` compiles and links `linbpq` without running `sudo`.
+- Added a `make setcap` target that prints the required root-only `setcap` command instead of running it.
+- Added build artifact ignores for object, dependency, binary, and map outputs.
+- Added `LOCATOR=NONE` to the local telnet-only example config so runtime smoke tests do not emit the missing locator warning.
+- Verified `./linbpq -h`, `ldd ./linbpq`, and a temporary loopback daemon runtime smoke test.
+
+### Verification
+
+- `make -B nodeapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed.
+- `make -B HTTPcode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
+- `make -B APRSCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
+- `make -B mailapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
+- `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` completed with existing warnings.
+- `make all` completed and linked `linbpq`.
+- `./linbpq -h` exited cleanly and printed usage.
+- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports.
+
 ## 2026-05-20
 
 Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of security fixes`).

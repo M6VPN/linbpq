@@ -1,0 +1,51 @@
+; Minimal LinBPQ node + BBS + CHAT for telnet / local testing
+; Replace locator/QTH text as needed.
+
+SIMPLE
+
+NODECALL=M6VPN-7
+NODEALIAS=NCLCC
+LOCATOR=NONE
+
+INFOMSG:
+---
+M6VPN-7 / M6VPN-1
+Test node
+Commands: BBS CHAT CONNECT BYE INFO NODES PORTS ROUTES USERS MH
+---
+***
+
+CTEXT:
+M6VPN-7 NCLCC
+Test node
+Commands: BBS CHAT INFO PORTS USERS BYE
+***
+
+FULL_CTEXT=1
+
+; Enable LinBPQ mail/BBS server
+LINMAIL
+LINCHAT
+
+; Local web/telnet management and local user access.
+; Keep this LAN/local only for now.
+PORT
+ PORTNUM=10
+ ID=Telnet/Web
+ DRIVER=Telnet
+ CONFIG
+  LOGGING=1
+  DisconnectOnClose=1
+  TCPPORT=8010
+  FBBPORT=8011
+  HTTPPORT=8080
+  WebTermCSS=font-family:'Lucida Console','DejaVu Sans Mono',monospace;background-color:#050807;color:#39ff88;font-size:14px;
+  SECURETELNET=1
+  CMDPORT 63030 63031 63032 63033 63034
+  USER=daniel,CHANGEME,M6VPN,,SYSOP
+ENDPORT
+
+; Application 1 is the BBS/mailbox.
+; Users can type BBS at the node, or connect directly to M6VPN-1.
+APPLICATION 1,BBS,,M6VPN-1,VPNBBS,255
+APPLICATION 2,CHAT,,M6VPN-4,NCLCHT,25

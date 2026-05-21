@@ -19,12 +19,13 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] Linux runtime smoke test: `./linbpq -h` exits cleanly and prints usage.
 - [x] Linux daemon runtime smoke test: temporary loopback config starts, initializes port 1, stays running until timeout, and closes ports.
 - [x] High: TriMode telnet debug logging no longer uses network/session text as a `printf` format string.
+- [x] High: APRS debug logging no longer uses APRS-IS, RF, NMEA, AIS, or weather text as a `printf` format string.
 
 ## Known Problems
 
 - [ ] `RHP.c` still emits an existing warning during `make -B RHP.o`.
 - [ ] Linux full build emits existing format and buffer-size warnings across several C files.
-- [ ] `sudo setcap` testing is blocked in this shell by password prompting; current `linbpq` binary already has the required capabilities.
+- [ ] `sudo setcap` testing is blocked in this shell by password prompting; `make all` relinks `linbpq` and leaves file capabilities unset.
 - [ ] Full regression testing has not been completed after the security fixes.
 
 ## Verification
@@ -40,8 +41,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make all` | Completed and linked `linbpq` without running `sudo`. |
 | `./linbpq -h` | Exited cleanly and printed usage. |
 | `ldd ./linbpq` | Required shared libraries resolved. |
-| `getcap ./linbpq` | Reports `cap_net_bind_service,cap_net_admin,cap_net_raw=ep`. |
+| `getcap ./linbpq` | No capabilities are set after the latest `make all` relink. |
 | `sudo -n setcap "CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep" ./linbpq` | Blocked by `sudo: a password is required`. |
 | `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` | Started with a temporary internal loopback config, initialized port 1, stayed running until timeout, and closed ports. |
 | `pgrep -af linbpq` | No running `linbpq` process remained after the timeout test. |
 | `make -B TelnetV6.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with existing unrelated warnings. |
+| `make -B APRSCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with existing unrelated warnings. |
+| `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` using `bpq32.cfg.example` | Started Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |

@@ -26,6 +26,6 @@ cd /home/dgm/Sync/Code/M6VPN/M6VPN-7/3rd/linbpq && git diff -- HTTPcode.c Telnet
 - `make all` compiles and links `linbpq` on Linux without running `sudo`.
 - `./linbpq -h` exits cleanly and prints usage.
 - `ldd ./linbpq` resolves the required shared libraries.
-- `getcap ./linbpq` reports the required packet/network capabilities on the current binary.
-- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` starts with a temporary internal loopback config, initializes port 1, stays running until timeout, and closes ports.
+- `getcap ./linbpq` reports no capabilities after the latest `make all` relink.
+- `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` starts with `bpq32.cfg.example`, initializes Telnet, Chat, and Mail, stays running until timeout, and closes ports.
 - `sudo -n setcap "CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep" ./linbpq` is blocked in this shell by password prompting.

@@ -3122,7 +3122,7 @@ VOID APRSISThread(void * Report)
 	if (InputLen > 0)
 	{
 		Buffer[InputLen] = 0;
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		MonitorAPRSIS(Buffer, InputLen, FALSE);
 	}
 
@@ -3255,7 +3255,7 @@ VOID ProcessAPRSISMsg(char * APRSMsg)
 
 	}
 	#include "stdexcept.c"
-	Debugprintf(APRSMsg);
+	Debugprintf("%s", APRSMsg);
 	}
 #else
 	Station = DecodeAPRSISMsg(ISCopy);
@@ -4808,7 +4808,7 @@ struct STATIONRECORD * ProcessRFFrame(char * Msg, int len, int * ourMessage)
 			ProcessAISMessage(Payload, strlen(Payload));
 		}
 		else
-			Debugprintf(Payload);
+			Debugprintf("%s", Payload);
 
 		return 0;
 	}
@@ -5072,7 +5072,7 @@ int DecodeAPRSPayload(char * Payload, struct STATIONRECORD * Station)
 		return 0;
 
 	case '$':					// NMEA
-		Debugprintf(Payload);
+		Debugprintf("%s", Payload);
 		break;
 
 	case ')':					// Item	
@@ -6331,7 +6331,7 @@ VOID SendWeatherBeacon()
 
 	Len = sprintf(Msg, "@%s%s%sz%s/%s_%s%s", DD, HH, MM, Lat, Lon, WXptr, WXComment);
 
-	Debugprintf(Msg);
+	Debugprintf("%s", Msg);
 
 	for (index = 0; index < MaxBPQPortNo; index++)
 	{
