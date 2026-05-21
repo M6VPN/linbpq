@@ -24,12 +24,12 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: Telnet, relay, and CMS login logging use bounded formatting for remote username, password, and signon text.
 - [x] High: Public node API port endpoints reject invalid port numbers before indexing fixed port tables.
 - [x] High: BBS attachment download parsing rejects malformed or oversized stored attachment filenames before copying into fixed buffers.
+- [x] High: RHP websocket receive forwarding escapes packet data into sized buffers before building JSON websocket frames.
 
 ## Known Problems
 
-- [ ] `RHP.c` still emits an existing warning during `make -B RHP.o`.
 - [ ] Linux full build emits existing format and buffer-size warnings across several C files.
-- [ ] `sudo setcap` testing is blocked in this shell by password prompting; `make all` relinks `linbpq` and leaves file capabilities unset.
+- [ ] `make all` relinks `linbpq` and leaves file capabilities unset; `sudo setcap` was not run in the latest no-sudo audit pass.
 - [ ] Full regression testing has not been completed after the security fixes.
 
 ## Verification
@@ -70,3 +70,11 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `./linbpq -h` after the BBS attachment filename bounds fix | Exited cleanly and printed usage. |
 | `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the BBS attachment filename bounds fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
 | `pgrep -af linbpq` after the BBS attachment filename bounds fix | No running `linbpq` process remained after the timeout test. |
+| `make -B RHP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` before the RHP receive bounds fix | Completed with a format-overflow warning in `RHPPoll`. |
+| `make -B RHP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` after the RHP receive bounds fix | Completed with no warnings. |
+| `make -B RHP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the RHP receive bounds fix | Completed with remaining non-security pointer-sign and unused warnings; the `RHPPoll` format-overflow warning is cleared. |
+| `make all` after the RHP receive bounds fix | Completed and relinked `linbpq`; file capabilities may be unset after relink. |
+| `getcap ./linbpq || true` after the RHP receive bounds fix | No capabilities are set after relink. |
+| `./linbpq -h` after the RHP receive bounds fix | Exited cleanly and printed usage. |
+| `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the RHP receive bounds fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
+| `pgrep -af linbpq` after the RHP receive bounds fix | No running `linbpq` process remained after the timeout test. |

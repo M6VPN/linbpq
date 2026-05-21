@@ -693,65 +693,93 @@ void RHPPoll()
 
 			if (pktlen > 0)
 			{
-				char * ptr = Buffer;
+				char * Escaped;
+				char * EscPtr;
+				int EscLen;
+				int RHPMsgLen;
+				int i;
 				unsigned char c;
+
+				if (pktlen >= (int)sizeof(Buffer))
+					pktlen = sizeof(Buffer) - 1;
 
 				Buffer[pktlen] = 0;
 
 				RHPSession->sockptr->LastSendTime = time(NULL);
 
+				Escaped = malloc((pktlen * 6) + 1);
+
+				if (Escaped == NULL)
+					continue;
+
+				EscPtr = Escaped;
 
 				// Message is JSON so Convert CR to \r, \ to \\ " to \"
 
 				// Looks like I need to escape everything not between 0x20 and 0x7f eg \u00c3
 
-
-				while (c = *(ptr))
+				for (i = 0; i < pktlen; i++)
 				{
+					c = Buffer[i];
+
 					switch (c)
 					{
 					case 13:
 
-						memmove(ptr + 2, ptr + 1, strlen(ptr) + 1);
-						*(ptr++) = '\\';
-						*(ptr++) = 'r';
+						*(EscPtr++) = '\\';
+						*(EscPtr++) = 'r';
 						break;
 		
 					case '"':
 
-						memmove(ptr + 2, ptr + 1, strlen(ptr) + 1);
-						*(ptr++) = '\\';
-						*(ptr++) = '"';
+						*(EscPtr++) = '\\';
+						*(EscPtr++) = '"';
 						break;
 	
 					case '\\':
 
-						memmove(ptr + 2, ptr + 1, strlen(ptr) + 1);
-						*(ptr++) = '\\';
-						*(ptr++) = '\\';
+						*(EscPtr++) = '\\';
+						*(EscPtr++) = '\\';
 						break;
 				
 					default:
 
-						if (c > 127)
+						if (c > 127 || c < 32)
 						{
-							memmove(ptr + 6, ptr + 1, strlen(ptr) + 1);
-							*(ptr++) = '\\';
-							*(ptr++) = 'u';
-							*(ptr++) = '0';
-							*(ptr++) = '0';
-							*(ptr++) = toHex[c >> 4];
-							*(ptr++) = toHex[c & 15];
+							*(EscPtr++) = '\\';
+							*(EscPtr++) = 'u';
+							*(EscPtr++) = '0';
+							*(EscPtr++) = '0';
+							*(EscPtr++) = toHex[c >> 4];
+							*(EscPtr++) = toHex[c & 15];
 							break;
 						}
 						else	
-							ptr++;
+							*(EscPtr++) = c;
 					}
 				}
 
-				RHPMsg = malloc(2048);
+				*EscPtr = 0;
+				EscLen = (int)(EscPtr - Escaped);
+				RHPMsgLen = EscLen + 128;
 
-				Len = sprintf(&RHPMsg[10], "{\"seqno\": %d, \"type\": \"recv\", \"handle\": %d, \"data\": \"%s\"}", RHPSession->Seq++, RHPSession->Handle, Buffer);
+				RHPMsg = malloc(RHPMsgLen);
+
+				if (RHPMsg == NULL)
+				{
+					free(Escaped);
+					continue;
+				}
+
+				Len = snprintf(&RHPMsg[10], RHPMsgLen - 10, "{\"seqno\": %d, \"type\": \"recv\", \"handle\": %d, \"data\": \"%s\"}", RHPSession->Seq++, RHPSession->Handle, Escaped);
+				free(Escaped);
+
+				if (Len < 0 || Len >= RHPMsgLen - 10)
+				{
+					free(RHPMsg);
+					continue;
+				}
+
 				SendWebSockMessage(RHPSession->Socket, RHPMsg, Len);
 
 			}
