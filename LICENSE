@@ -1,0 +1,29 @@
+LinBPQ/BPQ32 Hardening Fork License Notice
+
+Copyright (C) 2001-2022 John Wiseman G8BPQ
+
+Modifications and additional hardening work:
+Copyright (C) 2026 M6VPN <M6VPN@tuta.com>
+
+This repository is a modified version of LinBPQ/BPQ32.
+
+LinBPQ/BPQ32 is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or, at your
+option, any later version.
+
+Modifications by M6VPN are also distributed under the same license terms:
+GNU General Public License version 3 or, at your option, any later version.
+
+LinBPQ/BPQ32 and the M6VPN modifications are distributed in the hope that
+they will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+You should have received a copy of the GNU General Public License along
+with this source tree. If not, see:
+
+https://www.gnu.org/licenses/
+
+The full GNU General Public License version 3 text is available at:
+
+https://www.gnu.org/licenses/gpl-3.0.txt
