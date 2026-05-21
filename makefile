@@ -74,12 +74,14 @@ noi2c: linbpq
 
 
 linbpq: $(OBJS)
-	cc $(OBJS) $(CFLAGS) $(LDFLAGS) $(LIBS) -o linbpq
-	sudo setcap "CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep" linbpq		
+	$(CC) $(OBJS) $(CFLAGS) $(LDFLAGS) $(LIBS) -o linbpq
+
+setcap: linbpq
+	@echo "Run as root if packet/network capabilities are required:"
+	@echo "setcap \"CAP_NET_ADMIN=ep CAP_NET_RAW=ep CAP_NET_BIND_SERVICE=ep\" linbpq"
 
 -include *.d
 
 clean :
-	rm *.d
-	rm linbpq $(OBJS)
-
+	rm -f *.d
+	rm -f linbpq output.map $(OBJS)

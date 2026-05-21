@@ -23,6 +23,7 @@ cd /home/dgm/Sync/Code/M6VPN/M6VPN-7/3rd/linbpq && git diff -- HTTPcode.c Telnet
 
 ## Verification Notes
 
-- `make -B RHP.o` completed with an existing warning in `RHP.c`.
-- Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
-- `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
+- `make all` compiles and links `linbpq` on Linux without running `sudo`.
+- `./linbpq -h` exits cleanly and prints usage.
+- `ldd ./linbpq` resolves the required shared libraries.
+- Runtime packet/network capabilities require running the `setcap` command shown by `make setcap` as root.

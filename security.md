@@ -15,14 +15,14 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: Beacon form destination, file, and text writes use bounded copies.
 - [x] High: Beacon form handling rejects invalid ports before using the port slot.
 - [x] Build blocker: Local quoted include references now match the actual file casing, including `rigresource.h`.
+- [x] Linux build: `make all` compiles and links `linbpq` without invoking `sudo`.
+- [x] Linux runtime smoke test: `./linbpq -h` exits cleanly and prints usage.
 
 ## Known Problems
 
-- [ ] `nodeapi.c` object compile is blocked by `tncinfo.h:931` declaring `LRESULT CALLBACK PacWndProc(...)` without Linux-visible `LRESULT` / `CALLBACK` definitions.
-- [ ] `HTTPcode.c` object compile is blocked by `tncinfo.h:931` and later Windows-only `CreateFile`, registry, and related symbols being visible in the Linux compile path.
-- [ ] `APRSCode.c` object compile is blocked by `tncinfo.h:931` and `LPSOCKADDR` being undefined in `TCPConnect` / `GPSDConnect`.
-- [ ] `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 - [ ] `RHP.c` still emits an existing warning during `make -B RHP.o`.
+- [ ] Linux full build emits existing format and buffer-size warnings across several C files.
+- [ ] Runtime packet/network capabilities require running the `setcap` command shown by `make setcap` as root.
 - [ ] Full regression testing has not been completed after the security fixes.
 
 ## Verification
@@ -31,7 +31,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | ------- | ------ |
 | `make -B RHP.o` | Completed with an existing `RHP.c` warning. |
 | Local quoted include case scan | No remaining mismatches against existing local filenames. |
-| `make -B nodeapi.o` | Blocked by `tncinfo.h:931`: unknown type name `LRESULT`. |
-| `make -B HTTPcode.o` | Blocked by `tncinfo.h:931` and Windows-only symbols including `GENERIC_READ`, `GENERIC_WRITE`, `OPEN_EXISTING`, and registry constants. |
-| `make -B APRSCode.o` | Blocked by `tncinfo.h:931` and undefined `LPSOCKADDR`. |
-| `mailapi.c` object compile | Blocked by missing `dbghelp.h`. |
+| `make -B nodeapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed. |
+| `make -B HTTPcode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with existing warnings. |
+| `make -B APRSCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with existing warnings. |
+| `make -B mailapi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` | Completed with existing warnings. |
+| `make all` | Completed and linked `linbpq` without running `sudo`. |
+| `./linbpq -h` | Exited cleanly and printed usage. |
+| `ldd ./linbpq` | Required shared libraries resolved. |
