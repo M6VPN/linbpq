@@ -7,6 +7,7 @@ Source: current WebMail attachment index fix in this working tree.
 ### Security
 
 - Fixed WebMail attachment downloads so invalid requested attachment numbers are rejected before indexing fixed attachment arrays.
+- Fixed WebMail message uploads so excess multipart attachments are rejected before indexing fixed attachment arrays.
 
 ### Verification
 

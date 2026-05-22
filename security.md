@@ -26,6 +26,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: BBS attachment download parsing rejects malformed or oversized stored attachment filenames before copying into fixed buffers.
 - [x] High: RHP websocket receive forwarding escapes packet data into sized buffers before building JSON websocket frames.
 - [x] Medium: WebMail attachment downloads reject invalid attachment indexes before indexing fixed attachment arrays.
+- [x] High: WebMail message uploads reject excess attachments before indexing fixed attachment arrays.
 
 ## Known Problems
 
@@ -86,3 +87,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `./linbpq -h` after the WebMail attachment index fix | Exited cleanly and printed usage. |
 | `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the WebMail attachment index fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
 | `pgrep -af linbpq` after the WebMail attachment index fix | No running `linbpq` process remained after the timeout test. |
+| `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` after the WebMail upload attachment count fix | Completed with existing unrelated warnings. |
+| `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the WebMail upload attachment count fix | Completed with remaining existing unrelated warnings. |
+| `make all` after the WebMail upload attachment count fix | Completed and relinked `linbpq`; file capabilities may be unset after relink. |
+| `getcap ./linbpq` after the WebMail upload attachment count fix | No capabilities are set after relink. |
+| `./linbpq -h` after the WebMail upload attachment count fix | Exited cleanly and printed usage. |
+| `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the WebMail upload attachment count fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
+| `pgrep -af linbpq` after the WebMail upload attachment count fix | No running `linbpq` process remained after the timeout test. |

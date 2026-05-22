@@ -502,6 +502,9 @@ int SaveInputValue(WebMailInfo * WebMail, char * Name, char * Value, int ValLeng
 
 				if (strlen(fn))
 				{
+					if (WebMail->Files < 0 || WebMail->Files >= 100)
+						return FALSE;
+
 					WebMail->FileName[WebMail->Files] = _strdup(fn);
 					WebMail->FileBody[WebMail->Files] = malloc(ValLength);
 					memcpy(WebMail->FileBody[WebMail->Files], Value, ValLength);
