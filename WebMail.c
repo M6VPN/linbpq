@@ -4647,6 +4647,8 @@ void ProcessFormInput(struct HTTPConnectionInfo * Session, char * input, char * 
 	char * Keys[1000];
 	char * Values[1000];
 	char * saveForfree[1000];
+	int MaxKeys = sizeof(Keys) / sizeof(Keys[0]);
+	int MaxUserKeys = MaxKeys - 16;
 
 	int NumKeys = 0;
 	char * varptr;
@@ -4777,6 +4779,19 @@ void ProcessFormInput(struct HTTPConnectionInfo * Session, char * input, char * 
 				saveptr[Partlen - 2] = 0;
 
 				// Now have key value pair
+
+				if (NumKeys >= MaxUserKeys)
+				{
+					free(saveptr);
+					saveForfree[NumKeys] = 0;
+					i = 0;
+
+					while (saveForfree[i])
+						free(saveForfree[i++]);
+
+					*RLen = sprintf(Reply, "<html><head><link rel=\"stylesheet\" href=\"/m6vpn.css\"><script src=\"/m6vpn-ui.js\"></script></head><script>alert(\"Too many form fields. \");window.history.back();</script></html>");
+					return;
+				}
 
 				Keys[NumKeys] = ptr;
 				Values[NumKeys] = val;
