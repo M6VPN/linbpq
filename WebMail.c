@@ -1012,18 +1012,17 @@ int ViewWebMailMessage(struct HTTPConnectionInfo * Session, char * Reply, int Nu
 		return sprintf(Reply, WebMailTemplate, BBSName, User->Call, Key, Key, Key, Key, Key, Key, Key, Message);
 	}
 
-	// New Display so free any old values
-
-	FreeWebMailFields(WebMail);	
-
-	WebMail->CurrentMessageIndex = Number;
-
-
 	if (!CheckUserMsg(Msg, User->Call, User->flags & F_SYSOP))
 	{
 		ptr += sprintf(ptr, "Message %d not for you\r", Number);
 		return sprintf(Reply, WebMailTemplate, BBSName, User->Call, Key, Key, Key, Key, Key, Key, Key, Message);
 	}
+
+	// New Display so free any old values
+
+	FreeWebMailFields(WebMail);
+
+	WebMail->CurrentMessageIndex = Number;
 
 	if (_stricmp(Msg->to, "RMS") == 0)
 		sprintf(FullTo, "RMS:%s", Msg->via);
@@ -2091,6 +2090,13 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 			return;
 		}
 
+		if (!CheckUserMsg(Msg, Session->User->Call, Session->User->flags & F_SYSOP))
+		{
+			sprintf(Message, "Message %d not for you", n);
+			*RLen = sprintf(Reply, "%s", Message);
+			return;
+		}
+
 		Session->WebMail->Msg = Msg;
 
 		if (stristr(Msg->title, "Re:") == 0)
@@ -2166,6 +2172,13 @@ void ProcessWebMailMessage(struct HTTPConnectionInfo * Session, char * Key, BOOL
 		if (Msg == NULL)
 		{
 			sprintf(Message, "Message %d not found", n);
+			*RLen = sprintf(Reply, "%s", Message);
+			return;
+		}
+
+		if (!CheckUserMsg(Msg, Session->User->Call, Session->User->flags & F_SYSOP))
+		{
+			sprintf(Message, "Message %d not for you", n);
 			*RLen = sprintf(Reply, "%s", Message);
 			return;
 		}

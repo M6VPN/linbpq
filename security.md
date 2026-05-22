@@ -29,6 +29,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: WebMail message uploads reject excess attachments before indexing fixed attachment arrays.
 - [x] High: WebMail template form submissions reject excess multipart fields before indexing fixed key/value arrays.
 - [x] Medium: WebMail delete requests for missing message IDs return safely instead of dereferencing a missing message record.
+- [x] High: WebMail reply and quote-original requests require message ownership before exposing message content.
 
 ## Known Problems
 
@@ -110,3 +111,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `./linbpq -h` after the WebMail missing-message delete fix | Exited cleanly and printed usage. |
 | `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the WebMail missing-message delete fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
 | `pgrep -af linbpq` after the WebMail missing-message delete fix | No running `linbpq` process remained after the timeout test. |
+| `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables'` after the WebMail reply ownership fix | Completed with existing unrelated warnings. |
+| `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the WebMail reply ownership fix | Completed with remaining existing unrelated warnings. |
+| `make all` after the WebMail reply ownership fix | Completed and relinked `linbpq`; file capabilities may be unset after relink. |
+| `getcap ./linbpq` after the WebMail reply ownership fix | No capabilities are set after relink. |
+| `./linbpq -h` after the WebMail reply ownership fix | Exited cleanly and printed usage. |
+| `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the WebMail reply ownership fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
+| `pgrep -af linbpq` after the WebMail reply ownership fix | No running `linbpq` process remained after the timeout test. |
