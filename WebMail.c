@@ -1318,7 +1318,7 @@ int KillWebMailMessage(char * Reply, char * Key, struct UserInfo * User, int Num
 	if (Msg == NULL)
 	{
 		sprintf(Message, "Message %d not found", Number);
-		goto returnit;
+		return sprintf(Reply, WebMailMsgTemplate, BBSName, User->Call, Number, Number, Key, Number, Key, "", Key, Key, Key, "div", Message, "div");
 	}
 
 	if (OkToKillMessage(User->flags & F_SYSOP, User->Call, Msg))

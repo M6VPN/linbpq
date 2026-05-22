@@ -9,6 +9,7 @@ Source: current WebMail fixes in this working tree.
 - Fixed WebMail attachment downloads so invalid requested attachment numbers are rejected before indexing fixed attachment arrays.
 - Fixed WebMail message uploads so excess multipart attachments are rejected before indexing fixed attachment arrays.
 - Fixed WebMail template form submissions so excess multipart fields are rejected before indexing fixed key/value arrays.
+- Fixed WebMail delete requests so missing message IDs return a not-found page instead of dereferencing a missing message record.
 
 ### Verification
 
