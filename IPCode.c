@@ -637,15 +637,16 @@ Dll BOOL APIENTRY Init_IP()
     //
     // Open PCAP Driver
 
-	if (Adapter[0])					// Don't have to have ethernet, if used just as ip over ax.25 switch 
+	/* Ethernet is optional when used only as an IP over AX.25 switch. */
+	if (Adapter[0])
 	{
-		char buf[80];
+		char buf[288];
 
 		if (OpenPCAP())
-			sprintf(buf,"IP Using %s\n", Adapter);
+			snprintf(buf, sizeof(buf), "IP Using %s\n", Adapter);
 		else
-			sprintf(buf," IP Unable to open %s\n", Adapter);
-	
+			snprintf(buf, sizeof(buf), " IP Unable to open %s\n", Adapter);
+
 		WritetoConsoleLocal(buf);
 
 		if (adhandle == NULL)
