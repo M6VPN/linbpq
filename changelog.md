@@ -28,6 +28,7 @@ Sources: commits listed on each fixed security line.
 - Fixed WL2K sysop update response handling so short or failed receives are rejected, response text is null-terminated before use, generated update requests are bounded, and received text is logged with a literal format string. ([5fcffcb])
 - Fixed Linux COM port open handling so oversized configured port paths are rejected, generated open-failure messages are bounded, and port text is logged with a literal format string. ([bcef51e])
 - Fixed housekeeping message-renumbering error logging so generated rename failure text is bounded and logged with a literal format string. ([4e4997f])
+- Fixed BBS message-file and sync XML debug logging so generated message errors and unknown transaction types are logged with literal format strings. ([c7de0c5])
 - Fixed VARA and ARDOP local and connect command assembly so oversized command text and calls are rejected before fixed-buffer writes. ([75ac804])
 - Fixed ADIF log path, date, and comment formatting so oversized generated log records are rejected before fixed-buffer writes. ([839726c])
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used. ([0986ef9])
@@ -107,6 +108,8 @@ Sources: commits listed on each fixed security line.
 - `make -f makefile -B CommonCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the Linux COM port open logging fix.
 - `git diff --check` completed after the housekeeping rename error logging fix.
 - `make -f makefile -B Housekeeping.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the housekeeping rename error logging fix.
+- `git diff --check` completed after the BBS debug format fix.
+- `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the BBS debug format fix.
 - `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared.
 - `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared.
 - `make clean` completed before the final VARA and ARDOP command verification build.
@@ -274,6 +277,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[c7de0c5]: https://github.com/M6VPN/linbpq/commit/c7de0c50d91c0f3b9a87195e61eb52ce7b44c421
 [4e4997f]: https://github.com/M6VPN/linbpq/commit/4e4997fad3f41bfe4627b4c6b625fa9ea30b6c40
 [bcef51e]: https://github.com/M6VPN/linbpq/commit/bcef51e294c3e213ed8af70cd7635f1e5f3b6120
 [5fcffcb]: https://github.com/M6VPN/linbpq/commit/5fcffcb385638630c2673e158d1584bb4daf53ef
