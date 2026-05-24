@@ -58,6 +58,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending. ([344c685])
 - [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 - [x] High: MULTIPSK and MULTIPSK64 default-mode and init-script handling rejects oversized config text before fixed command or script buffer writes. ([4bc6c23])
+- [x] High: MULTIPSK RADIO command rewriting and INUSE replies reject or bound oversized generated text before fixed-buffer writes. ([a6872dd])
 
 ## Known Problems
 
@@ -227,7 +228,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B MULTIPSK64.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK64 bounds fix | Blocked by existing Linux integration errors in `MULTIPSK64.c`, including `PortConfig`/`TNCInfo` conflicts and missing `Interlock`/`BytesRXed`/`BytesTXed` members. |
 | `git diff --check` after the MULTIPSK default command bounds fix | Completed. |
 | `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK default command bounds fix | Completed with existing unrelated warnings. |
+| `git diff --check` after the MULTIPSK RADIO/INUSE bounds fix | Completed. |
+| `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK RADIO/INUSE bounds fix | Completed with existing unrelated warnings. |
 
+[a6872dd]: https://github.com/M6VPN/linbpq/commit/a6872ddfb58ced805b0a3519895b636f3b28c453
 [4bc6c23]: https://github.com/M6VPN/linbpq/commit/4bc6c231dc914f048e933f89af4613ff0a87ce78
 [5d0cc10]: https://github.com/M6VPN/linbpq/commit/5d0cc104a05829979a9807e2ab65d077dfc63621
 [73a8e67]: https://github.com/M6VPN/linbpq/commit/73a8e67edf2fba824df514d74c5fb4b45f42a5f4
