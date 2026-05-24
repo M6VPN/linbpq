@@ -74,6 +74,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: L2 session MQTT report formatting validates duration before rate calculations and bounds generated KISS session JSON before publishing. ([3caaff4])
 - [x] High: L4 session MQTT report formatting validates duration before rate calculations and bounds generated session JSON before publishing. ([5414ccd])
 - [x] High: L2 link-down event reporting bounds generated UDP JSON and does not send truncated reports. ([846f490])
+- [x] High: L2 status event reporting validates status intervals before rate calculations and bounds generated UDP JSON before sending. ([9e8f441])
 - [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 - [x] High: MULTIPSK and MULTIPSK64 default-mode and init-script handling rejects oversized config text before fixed command or script buffer writes. ([4bc6c23])
 - [x] High: MULTIPSK RADIO command rewriting and INUSE replies reject or bound oversized generated text before fixed-buffer writes. ([a6872dd])
@@ -288,7 +289,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the L4 session MQTT report formatting fix | Completed with remaining existing unrelated warnings; the `hookL4SessionDeleted` format warning is cleared. |
 | `git diff --check` after the L2 link-down event reporting fix | Completed. |
 | `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the L2 link-down event reporting fix | Completed with remaining existing unrelated warnings; the `hookL2SessionClosed` format warnings are cleared. |
+| `git diff --check` after the L2 status event reporting fix | Completed. |
+| `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the L2 status event reporting fix | Completed with remaining existing unrelated warnings; the `hookL2SessionStatus` format warnings are cleared. |
 
+[9e8f441]: https://github.com/M6VPN/linbpq/commit/9e8f4416a4cbf080482272126bf5e99ff4308391
 [846f490]: https://github.com/M6VPN/linbpq/commit/846f49051c5d358e8053468b20302e052b617fbd
 [5414ccd]: https://github.com/M6VPN/linbpq/commit/5414ccd75437865b820f44985803160f55558aea
 [3caaff4]: https://github.com/M6VPN/linbpq/commit/3caaff4552a8417f8cb54cd7f59bb7a6e781b623
