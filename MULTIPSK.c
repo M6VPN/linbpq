@@ -408,10 +408,27 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 
 			if (_memicmp(buff->L2DATA, "RADIO ", 6) == 0)
 			{
-				char cmd[56];
+				char cmd[256];
+				int RadioLen;
 
-				strcpy(cmd, &buff->L2DATA[6]);
-				sprintf(buff->L2DATA, "%d %s", TNC->Port, cmd);
+				RadioLen = snprintf(cmd, sizeof(cmd), "%d %s", TNC->Port, &buff->L2DATA[6]);
+
+				if (RadioLen < 0 || RadioLen >= (int)sizeof(cmd))
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+							"MPSK} Error - Radio command too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
+
+				memcpy(buff->L2DATA, cmd, RadioLen + 1);
 
 				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, buff->L2DATA))
 				{
@@ -422,7 +439,8 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 
 					if (buffptr == 0) return 1;			// No buffers, so ignore
 
-					buffptr->Len = sprintf(buffptr->Data, "%s", buff->L2DATA);
+					buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+						"%s", buff->L2DATA);
 					C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
 				}
 				return 1;
@@ -481,22 +499,27 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 				PMSGWITHLEN buffptr = GetBuff();
 				int s = 0;
 
+				if (buffptr == 0)
+					return 1;
+
 				while(s <= TNC->MPSKInfo->MaxSessions)
 				{
 					if (s != Stream)
-					{		
+					{
 						if (TNC->PortRecord->ATTACHEDSESSIONS[s])
 						{
-							buffptr->Len  = sprintf(buffptr->Data, "MPSK} Error - In use\r");
+							buffptr->Len = snprintf((char *)buffptr->Data,
+								sizeof(buffptr->Data), "MPSK} Error - In use\r");
 							C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
 							return 1;							// Busy
 						}
 					}
 					s++;
 				}
-				buffptr->Len  = sprintf(buffptr->Data, "MPSK} Ok - Not in use\r");
+				buffptr->Len = snprintf((char *)buffptr->Data,
+					sizeof(buffptr->Data), "MPSK} Ok - Not in use\r");
 				C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
-			
+
 				return 1;
 			}
 
