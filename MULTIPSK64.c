@@ -398,12 +398,13 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 		else
 		{
 			char Command[80];
+			int CommandLen;
 			int len;
 
 			buff->L2DATA[txlen] = 0;
 			_strupr(buff->L2DATA);
 
-			if (_memicmp(&buff[8], "D\r", 2) == 0)
+			if (_memicmp(buff->L2DATA, "D\r", 2) == 0)
 			{
 				TidyClose(TNC, buff->PORT);
 				STREAM->ReportDISC = TRUE;		// Tell Node
@@ -414,9 +415,29 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 
 			if (_memicmp(buff->L2DATA, "RADIO ", 6) == 0)
 			{
-				sprintf(buff->L2DATA, "%d %s", TNC->Port, &buff->L2DATA[6]);
+				char cmd[256];
+				int RadioLen;
 
-				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK->CIRCUITINDEX, buff->L2DATA))
+				RadioLen = snprintf(cmd, sizeof(cmd), "%d %s", TNC->Port, &buff->L2DATA[6]);
+
+				if (RadioLen < 0 || RadioLen >= (int)sizeof(cmd))
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+							"MPSK} Error - Radio command too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
+
+				memcpy(buff->L2DATA, cmd, RadioLen + 1);
+
+				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, buff->L2DATA))
 				{
 				}
 				else
@@ -425,16 +446,17 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 
 					if (buffptr == 0) return 1;			// No buffers, so ignore
 
-					buffptr->Len= sprintf((UCHAR *)&buffptr->Data, "%s", buff->L2DATA);
+					buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+						"%s", buff->L2DATA);
 					C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
 				}
 				return 1;
 			}
 
-			if (STREAM->Connecting && _memicmp(&buff[8], "ABORT", 5) == 0)
+			if (STREAM->Connecting && _memicmp(buff->L2DATA, "ABORT", 5) == 0)
 			{
 				len = sprintf(Command,"%cSTOP_SELECTIVE_CALL_ARQ_FAE\x1b", '\x1a');
-	
+
 				if (TNC->MPSKInfo->TX)
 					TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
 				else
@@ -444,12 +466,29 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 				return (0);
 			}
 
-			if (_memicmp(&buff[8], "MODE", 4) == 0)
+			if (_memicmp(buff->L2DATA, "MODE", 4) == 0)
 			{
 				buff->L2DATA[txlen - 1] = 0;		// Remove CR
-				
-				len = sprintf(Command,"%cDIGITAL MODE %s\x1b", '\x1a', &buff->L2DATA[5]);
-	
+
+				CommandLen = snprintf(Command, sizeof(Command), "%cDIGITAL MODE %s\x1b", '\x1a', &buff->L2DATA[5]);
+
+				if (CommandLen < 0 || CommandLen >= (int)sizeof(Command))
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+							"MPSK} Error - Command too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
+
+				len = CommandLen;
+
 				if (TNC->MPSKInfo->TX)
 					TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
 				else
@@ -460,29 +499,34 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 			}
 
 
-			if (_memicmp(&buff[8], "INUSE?", 6) == 0)
+			if (_memicmp(buff->L2DATA, "INUSE?", 6) == 0)
 			{
 				// Return Error if in use, OK if not
 
-				UINT * buffptr = GetBuff();
+				PMSGWITHLEN buffptr = GetBuff();
 				int s = 0;
+
+				if (buffptr == 0)
+					return 1;
 
 				while(s <= TNC->MPSKInfo->MaxSessions)
 				{
 					if (s != Stream)
-					{		
+					{
 						if (TNC->PortRecord->ATTACHEDSESSIONS[s])
 						{
-							buffptr[1] = sprintf((UCHAR *)&buffptr[2], "MPSK} Error - In use\r");
+							buffptr->Len = snprintf((char *)buffptr->Data,
+								sizeof(buffptr->Data), "MPSK} Error - In use\r");
 							C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
 							return 1;							// Busy
 						}
 					}
 					s++;
 				}
-				buffptr[1] = sprintf((UCHAR *)&buffptr[2], "MPSK} Ok - Not in use\r");
+				buffptr->Len = snprintf((char *)buffptr->Data,
+					sizeof(buffptr->Data), "MPSK} Ok - Not in use\r");
 				C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
-			
+
 				return 1;
 			}
 
@@ -499,10 +543,61 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 				memset(STREAM->RemoteCall, 0, 10);
 
 				ptr = strtok_s(&buff->L2DATA[2], " ,\r", &context);
+
+				if (ptr == 0)
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+							"MPSK} Error - Call missing from C command\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					STREAM->DiscWhenAllSent = 10;
+					return 0;
+				}
+
+				if (strlen(ptr) > 9)
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+							"MPSK} Error - Call too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					STREAM->DiscWhenAllSent = 10;
+					return 0;
+				}
+
 				strcpy(STREAM->RemoteCall, ptr);
 
-				len = sprintf(Command,"%cCALLSIGN_TO_CALL_ARQ_FAE %s%c%cSELECTIVE_CALL_ARQ_FAE\x1b",
+				CommandLen = snprintf(Command, sizeof(Command), "%cCALLSIGN_TO_CALL_ARQ_FAE %s%c%cSELECTIVE_CALL_ARQ_FAE\x1b",
 					'\x1a', STREAM->RemoteCall, '\x1b', '\x1a');
+
+				if (CommandLen < 0 || CommandLen >= (int)sizeof(Command))
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+							"MPSK} Error - Connect command too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					STREAM->DiscWhenAllSent = 10;
+					return 0;
+				}
+
+				len = CommandLen;
 
 				if (TNC->MPSKInfo->TX)
 					TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
@@ -522,8 +617,25 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 			buff->L2DATA[txlen - 1] = 0;
 			_strupr(&buff->L2DATA[0]);
 
-			len = sprintf(Command,"%c%s\x1b", '\x1a', buff->L2DATA);
-		
+			CommandLen = snprintf(Command, sizeof(Command), "%c%s\x1b", '\x1a', buff->L2DATA);
+
+			if (CommandLen < 0 || CommandLen >= (int)sizeof(Command))
+			{
+				PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+				if (buffptr)
+				{
+					buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+						"MPSK} Error - Command too long\r");
+
+					C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+				}
+
+				return 0;
+			}
+
+			len = CommandLen;
+
 			if (TNC->MPSKInfo->TX)
 				TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
 			else
@@ -1185,7 +1297,7 @@ VOID ProcessMSPKCmd(struct TNCINFO * TNC)
 
 			if (TNC->InternalCmd)
 			{
-				ULONG * buffptr = GetBuff();
+				PMSGWITHLEN buffptr = GetBuff();
 				char * ptr = strstr(TNC->CmdBuffer, "OK");
 
 				if (ptr)
@@ -1195,8 +1307,18 @@ VOID ProcessMSPKCmd(struct TNCINFO * TNC)
 
 				if (buffptr)
 				{
-					buffptr[1] = sprintf((UCHAR *)&buffptr[2], "MPSK} %s\r", TNC->CmdBuffer);
-					C_Q_ADD(&TNC->Streams[0].PACTORtoBPQ_Q, buffptr);
+					int Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+						"MPSK} %s\r", TNC->CmdBuffer);
+
+					if (Len < 0 || Len >= (int)sizeof(buffptr->Data))
+						Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+							"MPSK} Error - Command response too long\r");
+
+					if (Len > 0 && Len < (int)sizeof(buffptr->Data))
+					{
+						buffptr->Len = Len;
+						C_Q_ADD(&TNC->Streams[0].PACTORtoBPQ_Q, buffptr);
+					}
 				}
 
 				if (strstr(TNC->CmdBuffer, "STOP_SELECTIVE_CALL_ARQ_FAE OK"))
