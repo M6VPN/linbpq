@@ -2239,6 +2239,7 @@ int decode_port_rec(char * rec)
 
 				int Interlock = xxp.INTERLOCK;
 				char radio[16];
+				int radioLen;
 
 				if (Interlock == 0)			// Replace with dummy
 				{
@@ -2246,7 +2247,11 @@ int decode_port_rec(char * rec)
 					nextDummyInterlock++;
 				}
 
-				sprintf(radio, "RADIO %d    ", Interlock);
+				radioLen = snprintf(radio, sizeof(radio), "RADIO %d    ", Interlock);
+
+				if (radioLen < 0 || radioLen >= (int)sizeof(radio))
+					continue;
+
 				memcpy(rec, radio, 10);
 
 				if (strlen(rec) > 15)

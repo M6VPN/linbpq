@@ -13,6 +13,7 @@ Source: current security fixes in this working tree.
 - Fixed HSMODEM, FreeDATA, and MULTIPSK connect command handling so oversized command text is rejected before writing fixed command buffers.
 - Fixed Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling so oversized command text and calls are rejected before fixed-buffer writes.
 - Fixed TNC emulator connected-status replies and serial TNC receive forwarding so oversized modem text is bounded before fixed-buffer writes.
+- Fixed WebMail form directory recursion, config radio interlock conversion, and BBS housekeeping log/report output so oversized generated text is bounded before fixed-buffer writes.
 
 ### Verification
 
@@ -37,6 +38,11 @@ Source: current security fixes in this working tree.
 - `make -B SerialPort.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the serial receive forwarding warning is cleared.
 - `make clean` completed before the final TNC emulator and serial receive verification build.
 - `make nomqtt` completed and linked `linbpq` after the TNC emulator and serial receive fix.
+- `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the form directory path warning is cleared.
+- `make -B config.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed; the radio interlock conversion warning is cleared.
+- `make -B Housekeeping.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the log filename and totals report warnings are cleared.
+- `make clean` completed before the final WebMail, config, and housekeeping verification build.
+- `make nomqtt` completed and linked `linbpq` after the WebMail, config, and housekeeping fix.
 
 ## 2026-05-22
 

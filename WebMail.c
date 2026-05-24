@@ -727,13 +727,17 @@ VOID ProcessFormDir(char * FormSet, char * DirName, struct HtmlFormDir *** xxx, 
         if (entry->d_type == DT_DIR)
 		{
 			char Dir[MAX_PATH];
+			int DirLen;
 
 			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
                 continue;
 
 			// Recurse in subdir
 
-			sprintf(Dir, "%s/%s", DirName, entry->d_name);
+			DirLen = snprintf(Dir, sizeof(Dir), "%s/%s", DirName, entry->d_name);
+
+			if (DirLen < 0 || DirLen >= (int)sizeof(Dir))
+				continue;
 
 			ProcessFormDir(FormSet, Dir, &FormDir->Dirs, &FormDir->DirCount);
 			continue;

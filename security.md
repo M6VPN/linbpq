@@ -37,6 +37,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: HSMODEM, FreeDATA, and MULTIPSK connect command handling rejects oversized command text before writing fixed command buffers.
 - [x] High: Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling reject oversized command text and calls before fixed-buffer writes.
 - [x] High: TNC emulator connected-status replies and serial TNC receive forwarding bound oversized modem text before fixed-buffer writes.
+- [x] High: WebMail form recursion, config radio conversion, and BBS housekeeping output bound oversized generated text before fixed-buffer writes.
 
 ## Known Problems
 
@@ -145,3 +146,8 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B SerialPort.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the serial receive bounds fix | Completed with remaining existing unrelated warnings; the serial receive forwarding warning is cleared. |
 | `make clean` after the TNC emulator and serial receive fix | Completed. |
 | `make nomqtt` after the TNC emulator and serial receive fix | Completed and linked `linbpq`. |
+| `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the WebMail form path bounds fix | Completed with remaining existing unrelated warnings; the form directory path warning is cleared. |
+| `make -B config.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the radio conversion bounds fix | Completed; the radio interlock conversion warning is cleared. |
+| `make -B Housekeeping.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the housekeeping output bounds fix | Completed with remaining existing unrelated warnings; the log filename and totals report warnings are cleared. |
+| `make clean` after the WebMail, config, and housekeeping fix | Completed. |
+| `make nomqtt` after the WebMail, config, and housekeeping fix | Completed and linked `linbpq`. |

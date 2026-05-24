@@ -889,11 +889,12 @@ int DeleteBBSLogFiles()
 	if (n < 0) 
 		perror("scandir");
 	else  
-	{ 
+	{
 		while(n--)
 		{
-			sprintf(FN, "logs/%s", namelist[n]->d_name);
-			if (stat(FN, &STAT) == 0)
+			int fnLen = snprintf(FN, sizeof(FN), "logs/%s", namelist[n]->d_name);
+
+			if (fnLen > 0 && fnLen < (int)sizeof(FN) && stat(FN, &STAT) == 0)
 			{
 				Age = (now - STAT.st_mtime) / 86400;
 				
@@ -1176,10 +1177,11 @@ VOID CreateBBSTrafficReport()
 
 	sprintf(BytesOut,"%d/%d/%d", TotBytesForwardedOut[1], TotBytesForwardedOut[2], TotBytesForwardedOut[3]);
 
-	len = sprintf(Line, "\r\n Totals    %s Messages In        %s Messages Out       %s"
+	len = snprintf(Line, sizeof(Line), "\r\n Totals    %s Messages In        %s Messages Out       %s"
 						" Bytes In        %s Bytes Out\r\n", MsgsIn, MsgsOut, BytesIn, BytesOut);
 
-	fwrite(Line, 1, len, hFile);
+	if (len > 0 && len < (int)sizeof(Line))
+		fwrite(Line, 1, len, hFile);
 
 	SaveConfig(ConfigName);
 	GetConfig(ConfigName);
