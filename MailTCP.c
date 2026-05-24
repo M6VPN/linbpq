@@ -2463,7 +2463,7 @@ VOID ProcessPOP3ServerMessage(SocketConn * sockptr, char * Buffer, int Len)
 
 	if (memcmp(Buffer, "LIST", 4) == 0)
 	{
-		char reply[40];
+		char reply[64];
 		int i, count=0, size=0;
 		int MsgNo = atoi(&Buffer[4]);
 
@@ -2474,10 +2474,13 @@ VOID ProcessPOP3ServerMessage(SocketConn * sockptr, char * Buffer, int Len)
 
 		if (MsgNo)
 		{
-			if (MsgNo > sockptr->POP3MsgCount)		
-				sprintf(reply, "-ERR no such message, only %d messages in maildrop", sockptr->POP3MsgCount);
+			if (MsgNo > sockptr->POP3MsgCount)
+				snprintf(reply, sizeof(reply),
+					"-ERR no such message, only %d messages in maildrop",
+					sockptr->POP3MsgCount);
 			else
-				sprintf(reply, "+OK %d %d", MsgNo, sockptr->POP3Msgs[MsgNo - 1]->length);
+				snprintf(reply, sizeof(reply), "+OK %d %d", MsgNo,
+					sockptr->POP3Msgs[MsgNo - 1]->length);
 			SendSock(sockptr, reply);
 			return;
 		}
