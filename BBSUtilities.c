@@ -6660,7 +6660,7 @@ VOID CreateMessageFile(ConnectionInfo * conn, struct MsgInfo * Msg)
 	{
 		len = sprintf_s(Mess, sizeof(Mess), "Failed to create Message File\r");
 		QueueMsg(conn, Mess, len);
-		Debugprintf(Mess);
+		Debugprintf("%s", Mess);
 	}
 	return;
 }
@@ -15554,7 +15554,7 @@ void ProcessSyncXML(CIRCUIT * conn, char * XML)
 		return;
 	}
 
-	Debugprintf(Type);
+	Debugprintf("%s", Type);
 	return;
 
 /*
