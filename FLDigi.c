@@ -98,6 +98,7 @@ static int ProcessXMLData(int port);
 VOID CheckFLDigiData(struct TNCINFO * TNC);
 VOID SendPacket(struct TNCINFO * TNC, UCHAR * Msg, int MsgLen);
 int	KissEncode(UCHAR * inbuff, UCHAR * outbuff, int len);
+static int FLDigiFormatXMLStringParam(char * Buffer, size_t BufferLen, const char * Value);
 VOID SendXMLCommand(struct TNCINFO * TNC, char * Command, char * Value, char ParamType);
 VOID SendXMLCommandInt(struct TNCINFO * TNC, char * Command, int Value, char ParamType);
 VOID FLSlowTimer(struct TNCINFO * TNC);
@@ -3889,50 +3890,156 @@ char Req[] = 	"<?xml version=\"1.0\"?>\r\n"
 					"%s"
 					"</methodCall>\r\n";
 
+static int
+FLDigiFormatXMLStringParam(char * Buffer, size_t BufferLen, const char * Value)
+{
+	const char * Prefix = "<params><param><value><string>";
+	const char * Suffix = "</string></value></param></params\r\n";
+	const char * Entity;
+	const char * ptr;
+	size_t PrefixLen;
+	size_t SuffixLen;
+	size_t EntityLen;
+	size_t Pos;
+
+	if (BufferLen == 0)
+		return FALSE;
+
+	PrefixLen = strlen(Prefix);
+	SuffixLen = strlen(Suffix);
+
+	if (PrefixLen + SuffixLen >= BufferLen)
+		return FALSE;
+
+	memcpy(Buffer, Prefix, PrefixLen);
+	Pos = PrefixLen;
+
+	for (ptr = Value; *ptr; ptr++)
+	{
+		Entity = NULL;
+
+		switch (*ptr)
+		{
+		case '&':
+			Entity = "&amp;";
+			break;
+
+		case '<':
+			Entity = "&lt;";
+			break;
+
+		case '>':
+			Entity = "&gt;";
+			break;
+
+		case '"':
+			Entity = "&quot;";
+			break;
+
+		case '\'':
+			Entity = "&apos;";
+			break;
+		}
+
+		if (Entity)
+		{
+			EntityLen = strlen(Entity);
+
+			if (Pos + EntityLen + SuffixLen >= BufferLen)
+				return FALSE;
+
+			memcpy(&Buffer[Pos], Entity, EntityLen);
+			Pos += EntityLen;
+		}
+		else
+		{
+			if (Pos + 1 + SuffixLen >= BufferLen)
+				return FALSE;
+
+			Buffer[Pos++] = *ptr;
+		}
+	}
+
+	memcpy(&Buffer[Pos], Suffix, SuffixLen + 1);
+	return TRUE;
+}
 
 VOID SendXMLCommand(struct TNCINFO * TNC, char * Command, char * Value, char ParamType)
 {
 	int Len;
+	int ParamLen;
 	char ReqBuf[512];
 	char SendBuff[512];
 	struct FLINFO *	FL = TNC->FLInfo;
-	struct ARQINFO * ARQ = TNC->ARQInfo;
 	char ValueString[256] ="";
 
 	if (!TNC->CONNECTED || TNC->FLInfo->KISSMODE)
 		return;
 
 	if (Value)
-		if (ParamType == 'S')
-			sprintf(ValueString, "<params><param><value><string>%s</string></value></param></params\r\n>", Value);
-		else
-			sprintf(ValueString, "<params><param><value><i4>%d</i4></value></param></params\r\n>", Value);
+	{
+		if (ParamType != 'S')
+			return;
 
-	strcpy(FL->LastXML, Command);
-	Len = sprintf(ReqBuf, Req, FL->LastXML, ValueString);
-	Len = sprintf(SendBuff, MsgHddr, Len, ReqBuf);
-	send(TNC->TCPSock, SendBuff, Len, 0); 
+		if (FLDigiFormatXMLStringParam(ValueString, sizeof(ValueString), Value) == FALSE)
+			return;
+	}
+
+	ParamLen = snprintf(FL->LastXML, sizeof(FL->LastXML), "%s", Command);
+
+	if (ParamLen < 0 || (size_t)ParamLen >= sizeof(FL->LastXML))
+		return;
+
+	Len = snprintf(ReqBuf, sizeof(ReqBuf), Req, FL->LastXML, ValueString);
+
+	if (Len < 0 || (size_t)Len >= sizeof(ReqBuf))
+		return;
+
+	Len = snprintf(SendBuff, sizeof(SendBuff), MsgHddr, Len, ReqBuf);
+
+	if (Len < 0 || (size_t)Len >= sizeof(SendBuff))
+		return;
+
+	send(TNC->TCPSock, SendBuff, Len, 0);
 	return;
 }
 
 VOID SendXMLCommandInt(struct TNCINFO * TNC, char * Command, int Value, char ParamType)
 {
 	int Len;
+	int ParamLen;
 	char ReqBuf[512];
 	char SendBuff[512];
 	struct FLINFO *	FL = TNC->FLInfo;
-	struct ARQINFO * ARQ = TNC->ARQInfo;
 	char ValueString[256] ="";
+
+	(void)ParamType;
 
 	if (!TNC->CONNECTED || TNC->FLInfo->KISSMODE)
 		return;
 
-	sprintf(ValueString, "<params><param><value><i4>%d</i4></value></param></params\r\n>", Value);
+	ParamLen = snprintf(ValueString, sizeof(ValueString),
+		"<params><param><value><i4>%d</i4></value></param></params\r\n>", Value);
 
-	strcpy(FL->LastXML, Command);
-	Len = sprintf(ReqBuf, Req, FL->LastXML, ValueString);
-	Len = sprintf(SendBuff, MsgHddr, Len, ReqBuf);
-	send(TNC->TCPSock, SendBuff, Len, 0); 
+	if (ParamLen < 0 || (size_t)ParamLen >= sizeof(ValueString))
+		return;
+
+	ParamLen = snprintf(FL->LastXML, sizeof(FL->LastXML), "%s", Command);
+
+	if (ParamLen < 0 || (size_t)ParamLen >= sizeof(FL->LastXML))
+		return;
+
+	Len = snprintf(ReqBuf, sizeof(ReqBuf), Req, FL->LastXML, ValueString);
+
+	if (Len < 0 || (size_t)Len >= sizeof(ReqBuf))
+		return;
+
+	Len = snprintf(SendBuff, sizeof(SendBuff), MsgHddr, Len, ReqBuf);
+
+	if (Len < 0 || (size_t)Len >= sizeof(SendBuff))
+		return;
+
+	send(TNC->TCPSock, SendBuff, Len, 0);
 	return;
 }
 

@@ -52,6 +52,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: POP3 LIST response handling bounds generated message-count replies before fixed-buffer writes.
 - [x] High: IP adapter status logging bounds configured adapter names before fixed-buffer writes.
 - [x] High: Linux Ethernet adapter handling rejects oversized adapter names before `ifreq` copies and bounds status logging.
+- [x] High: FLDigi XML command assembly escapes string parameters, rejects wrong parameter types, and bounds generated RPC buffers before sending.
 - [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending.
 
 ## Known Problems
@@ -209,6 +210,9 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B linether.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the Linux Ethernet adapter bounds fix | Completed with remaining existing unrelated warnings; the adapter status overflow warning is cleared. |
 | `make -f makefile clean` after the Linux Ethernet adapter bounds fix | Completed. |
 | `make -f makefile nomqtt` after the Linux Ethernet adapter bounds fix | Completed and linked `linbpq`. |
+| `make -f makefile -B FLDigi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the FLDigi XML command bounds fix | Completed with remaining existing unrelated warnings; the XML command integer format warning is cleared. |
+| `make -f makefile clean` after the FLDigi XML command bounds fix | Completed. |
+| `make -f makefile nomqtt` after the FLDigi XML command bounds fix | Completed and linked `linbpq`. |
 | `make -f makefile -B FLDigi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the FLDigi default modem bounds fix | Completed with remaining existing unrelated warnings; the default modem command overflow warning is cleared. |
 | `make -f makefile clean` after the FLDigi default modem bounds fix | Completed. |
 | `make -f makefile nomqtt` after the FLDigi default modem bounds fix | Completed and linked `linbpq`. |
