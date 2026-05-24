@@ -41,6 +41,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: Remaining Linux WebMail form and template path lookups reject oversized generated paths before fixed-buffer writes.
 - [x] High: WebMail template date, sequence, form directory, and GPS substitutions bound generated values before fixed-buffer writes.
 - [x] High: VARA and ARDOP local and connect command assembly reject oversized command text and calls before fixed-buffer writes.
+- [x] High: ADIF log path, date, and comment formatting reject oversized generated log records before fixed-buffer writes.
 
 ## Known Problems
 
@@ -164,3 +165,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the ARDOP command bounds fix | Completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared. |
 | `make clean` after the VARA and ARDOP command fix | Completed. |
 | `make nomqtt` after the VARA and ARDOP command fix | Completed and linked `linbpq`. |
+| `make -B adif.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the ADIF log bounds fix | Completed with remaining existing unrelated warnings; the ADIF date and comment format-overflow warnings are cleared. |
+| `make clean` after the ADIF log bounds fix | Completed. |
+| `make nomqtt` after the ADIF log bounds fix | Completed and linked `linbpq`. |

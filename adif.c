@@ -382,6 +382,7 @@ BOOL WriteADIFRecord(ADIF * ADIF)
 	char Date[32];
 	int Dist = 0;
 	int intBearing = 0;
+	int Len;
 	struct stat STAT;
 
 	double Lat, Lon;
@@ -396,20 +397,67 @@ BOOL WriteADIFRecord(ADIF * ADIF)
 	T = time(NULL);
 	tm = gmtime(&T);
 
-	memcpy(&endtm, tm, sizeof(endtm)); 
+	memcpy(&endtm, tm, sizeof(endtm));
 
 	if (LogDirectory[0] == 0)
-	{
-		strcpy(Value, "logs/BPQ_CMS_ADIF");
-	}
+		Len = snprintf((char *)Value, sizeof(Value), "logs/BPQ_CMS_ADIF_%04d%02d.adi",
+			tm->tm_year + 1900, tm->tm_mon + 1);
 	else
+		Len = snprintf((char *)Value, sizeof(Value), "%s/logs/BPQ_CMS_ADIF_%04d%02d.adi",
+			LogDirectory, tm->tm_year + 1900, tm->tm_mon + 1);
+
+	if (Len < 0 || Len >= (int)sizeof(Value))
+		return FALSE;
+
+	/* Extract Info we need */
+
+	/* Distance and Bearing */
+
+	if (LOC[0] && ADIF->LOC[0])
 	{
-		strcpy(Value, LogDirectory);
-		strcat(Value, "/");
-		strcat(Value, "logs/BPQ_CMS_ADIF");
+		FromLOC(LOC, &myLat, &myLon);
+		FromLOC(ADIF->LOC, &Lat, &Lon);
+
+		Dist = (int)Distance(myLat, myLon, Lat, Lon, 0);
+		intBearing = (int)Bearing(Lat, Lon, myLat, myLon);
 	}
 
-	sprintf(&Value[strlen(Value)], "_%04d%02d.adi", tm->tm_year +1900, tm->tm_mon+1);
+	starttm = gmtime(&ADIF->StartTime);
+
+	/* Do Comment */
+
+	/* 0|2019-02-01 14:09:58|RMS Trimode|1.3.21.0|CMS|ZS1RS|VA2ROR|[AirMail-3.5.036-B2FHIM$] */
+	/* |Pactor 3|14109000|1957|311|FQ|1|0|4098|93|117|JG28DK|JF96HD */
+
+	Len = snprintf(Date, sizeof(Date), "%04d-%02d-%02d %02d:%02d:%02d",
+		endtm.tm_year + 1900, endtm.tm_mon + 1, endtm.tm_mday, endtm.tm_hour, endtm.tm_min, endtm.tm_sec);
+
+	if (Len < 0 || Len >= (int)sizeof(Date))
+		return FALSE;
+
+	CommentLen = snprintf(Comment, sizeof(Comment), "0|%s|%s|%s|%s|%s|%s|%s|%s|%lld|%d|%d|%s|%d|%d|%d|%d|%d|%s|%s",
+		Date,
+		"BPQ32",
+		TextVerstring,
+		"CMS",
+		ADIF->CMSCall,
+		ADIF->Call,
+		ADIF->UserSID,
+		WL2KModes[ADIF->Mode],
+		ADIF->Freq,
+		Dist,
+		intBearing,
+		ADIF->Termination,
+		ADIF->Sent,
+		ADIF->Received,
+		ADIF->BytesSent,
+		ADIF->BytesReceived,
+		(int)(T - ADIF->StartTime),
+		ADIF->LOC,
+		LOC);
+
+	if (CommentLen < 0 || CommentLen >= (int)sizeof(Comment))
+		return FALSE;
 
 	STAT.st_size = 0;
 	stat(Value, &STAT);
@@ -424,26 +472,9 @@ BOOL WriteADIFRecord(ADIF * ADIF)
 		// New File - Write Header
 
 		char Header[256];
-		int Len;
-
 		Len = sprintf(Header, "Written by BPQ32  ver: %s <adif_ver:5>2.2.6<eoh>\r\n", TextVerstring);
 		fwrite(Header, 1, Len, Handle);
 	}
-
-	// Extract Info we need
-
-	// Distance and Bearing
-
-	if (LOC[0] && ADIF->LOC[0])
-	{
-		FromLOC(LOC, &myLat, &myLon);
-		FromLOC(ADIF->LOC, &Lat, &Lon);
-
-		Dist = (int)Distance(myLat, myLon, Lat, Lon, 0);
-		intBearing = (int)Bearing(Lat, Lon, myLat, myLon);
-	}
-
-	starttm = gmtime(&ADIF->StartTime);
 
 	//<call:6>VA2ROR
 
@@ -504,40 +535,6 @@ BOOL WriteADIFRecord(ADIF * ADIF)
 	}
 	else
 		fprintf(Handle, "<band:0><freq:0>");
-
-
- 
-
-
-	// Do Comment
-
-	//0|2019-02-01 14:09:58|RMS Trimode|1.3.21.0|CMS|ZS1RS|VA2ROR|[AirMail-3.5.036-B2FHIM$]
-   //|Pactor 3|14109000|1957|311|FQ|1|0|4098|93|117|JG28DK|JF96HD
-
-	sprintf	(Date, "%04d-%02d-%02d %02d:%02d:%02d", 
-		endtm.tm_year + 1900, endtm.tm_mon + 1, endtm.tm_mday, endtm.tm_hour, endtm.tm_min, endtm.tm_sec);
-
-	CommentLen = sprintf(Comment, "0|%s|%s|%s|%s|%s|%s|%s|%s|%lld|%d|%d|%s|%d|%d|%d|%d|%d|%s|%s",
-		Date,
-		"BPQ32",
-		TextVerstring,
-		"CMS",
-		ADIF->CMSCall, 
-		ADIF->Call,
-		ADIF->UserSID,
-		WL2KModes[ADIF->Mode],
-		ADIF->Freq,
-		Dist,
-		intBearing,
-		ADIF->Termination,
-		ADIF->Sent,
-		ADIF->Received,
-		ADIF->BytesSent,
-		ADIF->BytesReceived,
-		(int)(T - ADIF->StartTime),
-		ADIF->LOC,
-		LOC);
-		
 	fprintf(Handle, "<comment:%d>%s", CommentLen, Comment);
 	fprintf(Handle, "<eor>\r\n");
 	fclose(Handle);
@@ -555,21 +552,19 @@ VOID ADIFWriteFreqList()
 	char Locator[16];
 	char Call[16];
 	int i, freqCount = 0;
+	int Len;
 	long long Freqs[100] = {0};
 
 	if (WL2KReport == NULL)
 		return;
 
 	if (LogDirectory[0] == 0)
-	{
-		strcpy(Value, "logs/BPQAnalyser.ini");
-	}
+		Len = snprintf((char *)Value, sizeof(Value), "logs/BPQAnalyser.ini");
 	else
-	{
-		strcpy(Value, LogDirectory);
-		strcat(Value, "/");
-		strcat(Value, "logs/BPQAnalyser.ini");
-	}
+		Len = snprintf((char *)Value, sizeof(Value), "%s/logs/BPQAnalyser.ini", LogDirectory);
+
+	if (Len < 0 || Len >= (int)sizeof(Value))
+		return;
 
 	Handle = fopen(Value, "wb");
 
