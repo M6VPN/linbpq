@@ -25,6 +25,7 @@ Sources: commits listed on each fixed security line.
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used. ([0986ef9])
 - Fixed YAPP upload handling so malformed filenames, sizes, generated paths, logs, and rejection replies are rejected or bounded before fixed-buffer writes. ([6246c85])
 - Fixed RMS Relay sync request handling so XML and request commands are bounded, allocation failures abort cleanly, and buffers are not used after free. ([38f91a1])
+- Fixed AX/IP CRC and TCP listener debug logging so network packet text and generated socket errors are logged with literal format strings. ([e357841])
 - Fixed SCS Tracker RADIO command and tracker reply handling so oversized node/TNC text is rejected or bounded before fixed-buffer writes. ([3be7619])
 - Fixed SCS Tracker multi-stream reply handling so oversized TNC response text is bounded before fixed-buffer writes. ([4cf53bb])
 - Fixed SCS Pactor serial receive debug logging so TNC text is logged with a literal format string. ([e96206a])
@@ -95,6 +96,8 @@ Sources: commits listed on each fixed security line.
 - `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the RMS Relay sync request format and use-after-free warnings are cleared.
 - `make -f makefile clean` completed before the final RMS Relay sync request verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the RMS Relay sync request fix.
+- `git diff --check` completed after the AX/IP debug format fix.
+- `make -f makefile -B bpqaxip.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the AX/IP debug format fix.
 - `make -f makefile -B SCSTracker.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the SCS Tracker RADIO command and tracker reply overflow/overlap warnings are cleared.
 - `make -f makefile clean` completed before the final SCS Tracker bounds verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the SCS Tracker bounds fix.
@@ -258,6 +261,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 [38f91a1]: https://github.com/M6VPN/linbpq/commit/38f91a1debe7add8b81ad03fd6ffc817d7671b14
 [6246c85]: https://github.com/M6VPN/linbpq/commit/6246c858ca8c8d3d32205f4ce67c1b325d611f90
 [0986ef9]: https://github.com/M6VPN/linbpq/commit/0986ef9873e3389aca7131e6179a0499a1687beb
+[e357841]: https://github.com/M6VPN/linbpq/commit/e35784182c5d321e6c6d2a328f3a938cc950db53
 [839726c]: https://github.com/M6VPN/linbpq/commit/839726c4388dbf824957d73e56a099261980c47a
 [75ac804]: https://github.com/M6VPN/linbpq/commit/75ac8040f48a1b279839f95c0da16cf22a160221
 [06e1fb5]: https://github.com/M6VPN/linbpq/commit/06e1fb554e8292efd6c85b1b78e0cb01b88677cf
