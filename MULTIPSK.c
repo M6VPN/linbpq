@@ -707,7 +707,10 @@ static RestartTNC(struct TNCINFO * TNC)
 
 	if (TNC->ProgramPath && TNC->DontRestart == 0)
 	{
-		strcpy(HomeDir, TNC->ProgramPath);
+		if (strlen(TNC->ProgramPath) >= sizeof(HomeDir))
+			return 0;
+
+		snprintf(HomeDir, sizeof(HomeDir), "%s", TNC->ProgramPath);
 		i = strlen(HomeDir);
 
 		while(--i)
@@ -867,6 +870,9 @@ static int ProcessLine(char * buf, int Port)
 	AGW->ConnTimeOut = CONTIMEOUT;
 
 	TNC->InitScript = malloc(1000);
+	if (TNC->InitScript == NULL)
+		return TRUE;
+
 	TNC->InitScript[0] = 0;
 	
 		if (p_ipad == NULL)
@@ -924,14 +930,36 @@ static int ProcessLine(char * buf, int Port)
 			if (_memicmp(buf, "UPDATEMAP", 9) == 0)
 				TNC->PktUpdateMap = TRUE;
 			else
-			if (_memicmp(buf, "ALEBEACON", 9) == 0) // Send Beacon after each session 
+			if (_memicmp(buf, "ALEBEACON", 9) == 0) // Send Beacon after each session
 				TNC->MPSKInfo->Beacon = TRUE;
 			else
-			if (_memicmp(buf, "DEFAULTMODE", 11) == 0) // Send Beacon after each session 
-				strcpy(TNC->MPSKInfo->DefaultMode, &buf[12]);
+			if (_memicmp(buf, "DEFAULTMODE", 11) == 0) // Send Beacon after each session
+			{
+				if (snprintf(TNC->MPSKInfo->DefaultMode,
+					sizeof(TNC->MPSKInfo->DefaultMode), "%s", &buf[12]) >=
+						(int)sizeof(TNC->MPSKInfo->DefaultMode))
+				{
+					snprintf(errbuf, sizeof(errbuf),
+						" ** Error - DEFAULTMODE too long for MPSK port %d\n", Port);
+					WritetoConsole(errbuf);
+					return FALSE;
+				}
+			}
 			else
-				
-			strcat (TNC->InitScript, buf);
+			{
+				size_t InitLen = strlen(TNC->InitScript);
+				size_t LineLen = strlen(buf);
+
+				if (LineLen >= 1000 - InitLen)
+				{
+					snprintf(errbuf, sizeof(errbuf),
+						" ** Error - Init script too long for MPSK port %d\n", Port);
+					WritetoConsole(errbuf);
+					return FALSE;
+				}
+
+				memcpy(&TNC->InitScript[InitLen], buf, LineLen + 1);
+			}
 		}
 
 
@@ -1611,18 +1639,33 @@ VOID CloseComplete(struct TNCINFO * TNC, int Stream)
 {
 	char Cmd[80];
 	int Len;
+	int Written;
+	size_t CmdLen;
 
-	sprintf(Cmd, "%d SCANSTART 15", TNC->Port);
+	snprintf(Cmd, sizeof(Cmd), "%d SCANSTART 15", TNC->Port);
 	Rig_Command( (TRANSPORTENTRY *) -1, Cmd);
 
 	Cmd[0] = 0;
-	
+
 	if (TNC->MPSKInfo->DefaultMode[0])
-		sprintf(Cmd, "%cDIGITAL MODE %s\x1b", '\x1a', TNC->MPSKInfo->DefaultMode);
+	{
+		Written = snprintf(Cmd, sizeof(Cmd), "%cDIGITAL MODE %s\x1b",
+			'\x1a', TNC->MPSKInfo->DefaultMode);
+
+		if (Written < 0 || Written >= (int)sizeof(Cmd))
+			return;
+	}
 
 	if (TNC->MPSKInfo->Beacon)
-		sprintf(&Cmd[strlen(Cmd)], "%cBEACON_ARQ_FAE\x1b", '\x1a');
-	
+	{
+		CmdLen = strlen(Cmd);
+		Written = snprintf(&Cmd[CmdLen], sizeof(Cmd) - CmdLen,
+			"%cBEACON_ARQ_FAE\x1b", '\x1a');
+
+		if (Written < 0 || Written >= (int)(sizeof(Cmd) - CmdLen))
+			return;
+	}
+
 	Len = strlen(Cmd);
 
 	if(Len)
