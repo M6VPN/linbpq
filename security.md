@@ -4,57 +4,58 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 
 ## Fixed
 
-- [x] Critical: HTTP session cookies are only accepted when `BPQSessionCookie=N...` resolves to a live session.
-- [x] Critical: APRS message POST requires local access or a valid session.
-- [x] Critical: APRS message POST rejects missing callsign input safely.
-- [x] High: RHP websocket stream open requests require an authenticated secure websocket session.
-- [x] High: Rig and RHP websocket control paths no longer treat cookie presence alone as authentication.
-- [x] High: HTTP session keys use OS random bytes instead of time-derived values.
-- [x] High: Node API tokens use OS random bytes instead of `rand()`.
-- [x] High: Mail API tokens use OS random bytes instead of `rand()`.
-- [x] High: Beacon form destination, file, and text writes use bounded copies.
-- [x] High: Beacon form handling rejects invalid ports before using the port slot.
-- [x] Build blocker: Local quoted include references now match the actual file casing, including `rigresource.h`.
-- [x] Linux build: `make all` compiles and links `linbpq` without invoking `sudo`.
-- [x] Linux runtime smoke test: `./linbpq -h` exits cleanly and prints usage.
-- [x] Linux daemon runtime smoke test: temporary loopback config starts, initializes port 1, stays running until timeout, and closes ports.
-- [x] High: TriMode telnet debug logging no longer uses network/session text as a `printf` format string.
-- [x] High: APRS debug logging no longer uses APRS-IS, RF, NMEA, AIS, or weather text as a `printf` format string.
-- [x] High: Telnet outward-connect command parsing and signon assembly reject oversized tokens instead of overflowing fixed buffers.
-- [x] High: Telnet, relay, and CMS login logging use bounded formatting for remote username, password, and signon text.
-- [x] High: Public node API port endpoints reject invalid port numbers before indexing fixed port tables.
-- [x] High: BBS attachment download parsing rejects malformed or oversized stored attachment filenames before copying into fixed buffers.
-- [x] High: RHP websocket receive forwarding escapes packet data into sized buffers before building JSON websocket frames.
-- [x] Medium: WebMail attachment downloads reject invalid attachment indexes before indexing fixed attachment arrays.
-- [x] High: WebMail message uploads reject excess attachments before indexing fixed attachment arrays.
-- [x] High: WebMail template form submissions reject excess multipart fields before indexing fixed key/value arrays.
-- [x] Medium: WebMail delete requests for missing message IDs return safely instead of dereferencing a missing message record.
-- [x] High: WebMail reply and quote-original requests require message ownership before exposing message content.
-- [x] High: RHP send handling rejects malformed JSON string values and invalid `\u` escapes before decoding.
-- [x] High: WebMail B2 attachment parsing rejects malformed body/file lengths, filenames, and attachment boundaries before allocation or copying.
-- [x] Medium: WebMail select-list output uses valid literal `sprintf` formats.
-- [x] High: Mail UI config updates reject oversized fields, malformed `%XX` escapes, and excessive port counts before fixed-buffer writes or array indexing.
-- [x] High: HSMODEM, FreeDATA, and MULTIPSK connect command handling rejects oversized command text before writing fixed command buffers.
-- [x] High: Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling reject oversized command text and calls before fixed-buffer writes.
-- [x] High: TNC emulator connected-status replies and serial TNC receive forwarding bound oversized modem text before fixed-buffer writes.
-- [x] High: WebMail form recursion, config radio conversion, and BBS housekeeping output bound oversized generated text before fixed-buffer writes.
-- [x] High: Remaining Linux WebMail form and template path lookups reject oversized generated paths before fixed-buffer writes.
-- [x] High: WebMail template date, sequence, form directory, and GPS substitutions bound generated values before fixed-buffer writes.
-- [x] High: VARA and ARDOP local and connect command assembly reject oversized command text and calls before fixed-buffer writes.
-- [x] High: ADIF log path, date, and comment formatting reject oversized generated log records before fixed-buffer writes.
-- [x] High: Linux PG server execution validates configured program names, bounds generated paths and argument lists, and avoids `/bin/sh -c`.
-- [x] High: YAPP upload handling rejects malformed filenames and sizes before fixed-buffer copies and bounds generated paths, logs, and rejection replies.
-- [x] High: RMS Relay sync request handling bounds generated XML and request commands and avoids use-after-free on request buffers.
-- [x] High: SCS Tracker RADIO command and tracker reply handling rejects or bounds oversized node/TNC text before fixed-buffer writes.
-- [x] High: SCS Tracker multi-stream reply handling bounds oversized TNC response text before fixed-buffer writes.
-- [x] High: SCS Pactor RADIO command and CHECKLEVEL handling rejects oversized node/TNC text before fixed-buffer writes.
-- [x] High: Manual KISS command response handling rejects oversized text and hex replies before fixed-buffer writes.
-- [x] High: POP3 LIST response handling bounds generated message-count replies before fixed-buffer writes.
-- [x] High: IP adapter status logging bounds configured adapter names before fixed-buffer writes.
-- [x] High: Linux Ethernet adapter handling rejects oversized adapter names before `ifreq` copies and bounds status logging.
-- [x] High: FLDigi UI frame reply handling rejects malformed lengths before indexing packet data and bounds generated UI replies before sending.
-- [x] High: FLDigi XML command assembly escapes string parameters, rejects wrong parameter types, and bounds generated RPC buffers before sending.
-- [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending.
+- [x] Critical: HTTP session cookies are only accepted when `BPQSessionCookie=N...` resolves to a live session. ([3d14e3d])
+- [x] Critical: APRS message POST requires local access or a valid session. ([3d14e3d])
+- [x] Critical: APRS message POST rejects missing callsign input safely. ([3d14e3d])
+- [x] High: RHP websocket stream open requests require an authenticated secure websocket session. ([3d14e3d])
+- [x] High: Rig and RHP websocket control paths no longer treat cookie presence alone as authentication. ([3d14e3d])
+- [x] High: HTTP session keys use OS random bytes instead of time-derived values. ([3d14e3d])
+- [x] High: Node API tokens use OS random bytes instead of `rand()`. ([3d14e3d])
+- [x] High: Mail API tokens use OS random bytes instead of `rand()`. ([3d14e3d])
+- [x] High: Beacon form destination, file, and text writes use bounded copies. ([3d14e3d])
+- [x] High: Beacon form handling rejects invalid ports before using the port slot. ([3d14e3d])
+- [x] Build blocker: Local quoted include references now match the actual file casing, including `rigresource.h`. ([bfff949])
+- [x] Linux build: `make all` compiles and links `linbpq` without invoking `sudo`. ([66478d8])
+- [x] Linux runtime smoke test: `./linbpq -h` exits cleanly and prints usage. ([66478d8])
+- [x] Linux daemon runtime smoke test: temporary loopback config starts, initializes port 1, stays running until timeout, and closes ports. ([66478d8], [fbf82a0])
+- [x] High: RHP session send, close, and status requests reject handles not owned by the current websocket session. ([75e083c])
+- [x] High: TriMode telnet debug logging no longer uses network/session text as a `printf` format string. ([1946167])
+- [x] High: APRS debug logging no longer uses APRS-IS, RF, NMEA, AIS, or weather text as a `printf` format string. ([4b31822])
+- [x] High: Telnet outward-connect command parsing and signon assembly reject oversized tokens instead of overflowing fixed buffers. ([62b037b])
+- [x] High: Telnet, relay, and CMS login logging use bounded formatting for remote username, password, and signon text. ([92f6e91])
+- [x] High: Public node API port endpoints reject invalid port numbers before indexing fixed port tables. ([207953b])
+- [x] High: BBS attachment download parsing rejects malformed or oversized stored attachment filenames before copying into fixed buffers. ([8bb38e5])
+- [x] High: RHP websocket receive forwarding escapes packet data into sized buffers before building JSON websocket frames. ([77a294a])
+- [x] Medium: WebMail attachment downloads reject invalid attachment indexes before indexing fixed attachment arrays. ([54ee17a])
+- [x] High: WebMail message uploads reject excess attachments before indexing fixed attachment arrays. ([c051946])
+- [x] High: WebMail template form submissions reject excess multipart fields before indexing fixed key/value arrays. ([874f364])
+- [x] Medium: WebMail delete requests for missing message IDs return safely instead of dereferencing a missing message record. ([a5cab13])
+- [x] High: WebMail reply and quote-original requests require message ownership before exposing message content. ([f788b88])
+- [x] High: RHP send handling rejects malformed JSON string values and invalid `\u` escapes before decoding. ([8f15e89])
+- [x] High: WebMail B2 attachment parsing rejects malformed body/file lengths, filenames, and attachment boundaries before allocation or copying. ([8f15e89])
+- [x] Medium: WebMail select-list output uses valid literal `sprintf` formats. ([8f15e89])
+- [x] High: Mail UI config updates reject oversized fields, malformed `%XX` escapes, and excessive port counts before fixed-buffer writes or array indexing. ([6dc6df5])
+- [x] High: HSMODEM, FreeDATA, and MULTIPSK connect command handling rejects oversized command text before writing fixed command buffers. ([aca8da7])
+- [x] High: Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling reject oversized command text and calls before fixed-buffer writes. ([7ea04ad])
+- [x] High: TNC emulator connected-status replies and serial TNC receive forwarding bound oversized modem text before fixed-buffer writes. ([1cfcd38])
+- [x] High: WebMail form recursion, config radio conversion, and BBS housekeeping output bound oversized generated text before fixed-buffer writes. ([f13da93])
+- [x] High: Remaining Linux WebMail form and template path lookups reject oversized generated paths before fixed-buffer writes. ([c4b5f8e])
+- [x] High: WebMail template date, sequence, form directory, and GPS substitutions bound generated values before fixed-buffer writes. ([06e1fb5])
+- [x] High: VARA and ARDOP local and connect command assembly reject oversized command text and calls before fixed-buffer writes. ([75ac804])
+- [x] High: ADIF log path, date, and comment formatting reject oversized generated log records before fixed-buffer writes. ([839726c])
+- [x] High: Linux PG server execution validates configured program names, bounds generated paths and argument lists, and avoids `/bin/sh -c`. ([0986ef9])
+- [x] High: YAPP upload handling rejects malformed filenames and sizes before fixed-buffer copies and bounds generated paths, logs, and rejection replies. ([6246c85])
+- [x] High: RMS Relay sync request handling bounds generated XML and request commands and avoids use-after-free on request buffers. ([38f91a1])
+- [x] High: SCS Tracker RADIO command and tracker reply handling rejects or bounds oversized node/TNC text before fixed-buffer writes. ([3be7619])
+- [x] High: SCS Tracker multi-stream reply handling bounds oversized TNC response text before fixed-buffer writes. ([4cf53bb])
+- [x] High: SCS Pactor RADIO command and CHECKLEVEL handling rejects oversized node/TNC text before fixed-buffer writes. ([129a552])
+- [x] High: Manual KISS command response handling rejects oversized text and hex replies before fixed-buffer writes. ([bc3d541])
+- [x] High: POP3 LIST response handling bounds generated message-count replies before fixed-buffer writes. ([57edf61])
+- [x] High: IP adapter status logging bounds configured adapter names before fixed-buffer writes. ([a30cbd3])
+- [x] High: Linux Ethernet adapter handling rejects oversized adapter names before `ifreq` copies and bounds status logging. ([b391328])
+- [x] High: FLDigi UI frame reply handling rejects malformed lengths before indexing packet data and bounds generated UI replies before sending. ([73a8e67])
+- [x] High: FLDigi XML command assembly escapes string parameters, rejects wrong parameter types, and bounds generated RPC buffers before sending. ([8969235])
+- [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending. ([344c685])
 
 ## Known Problems
 
@@ -220,3 +221,44 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B FLDigi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the FLDigi default modem bounds fix | Completed with remaining existing unrelated warnings; the default modem command overflow warning is cleared. |
 | `make -f makefile clean` after the FLDigi default modem bounds fix | Completed. |
 | `make -f makefile nomqtt` after the FLDigi default modem bounds fix | Completed and linked `linbpq`. |
+
+[73a8e67]: https://github.com/M6VPN/linbpq/commit/73a8e67edf2fba824df514d74c5fb4b45f42a5f4
+[8969235]: https://github.com/M6VPN/linbpq/commit/896923589e5d572d6940e51b5464c4a3e5189bad
+[344c685]: https://github.com/M6VPN/linbpq/commit/344c685d5b6f74cfaca26f366d387aec6d5a279d
+[b391328]: https://github.com/M6VPN/linbpq/commit/b39132848c8e009a9660e1510ca844c3e9b8a026
+[a30cbd3]: https://github.com/M6VPN/linbpq/commit/a30cbd3101867692436824a9b7ff02de9234ea96
+[57edf61]: https://github.com/M6VPN/linbpq/commit/57edf61cc5eb2498d6f127a152d78f676dc30535
+[bc3d541]: https://github.com/M6VPN/linbpq/commit/bc3d5410cf0c3398bcbb5ed61ddb9610d7d08daf
+[129a552]: https://github.com/M6VPN/linbpq/commit/129a5521e28d0c82367eb1e822c3aad790c013f6
+[4cf53bb]: https://github.com/M6VPN/linbpq/commit/4cf53bb96f11fd4140c751048fb49a89f5cbe8a7
+[3be7619]: https://github.com/M6VPN/linbpq/commit/3be76198feaa7f3c30bea2f4ceeeeda80ddce11c
+[38f91a1]: https://github.com/M6VPN/linbpq/commit/38f91a1debe7add8b81ad03fd6ffc817d7671b14
+[6246c85]: https://github.com/M6VPN/linbpq/commit/6246c858ca8c8d3d32205f4ce67c1b325d611f90
+[0986ef9]: https://github.com/M6VPN/linbpq/commit/0986ef9873e3389aca7131e6179a0499a1687beb
+[839726c]: https://github.com/M6VPN/linbpq/commit/839726c4388dbf824957d73e56a099261980c47a
+[75ac804]: https://github.com/M6VPN/linbpq/commit/75ac8040f48a1b279839f95c0da16cf22a160221
+[06e1fb5]: https://github.com/M6VPN/linbpq/commit/06e1fb554e8292efd6c85b1b78e0cb01b88677cf
+[c4b5f8e]: https://github.com/M6VPN/linbpq/commit/c4b5f8ee8503f2d33bada85458ef7369edba70b3
+[f13da93]: https://github.com/M6VPN/linbpq/commit/f13da93498026fe124acc1071fb5865f5259fdf9
+[1cfcd38]: https://github.com/M6VPN/linbpq/commit/1cfcd38bbfc8007f201e48a446bc24fb1fd74c9b
+[7ea04ad]: https://github.com/M6VPN/linbpq/commit/7ea04ad00d4dba8d456a823bcbec5093c4df07c5
+[aca8da7]: https://github.com/M6VPN/linbpq/commit/aca8da76f5043cc54c9f24d1b8cff5f99f540c0f
+[6dc6df5]: https://github.com/M6VPN/linbpq/commit/6dc6df51ff70dc82f272cc6b720b01c7743ead9b
+[8f15e89]: https://github.com/M6VPN/linbpq/commit/8f15e89e659c42b23286c0355b8985dc11bc3481
+[f788b88]: https://github.com/M6VPN/linbpq/commit/f788b88e23cfc19b8d0ba4ea7cfc4d78ddfdd0a7
+[a5cab13]: https://github.com/M6VPN/linbpq/commit/a5cab1399c03c7610663e34ced4ee93755612000
+[874f364]: https://github.com/M6VPN/linbpq/commit/874f364e005e2f662798e65b0ff35508464c770a
+[c051946]: https://github.com/M6VPN/linbpq/commit/c05194695c0989fbb19e722a7f81ebee431d745d
+[54ee17a]: https://github.com/M6VPN/linbpq/commit/54ee17aaf72f8b9d83164afe1639a2a4e4d3e200
+[77a294a]: https://github.com/M6VPN/linbpq/commit/77a294a83a1580fc1b835f6516888585fc81864c
+[8bb38e5]: https://github.com/M6VPN/linbpq/commit/8bb38e526230c30d79b7869cbf55c24003dc3993
+[207953b]: https://github.com/M6VPN/linbpq/commit/207953b8c82805652f5d1de9e12921d3756016e2
+[92f6e91]: https://github.com/M6VPN/linbpq/commit/92f6e91784345e41203aaf8d22f54b24c21162fd
+[62b037b]: https://github.com/M6VPN/linbpq/commit/62b037be0f2f184fa19ba8de2c30b5deb72ffae0
+[4b31822]: https://github.com/M6VPN/linbpq/commit/4b31822ebd71c1f59094b5f4ce9881c85c1ec444
+[1946167]: https://github.com/M6VPN/linbpq/commit/1946167fd4cb6832945d2f4375340680b08c2f3c
+[fbf82a0]: https://github.com/M6VPN/linbpq/commit/fbf82a092df6e3c49c34ebdf3fffe0dcdfab296d
+[66478d8]: https://github.com/M6VPN/linbpq/commit/66478d8d57ef5e2a1a5bc63d81ad48edc6320c7a
+[bfff949]: https://github.com/M6VPN/linbpq/commit/bfff9497d1c0db54fd6f3e3b14189e7e74d148af
+[75e083c]: https://github.com/M6VPN/linbpq/commit/75e083c509483883986dd0ce5f5cf316400fe67f
+[3d14e3d]: https://github.com/M6VPN/linbpq/commit/3d14e3d7d48da4ff4e800884a95f48e65e02036b
