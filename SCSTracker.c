@@ -87,6 +87,32 @@ extern VOID TrkCloseComplete(struct TNCINFO * TNC, int Stream);
 VOID RPRWriteCOMBlock(struct TNCINFO * TNC, UCHAR * Msg, int Len);
 void WriteDebugLogLine(int Port, char Dirn, char * Msg, int MsgLen);
 VOID UpdateMHwithDigis(struct TNCINFO * TNC, UCHAR * Call, char Mode, char Direction);
+static BOOL QueueTRKReply(struct TNCINFO * TNC, int Stream, const char * Text);
+
+
+static BOOL QueueTRKReply(struct TNCINFO * TNC, int Stream, const char * Text)
+{
+	PMSGWITHLEN buffptr;
+	int Len;
+
+	buffptr = GetBuff();
+
+	if (buffptr == NULL)
+		return FALSE;
+
+	Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data), "TRK} %s", Text);
+
+	if (Len < 0 || (size_t)Len >= sizeof(buffptr->Data))
+	{
+		ReleaseBuffer(buffptr);
+		return FALSE;
+	}
+
+	buffptr->Len = (size_t)Len;
+	C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+
+	return TRUE;
+}
 
 
 BOOL TrkWriteCommBlock(struct TNCINFO * TNC)
@@ -1244,6 +1270,8 @@ reinit:
 			int datalen;
 			PMSGWITHLEN buffptr;
 			char * Buffer;
+			char RadioCommand[256];
+			int RadioCommandLen;
 
 			buffptr = Q_REM(&TNC->Streams[Stream].BPQtoPACTOR_Q);
 
@@ -1304,6 +1332,12 @@ reinit:
 			Poll[1] = 1;			// Command
 			datalen--;				// Exclude CR
 
+			if ((size_t)datalen >= sizeof(buffptr->Data))
+			{
+				ReleaseBuffer(buffptr);
+				return;
+			}
+
 			if (datalen == 0)		// Null Command
 			{
 				ReleaseBuffer(buffptr);
@@ -1322,15 +1356,29 @@ reinit:
 
 			if (memcmp(Buffer, "RADIO ", 6) == 0)
 			{
-				sprintf(&Buffer[40], "%d %s", TNC->Port, &Buffer[6]);
+				RadioCommandLen = snprintf(RadioCommand, sizeof(RadioCommand), "%d %s", TNC->Port, &Buffer[6]);
 
-				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, &Buffer[40]))
+				if (RadioCommandLen < 0 || (size_t)RadioCommandLen >= sizeof(RadioCommand))
+				{
+					ReleaseBuffer(buffptr);
+					return;
+				}
+
+				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, RadioCommand))
 				{
 					ReleaseBuffer(buffptr);
 				}
 				else
 				{
-					buffptr->Len = sprintf(buffptr->Data, "%s", &Buffer[40]);
+					RadioCommandLen = snprintf((char *)buffptr->Data, sizeof(buffptr->Data), "%s", RadioCommand);
+
+					if (RadioCommandLen < 0 || (size_t)RadioCommandLen >= sizeof(buffptr->Data))
+					{
+						ReleaseBuffer(buffptr);
+						return;
+					}
+
+					buffptr->Len = (size_t)RadioCommandLen;
 					C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
 				}
 				return;
@@ -1937,13 +1985,7 @@ VOID TrkProcessDEDFrame(struct TNCINFO * TNC)
 			if (TNC->MSGCHANNEL == 0)			// Unproto Channel
 				return;
 
-			buffptr = GetBuff();
-
-			if (buffptr == NULL) return;			// No buffers, so ignore
-
-			buffptr->Len = sprintf(buffptr->Data, "TRK} %s", Buffer);
-
-			C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+			QueueTRKReply(TNC, Stream, Buffer);
 
 			return;
 		}
@@ -2352,13 +2394,7 @@ VOID TrkProcessDEDFrame(struct TNCINFO * TNC)
 		if (TNC->MSGCHANNEL == 0)			// Unproto Channel
 			return;
 
-		buffptr = GetBuff();
-
-		if (buffptr == NULL) return;			// No buffers, so ignore
-
-		buffptr->Len = sprintf(buffptr->Data,"TRK} %s", &Msg[4]);
-
-		C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+		QueueTRKReply(TNC, Stream, (char *)&Msg[4]);
 
 		return;
 	}

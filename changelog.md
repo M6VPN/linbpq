@@ -21,6 +21,7 @@ Source: current security fixes in this working tree.
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used.
 - Fixed YAPP upload handling so malformed filenames, sizes, generated paths, logs, and rejection replies are rejected or bounded before fixed-buffer writes.
 - Fixed RMS Relay sync request handling so XML and request commands are bounded, allocation failures abort cleanly, and buffers are not used after free.
+- Fixed SCS Tracker RADIO command and tracker reply handling so oversized node/TNC text is rejected or bounded before fixed-buffer writes.
 
 ### Verification
 
@@ -72,6 +73,9 @@ Source: current security fixes in this working tree.
 - `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the RMS Relay sync request format and use-after-free warnings are cleared.
 - `make -f makefile clean` completed before the final RMS Relay sync request verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the RMS Relay sync request fix.
+- `make -f makefile -B SCSTracker.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the SCS Tracker RADIO command and tracker reply overflow/overlap warnings are cleared.
+- `make -f makefile clean` completed before the final SCS Tracker bounds verification build.
+- `make -f makefile nomqtt` completed and linked `linbpq` after the SCS Tracker bounds fix.
 
 ## 2026-05-22
 
