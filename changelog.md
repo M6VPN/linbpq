@@ -6,6 +6,7 @@ Sources: commits listed on each fixed security line.
 
 ### Security
 
+- Fixed circuit status event reporting so generated UDP JSON is bounded and truncated status reports are not sent. ([2c3e1e0])
 - Fixed node status event reporting so generated UDP JSON is bounded and truncated status reports are not sent. ([a5e9620])
 - Fixed node-down event reporting so generated UDP JSON is bounded and truncated shutdown reports are not sent. ([f385422])
 - Fixed L2 status event reporting so status interval calculations avoid divide-by-zero and generated UDP JSON is bounded before sending. ([9e8f441])
@@ -14,6 +15,8 @@ Sources: commits listed on each fixed security line.
 
 ### Verification
 
+- `git diff --check` completed after the circuit status event reporting fix.
+- `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the circuit status event reporting fix; the `L4StatusSeport` format warnings are cleared.
 - `git diff --check` completed after the node status event reporting fix.
 - `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the node status event reporting fix; the `hookNodeRunning` format warning is cleared.
 - `git diff --check` completed after the node-down event reporting fix.
@@ -311,6 +314,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[2c3e1e0]: https://github.com/M6VPN/linbpq/commit/2c3e1e0d0d32f7207d1a1950f5cd4eb4dbd39679
 [a5e9620]: https://github.com/M6VPN/linbpq/commit/a5e962084d4da08daf061c1e8c0c726cb492e2e2
 [f385422]: https://github.com/M6VPN/linbpq/commit/f385422a2af14c450e3d223d84e67ccf8e5c6c3c
 [9e8f441]: https://github.com/M6VPN/linbpq/commit/9e8f4416a4cbf080482272126bf5e99ff4308391
