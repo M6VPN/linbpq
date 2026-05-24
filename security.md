@@ -51,6 +51,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: Manual KISS command response handling rejects oversized text and hex replies before fixed-buffer writes.
 - [x] High: POP3 LIST response handling bounds generated message-count replies before fixed-buffer writes.
 - [x] High: IP adapter status logging bounds configured adapter names before fixed-buffer writes.
+- [x] High: Linux Ethernet adapter handling rejects oversized adapter names before `ifreq` copies and bounds status logging.
 
 ## Known Problems
 
@@ -204,3 +205,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B IPCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the IP adapter status bounds fix | Completed with remaining existing unrelated warnings; the IP adapter status overflow warnings are cleared. |
 | `make -f makefile clean` after the IP adapter status bounds fix | Completed. |
 | `make -f makefile nomqtt` after the IP adapter status bounds fix | Completed and linked `linbpq`. |
+| `make -f makefile -B linether.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the Linux Ethernet adapter bounds fix | Completed with remaining existing unrelated warnings; the adapter status overflow warning is cleared. |
+| `make -f makefile clean` after the Linux Ethernet adapter bounds fix | Completed. |
+| `make -f makefile nomqtt` after the Linux Ethernet adapter bounds fix | Completed and linked `linbpq`. |

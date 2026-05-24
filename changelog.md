@@ -27,6 +27,7 @@ Source: current security fixes in this working tree.
 - Fixed manual KISS command response handling so oversized text and hex replies are rejected before fixed-buffer writes.
 - Fixed POP3 LIST response handling so generated message-count replies are bounded before fixed-buffer writes.
 - Fixed IP adapter status logging so configured adapter names are bounded before fixed-buffer writes.
+- Fixed Linux Ethernet adapter handling so oversized adapter names are rejected before `ifreq` copies and status logging is bounded.
 
 ### Verification
 
@@ -96,6 +97,9 @@ Source: current security fixes in this working tree.
 - `make -f makefile -B IPCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the IP adapter status overflow warnings are cleared.
 - `make -f makefile clean` completed before the final IP adapter status verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the IP adapter status bounds fix.
+- `make -f makefile -B linether.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the Linux Ethernet adapter status overflow warning is cleared.
+- `make -f makefile clean` completed before the final Linux Ethernet adapter verification build.
+- `make -f makefile nomqtt` completed and linked `linbpq` after the Linux Ethernet adapter bounds fix.
 
 ## 2026-05-22
 

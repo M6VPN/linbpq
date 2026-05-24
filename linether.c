@@ -226,14 +226,13 @@ void * ETHERExtInit(struct PORTCONTROL *  PortEntry)
 
 	int i=0;
 	u_int netmask;
-	char buf[256];
-	int n;
+	char buf[288];
 	struct ifreq ifr;
 	size_t if_name_len;
 	PCAPINFO * IF;
 	int port = PortEntry->PORTNUMBER;
 	u_long param=1;
-    struct ifreq buffer;
+	struct ifreq buffer;
 
 	WritetoConsoleLocal("LinEther ");
 
@@ -244,7 +243,14 @@ void * ETHERExtInit(struct PORTCONTROL *  PortEntry)
 	if (!ReadConfigFile(port))
 		return (FALSE);
 
+	memset(&ifr, 0x00, sizeof(ifr));
 	if_name_len = strlen(Adapter);
+
+	if (if_name_len >= sizeof(ifr.ifr_name))
+	{
+		WritetoConsoleLocal("BPQEther - Adapter name too long\n");
+		return (FALSE);
+	}
 
 	IF = &PCAPInfo[port];
 
@@ -273,7 +279,7 @@ void * ETHERExtInit(struct PORTCONTROL *  PortEntry)
 		memcpy(IF->EthSource, buffer.ifr_hwaddr.sa_data, 6);
 	}
 
-	n=sprintf(buf,"Using %s = Interface %d\n", Adapter, ifr.ifr_ifindex);
+	snprintf(buf, sizeof(buf), "Using %s = Interface %d\n", Adapter, ifr.ifr_ifindex);
 	WritetoConsoleLocal(buf);
 
 	/*prepare sockaddr_ll*/
