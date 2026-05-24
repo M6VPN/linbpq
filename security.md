@@ -52,6 +52,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: SCS Pactor serial receive debug logging uses a literal format string for TNC text. ([e96206a])
 - [x] High: SCS Pactor RADIO command and CHECKLEVEL handling rejects oversized node/TNC text before fixed-buffer writes. ([129a552])
 - [x] High: Manual KISS command response handling rejects oversized text and hex replies before fixed-buffer writes. ([bc3d541])
+- [x] High: Mail address cleanup debug logging uses a literal format string for parsed mail header addresses. ([0342f42])
 - [x] High: POP3 LIST response handling bounds generated message-count replies before fixed-buffer writes. ([57edf61])
 - [x] High: IP adapter status logging bounds configured adapter names before fixed-buffer writes. ([a30cbd3])
 - [x] High: Linux Ethernet adapter handling rejects oversized adapter names before `ifreq` copies and bounds status logging. ([b391328])
@@ -213,6 +214,8 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B kiss.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the manual KISS response bounds fix | Completed with remaining existing unrelated warnings; the manual response overflow warning is cleared. |
 | `make -f makefile clean` after the manual KISS response bounds fix | Completed. |
 | `make -f makefile nomqtt` after the manual KISS response bounds fix | Completed and linked `linbpq`. |
+| `git diff --check` after the Mail address debug format fix | Completed. |
+| `make -f makefile -B MailTCP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the Mail address debug format fix | Completed with existing unrelated warnings. |
 | `make -f makefile -B MailTCP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the POP3 LIST response bounds fix | Completed with remaining existing unrelated warnings; the POP3 LIST response overflow warning is cleared. |
 | `make -f makefile clean` after the POP3 LIST response bounds fix | Completed. |
 | `make -f makefile nomqtt` after the POP3 LIST response bounds fix | Completed and linked `linbpq`. |
@@ -249,6 +252,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 [344c685]: https://github.com/M6VPN/linbpq/commit/344c685d5b6f74cfaca26f366d387aec6d5a279d
 [b391328]: https://github.com/M6VPN/linbpq/commit/b39132848c8e009a9660e1510ca844c3e9b8a026
 [a30cbd3]: https://github.com/M6VPN/linbpq/commit/a30cbd3101867692436824a9b7ff02de9234ea96
+[0342f42]: https://github.com/M6VPN/linbpq/commit/0342f4271615fd37376fbd2df70996fe2d2a8123
 [57edf61]: https://github.com/M6VPN/linbpq/commit/57edf61cc5eb2498d6f127a152d78f676dc30535
 [bc3d541]: https://github.com/M6VPN/linbpq/commit/bc3d5410cf0c3398bcbb5ed61ddb9610d7d08daf
 [e96206a]: https://github.com/M6VPN/linbpq/commit/e96206aec4c6c419acde028aa06d8b173011bf54
