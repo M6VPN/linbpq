@@ -35,6 +35,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] Medium: WebMail select-list output uses valid literal `sprintf` formats.
 - [x] High: Mail UI config updates reject oversized fields, malformed `%XX` escapes, and excessive port counts before fixed-buffer writes or array indexing.
 - [x] High: HSMODEM, FreeDATA, and MULTIPSK connect command handling rejects oversized command text before writing fixed command buffers.
+- [x] High: Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling reject oversized command text and calls before fixed-buffer writes.
 
 ## Known Problems
 
@@ -134,3 +135,8 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the TNC connect command fix | Completed with remaining existing unrelated warnings; the missing-call and command-response warnings are cleared. |
 | `make clean` after the TNC connect command fix | Completed. |
 | `make nomqtt` after the TNC connect command fix | Completed and linked `linbpq`. |
+| `make -B Cmd.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the downlink command bounds fix | Completed with remaining existing unrelated warnings; the downlink connect `Callstring` format-overflow warning is cleared. |
+| `make -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the local command bounds fix | Completed with remaining existing unrelated warnings; the `DIGITAL MODE` and generic command format-overflow warnings are cleared. |
+| `make -B FreeDATA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the chat-call bounds fix | Completed with remaining existing unrelated warnings; the chat-call response warning is cleared. |
+| `make clean` after the downlink command bounds fix | Completed. |
+| `make nomqtt` after the downlink command bounds fix | Completed and linked `linbpq`. |

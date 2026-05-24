@@ -2928,6 +2928,7 @@ Downlink:
 				struct DATAMESSAGE * Buffer;
 				struct DATAMESSAGE Message = {0};
 				char Callstring[80];
+				int CallLen;
 				int len;
 				
 				//	Found a free one - use it
@@ -2944,6 +2945,43 @@ Downlink:
 					SendCommandReply(Session, REPLYBUFFER, (int)(Bufferptr - (char *)REPLYBUFFER));
 					return;
 				}
+
+				/* Build the TNC command before allocating the downlink session. */
+				if (memcmp(EXTPORT->PORT_DLL_NAME, "TELNET", 6) == 0 || memcmp(EXTPORT->PORT_DLL_NAME, "SCSPACTOR", 9) == 0)
+				{
+					CallLen = snprintf(Callstring, sizeof(Callstring), "C %s", cmdCopy);
+				}
+				else
+				{
+					TextCall[TextCallLen] = 0;
+
+					CallLen = snprintf(Callstring, sizeof(Callstring), "C %s", TextCall);
+
+					if (CallLen >= 0 && axcalls[7])
+					{
+						int digi = 7;
+
+						// we have digis
+
+						CallLen += snprintf(&Callstring[CallLen], sizeof(Callstring) - CallLen, " via");
+
+						while (CallLen >= 0 && CallLen < (int)sizeof(Callstring) && axcalls[digi])
+						{
+							TextCall[ConvFromAX25(&axcalls[digi], TextCall)] = 0;
+							CallLen += snprintf(&Callstring[CallLen], sizeof(Callstring) - CallLen, " %s", TextCall);
+							digi += 7;
+						}
+					}
+				}
+
+				if (CallLen < 0 || CallLen >= (int)sizeof(Callstring) - 1)
+				{
+					Bufferptr = Cmdprintf(Session, Bufferptr, "Error - Connect command too long\r");
+					SendCommandReply(Session, REPLYBUFFER, (int)(Bufferptr - (char *)REPLYBUFFER));
+					return;
+				}
+
+				len = CallLen;
 
 				//	GET CIRCUIT TABLE ENTRY FOR OTHER END OF LINK
 	
@@ -3011,34 +3049,11 @@ noFlip:
 
 				// if on Telnet Port convert use original cmd tail
 
-				// Why just on telnet - what not all ports?? 
+				// Why just on telnet - what not all ports??
 
 				if (memcmp(EXTPORT->PORT_DLL_NAME, "TELNET", 6) == 0 || memcmp(EXTPORT->PORT_DLL_NAME, "SCSPACTOR", 9) == 0)
 				{
 					NewSess->Secure_Session = Session->Secure_Session;
-					len = sprintf(Callstring,"C %s", cmdCopy);
-				}
-				else
-				{
-					TextCall[TextCallLen] = 0;
-
-					len = sprintf(Callstring,"C %s", TextCall);
-
-					if (axcalls[7])
-					{
-						int digi = 7;
-
-						// we have digis
-
-						len += sprintf(&Callstring[len], " via");
-
-						while (axcalls[digi])
-						{
-							TextCall[ConvFromAX25(&axcalls[digi], TextCall)] = 0;
-							len += sprintf(&Callstring[len], " %s", TextCall);
-							digi += 7;
-						}
-					}
 				}
 				Callstring[len++] = 13;
 				Callstring[len] = 0;
@@ -4618,13 +4633,14 @@ checkattachandcall:
 		// we have a call to connect to
 
 		char Callstring[80];
+		int CallLen;
 		int len;
 
 		Buffer = REPLYBUFFER;
 		Buffer->PORT = sess;
 		Buffer->PID = 0xf0;
 
-		len = sprintf(Callstring,"C %s", ptr);
+		CallLen = snprintf(Callstring, sizeof(Callstring), "C %s", ptr);
 
 		ptr = strtok_s(NULL, " ", &Context);
 
@@ -4634,12 +4650,21 @@ checkattachandcall:
 			{
 				Session->STAYFLAG = TRUE;
 			}
-			else
-				len += sprintf(&Callstring[len], " %s", ptr);
-			
+			else if (CallLen >= 0 && CallLen < (int)sizeof(Callstring))
+				CallLen += snprintf(&Callstring[CallLen], sizeof(Callstring) - CallLen, " %s", ptr);
+
 			ptr = strtok_s(NULL, " ", &Context);
 		}
-	
+
+		if (CallLen < 0 || CallLen >= (int)sizeof(Callstring) - 1)
+		{
+			Bufferptr = Cmdprintf(Session, Bufferptr, "Error - Connect command too long\r");
+			SendCommandReply(Session, REPLYBUFFER, (int)(Bufferptr - (char *)REPLYBUFFER));
+			return;
+		}
+
+		len = CallLen;
+
 		Callstring[len++] = 13;
 		Callstring[len] = 0;
 						

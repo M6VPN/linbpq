@@ -2,7 +2,7 @@
 
 ## 2026-05-24
 
-Source: current RHP and WebMail fixes in this working tree.
+Source: current security fixes in this working tree.
 
 ### Security
 
@@ -11,6 +11,7 @@ Source: current RHP and WebMail fixes in this working tree.
 - Fixed WebMail select-list output format strings so literal HTML is not passed through malformed `sprintf` formats.
 - Fixed Mail UI config updates so oversized fields, malformed `%XX` escapes, and excessive port counts are rejected before fixed-buffer writes or array indexing.
 - Fixed HSMODEM, FreeDATA, and MULTIPSK connect command handling so oversized command text is rejected before writing fixed command buffers.
+- Fixed Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling so oversized command text and calls are rejected before fixed-buffer writes.
 
 ### Verification
 
@@ -26,6 +27,11 @@ Source: current RHP and WebMail fixes in this working tree.
 - `make -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the missing-call and command-response warnings are cleared.
 - `make clean` completed before the final TNC connect command verification build.
 - `make nomqtt` completed and linked `linbpq` after the TNC connect command fix.
+- `make -B Cmd.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the downlink connect `Callstring` format-overflow warning is cleared.
+- `make -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the `DIGITAL MODE` and generic command format-overflow warnings are cleared.
+- `make -B FreeDATA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the chat-call response warning is cleared.
+- `make clean` completed before the final downlink command verification build.
+- `make nomqtt` completed and linked `linbpq` after the downlink command fix.
 
 ## 2026-05-22
 

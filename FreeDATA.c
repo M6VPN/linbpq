@@ -703,7 +703,8 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 
 				if (buffptr)
 				{
-					buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0], "FreeData} Chat with %s ended. \r", TNC->FreeDataInfo->ChatCall);
+					buffptr->Len = snprintf((char *)&buffptr->Data[0], sizeof(buffptr->Data),
+						"FreeData} Chat with %s ended. \r", TNC->FreeDataInfo->ChatCall);
 					C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
 				}
 
@@ -859,17 +860,32 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 		if (_memicmp(&buff->L2DATA[0], "CHAT ", 5) == 0)
 		{
 			char * Call = &buff->L2DATA[5];
+			size_t CallLen;
 			PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
 
 			strlop(Call, 13);
 			strlop(Call, ' ');
+			CallLen = strlen(Call);
+
+			if (CallLen >= sizeof(TNC->FreeDataInfo->ChatCall))
+			{
+				if (buffptr)
+				{
+					buffptr->Len = snprintf((char *)&buffptr->Data[0], sizeof(buffptr->Data),
+						"FreeData} Error - Chat call too long\r");
+					C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+				}
+
+				return 0;
+			}
 
 			TNC->FreeDataInfo->Chat = 1;
-			memcpy(TNC->FreeDataInfo->ChatCall, _strupr(Call), 10);
+			strcpy(TNC->FreeDataInfo->ChatCall, _strupr(Call));
 
 			if (buffptr)
 			{
-				buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0], "FreeData} Chat with %s. Enter /ex to exit\r", Call);
+				buffptr->Len = snprintf((char *)&buffptr->Data[0], sizeof(buffptr->Data),
+					"FreeData} Chat with %s. Enter /ex to exit\r", Call);
 				C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
 			}
 

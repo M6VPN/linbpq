@@ -444,9 +444,26 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 			if (_memicmp(buff->L2DATA, "MODE", 4) == 0)
 			{
 				buff->L2DATA[txlen - 1] = 0;	// Remove CR
-				
-				len = sprintf(Command,"%cDIGITAL MODE %s\x1b", '\x1a', &buff->L2DATA[5]);
-	
+
+				CommandLen = snprintf(Command, sizeof(Command), "%cDIGITAL MODE %s\x1b", '\x1a', &buff->L2DATA[5]);
+
+				if (CommandLen < 0 || CommandLen >= (int)sizeof(Command))
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+							"MPSK} Error - Command too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
+
+				len = CommandLen;
+
 				if (TNC->MPSKInfo->TX)
 					TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
 				else
@@ -570,8 +587,25 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 			buff->L2DATA[txlen - 1] = 0;
 			_strupr(buff->L2DATA);
 
-			len = sprintf(Command,"%c%s\x1b", '\x1a', buff->L2DATA);
-		
+			CommandLen = snprintf(Command, sizeof(Command), "%c%s\x1b", '\x1a', buff->L2DATA);
+
+			if (CommandLen < 0 || CommandLen >= (int)sizeof(Command))
+			{
+				PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+				if (buffptr)
+				{
+					buffptr->Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+						"MPSK} Error - Command too long\r");
+
+					C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+				}
+
+				return 0;
+			}
+
+			len = CommandLen;
+
 			if (TNC->MPSKInfo->TX)
 				TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
 			else
