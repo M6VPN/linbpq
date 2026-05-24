@@ -15,6 +15,7 @@ Source: current security fixes in this working tree.
 - Fixed TNC emulator connected-status replies and serial TNC receive forwarding so oversized modem text is bounded before fixed-buffer writes.
 - Fixed WebMail form directory recursion, config radio interlock conversion, and BBS housekeeping log/report output so oversized generated text is bounded before fixed-buffer writes.
 - Fixed remaining Linux WebMail form and template path lookups so oversized generated paths are rejected before fixed-buffer writes.
+- Fixed WebMail template date, sequence, form directory, and GPS substitutions so generated values are bounded before fixed-buffer writes.
 
 ### Verification
 
@@ -47,6 +48,9 @@ Source: current security fixes in this working tree.
 - `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the remaining Linux form and template path warnings are cleared.
 - `make clean` completed before the final WebMail form path verification build.
 - `make nomqtt` completed and linked `linbpq` after the remaining WebMail form path fix.
+- `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the template date, sequence, form directory, and GPS formatting warnings are cleared.
+- `make clean` completed before the final WebMail template date verification build.
+- `make nomqtt` completed and linked `linbpq` after the WebMail template date fix.
 
 ## 2026-05-22
 

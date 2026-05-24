@@ -5995,6 +5995,10 @@ BOOL ParsetxtTemplate(struct HTTPConnectionInfo * Session, struct HtmlFormDir * 
 	char UDate[16];
 	char DateTime[32];
 	char UDateTime[32];
+	char OriginalDate[16] = "";
+	char OriginalUDate[16] = "";
+	char OriginalUDateTime[32] = "";
+	char OriginalUDTG[32] = "";
 	char Day[16];
 	char UDay[16];
 	char UDTG[32];
@@ -6004,7 +6008,8 @@ BOOL ParsetxtTemplate(struct HTTPConnectionInfo * Session, struct HtmlFormDir * 
 	double Lon;
 	char LatString[32], LonString[32], GPSString[32];
 	BOOL GPSOK;
-	
+	int ValueLen;
+
 	struct tm * tm;
 	time_t NOW;
 
@@ -6048,32 +6053,96 @@ BOOL ParsetxtTemplate(struct HTTPConnectionInfo * Session, struct HtmlFormDir * 
 	NOW = time(NULL);
 	tm = localtime(&NOW);
 
-	sprintf(Date, "%04d-%02d-%02d",
+	ValueLen = snprintf(Date, sizeof(Date), "%04d-%02d-%02d",
 		tm->tm_year + 1900,tm->tm_mon + 1, tm->tm_mday);
-	
-	sprintf(DateTime, "%04d-%02d-%02d %02d:%02d:%02d",
+
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(Date))
+		return FALSE;
+
+	ValueLen = snprintf(DateTime, sizeof(DateTime), "%04d-%02d-%02d %02d:%02d:%02d",
 		tm->tm_year + 1900,tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-	
+
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(DateTime))
+		return FALSE;
+
 	strcpy(Day, longday[tm->tm_wday]);
 
-	tm = gmtime(&NOW);				
+	tm = gmtime(&NOW);
 
-	sprintf(UDate, "%04d-%02d-%02dZ",
+	ValueLen = snprintf(UDate, sizeof(UDate), "%04d-%02d-%02dZ",
 		tm->tm_year + 1900,tm->tm_mon + 1, tm->tm_mday);
 
-	sprintf(UDateTime, "%04d-%02d-%02d %02d:%02d:%02dZ",
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(UDate))
+		return FALSE;
+
+	ValueLen = snprintf(UDateTime, sizeof(UDateTime), "%04d-%02d-%02d %02d:%02d:%02dZ",
 		tm->tm_year + 100,tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-	sprintf(UDTG, "%02d%02d%02dZ %s %04d",
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(UDateTime))
+		return FALSE;
+
+	ValueLen = snprintf(UDTG, sizeof(UDTG), "%02d%02d%02dZ %s %04d",
 		tm->tm_mday, tm->tm_hour, tm->tm_min, month[tm->tm_mon], tm->tm_year + 1900);
+
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(UDTG))
+		return FALSE;
 
 	strcpy(UDay, longday[tm->tm_wday]);
 
-	sprintf(Seq, "%d", Session->User->WebSeqNo);
-	sprintf(FormDir, "/WebMail/WMFile/%s/%s/", WebMail->Dir->FormSet, WebMail->Dir->DirName);	
+	ValueLen = snprintf(Seq, sizeof(Seq), "%d", Session->User->WebSeqNo);
+
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(Seq))
+		return FALSE;
+
+	ValueLen = snprintf(FormDir, sizeof(FormDir), "/WebMail/WMFile/%s/%s/", WebMail->Dir->FormSet, WebMail->Dir->DirName);
+
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(FormDir))
+		return FALSE;
+
+	if (isReply)
+	{
+		tm = gmtime((time_t *)&WebMail->Msg->datecreated);
+
+		ValueLen = snprintf(OriginalDate, sizeof(OriginalDate), "%02d-%02d-%02d",
+			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday);
+
+		if (ValueLen < 0 || ValueLen >= (int)sizeof(OriginalDate))
+			return FALSE;
+
+		ValueLen = snprintf(OriginalUDate, sizeof(OriginalUDate), "%02d-%02d-%02dZ",
+			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday);
+
+		if (ValueLen < 0 || ValueLen >= (int)sizeof(OriginalUDate))
+			return FALSE;
+
+		ValueLen = snprintf(OriginalUDateTime, sizeof(OriginalUDateTime), "%02d-%02d-%02d %02d:%02dZ",
+			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min);
+
+		if (ValueLen < 0 || ValueLen >= (int)sizeof(OriginalUDateTime))
+			return FALSE;
+
+		ValueLen = snprintf(OriginalUDTG, sizeof(OriginalUDTG), "%02d%02d%02dZ %s %04d",
+			tm->tm_mday, tm->tm_hour, tm->tm_min, month[tm->tm_mon], tm->tm_year + 1900);
+
+		if (ValueLen < 0 || ValueLen >= (int)sizeof(OriginalUDTG))
+			return FALSE;
+	}
+
+	// Try to get position from APRS
+
+	GPSOK = GetAPRSLatLon(&Lat, &Lon);
+	GPSOK = GetAPRSLatLonString(&LatString[1], &LonString[1]);
+	memmove(LatString, &LatString[1], 2);
+	memmove(LonString, &LonString[1], 3);
+	LatString[2] = '-';
+	LonString[3] = '-';
+	ValueLen = snprintf(GPSString, sizeof(GPSString), "%s %s", LatString, LonString);
+
+	if (ValueLen < 0 || ValueLen >= (int)sizeof(GPSString))
+		return FALSE;
 
 	// Keep SeqNo at front
-	
+
 	txtKey->Key = _strdup("<SeqNum>");
 	txtKey++->Value = _strdup(Seq);
 
@@ -6095,16 +6164,6 @@ BOOL ParsetxtTemplate(struct HTTPConnectionInfo * Session, struct HtmlFormDir * 
 	txtKey++->Value = _strdup(UDay);
 	txtKey->Key = _strdup("<UDTG>");
 	txtKey++->Value = _strdup(UDTG);
-
-	// Try to get position from APRS
-
-	GPSOK = GetAPRSLatLon(&Lat, &Lon);
-	GPSOK = GetAPRSLatLonString(&LatString[1], &LonString[1]);
-	memmove(LatString, &LatString[1], 2);
-	memmove(LonString, &LonString[1], 3);
-	LatString[2] = '-';
-	LonString[3] = '-';
-	sprintf(GPSString,"%s %s", LatString, LonString);
 
 	txtKey->Key = _strdup("<GPS>");
 	if (GPSOK)
@@ -6152,40 +6211,18 @@ BOOL ParsetxtTemplate(struct HTTPConnectionInfo * Session, struct HtmlFormDir * 
 		txtKey->Key = _strdup("<MsgOriginalID>");
 		txtKey++->Value = _strdup(WebMail->Msg->bid);
 
-		// Get Timestamp from Message
-
-		tm = gmtime((time_t *)&WebMail->Msg->datecreated);				
-
-		sprintf(Date, "%02d-%02d-%02d",
-			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday);
-	
-		sprintf(DateTime, "%02d-%02d-%02d %02d:%02d",
-			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min);
-	
-		strcpy(Day, longday[tm->tm_wday]);
-			tm = gmtime((time_t *)&WebMail->Msg->datecreated);				
-
-		sprintf(UDate, "%02d-%02d-%02dZ",
-			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday);
-
-		sprintf(UDateTime, "%02d-%02d-%02d %02d:%02dZ",
-			tm->tm_year - 100,tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min);
-
-		sprintf(UDTG, "%02d%02d%02dZ %s %04d",
-			tm->tm_mday, tm->tm_hour, tm->tm_min, month[tm->tm_mon], tm->tm_year + 1900);
-
 		txtKey->Key = _strdup("<MsgOriginalDate>");
-		txtKey++->Value = _strdup(UDate);
+		txtKey++->Value = _strdup(OriginalUDate);
 		txtKey->Key = _strdup("<MsgOriginalUtcDate>");
-		txtKey++->Value = _strdup(UDate);
+		txtKey++->Value = _strdup(OriginalUDate);
 		txtKey->Key = _strdup("<MsgOriginalUtcTime>");
-		txtKey++->Value = _strdup(&UDateTime[9]);
+		txtKey++->Value = _strdup(&OriginalUDateTime[9]);
 		txtKey->Key = _strdup("<MsgOriginalLocalDate>");
-		txtKey++->Value = _strdup(Date);
+		txtKey++->Value = _strdup(OriginalDate);
 		txtKey->Key = _strdup("<MsgOriginalLocalTime>");
-		txtKey++->Value = _strdup(&UDateTime[9]);
+		txtKey++->Value = _strdup(&OriginalUDateTime[9]);
 		txtKey->Key = _strdup("<MsgOriginalDTG>");
-		txtKey++->Value = _strdup(UDTG);
+		txtKey++->Value = _strdup(OriginalUDTG);
 		txtKey->Key = _strdup("<MsgOriginalSize>");
 		txtKey++->Value = _strdup("");
 		txtKey->Key = _strdup("<MsgOriginalAttachmentCount>");
