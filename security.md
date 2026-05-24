@@ -46,6 +46,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: YAPP upload handling rejects malformed filenames and sizes before fixed-buffer copies and bounds generated paths, logs, and rejection replies.
 - [x] High: RMS Relay sync request handling bounds generated XML and request commands and avoids use-after-free on request buffers.
 - [x] High: SCS Tracker RADIO command and tracker reply handling rejects or bounds oversized node/TNC text before fixed-buffer writes.
+- [x] High: SCS Tracker multi-stream reply handling bounds oversized TNC response text before fixed-buffer writes.
 
 ## Known Problems
 
@@ -184,3 +185,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B SCSTracker.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the SCS Tracker bounds fix | Completed with remaining existing unrelated warnings; the RADIO command and tracker reply overflow/overlap warnings are cleared. |
 | `make -f makefile clean` after the SCS Tracker bounds fix | Completed. |
 | `make -f makefile nomqtt` after the SCS Tracker bounds fix | Completed and linked `linbpq`. |
+| `make -f makefile -B SCSTrackeMulti.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the SCS Tracker multi-stream bounds fix | Completed with remaining existing unrelated warnings; the tracker reply overflow warning is cleared. |
+| `make -f makefile clean` after the SCS Tracker multi-stream bounds fix | Completed. |
+| `make -f makefile nomqtt` after the SCS Tracker multi-stream bounds fix | Completed and linked `linbpq`. |

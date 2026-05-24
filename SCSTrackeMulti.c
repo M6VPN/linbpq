@@ -53,6 +53,32 @@ BOOL KAMStopPort(struct PORTCONTROL * PORT);
 
 char NodeCall[11];		// Nodecall, Null Terminated
 void WriteDebugLogLine(int Port, char Dirn, char * Msg, int MsgLen);
+static BOOL QueueTrackerReply(struct TNCINFO * TNC, int Stream, const char * Prefix, const char * Text);
+
+
+static BOOL QueueTrackerReply(struct TNCINFO * TNC, int Stream, const char * Prefix, const char * Text)
+{
+	PMSGWITHLEN buffptr;
+	int Len;
+
+	buffptr = GetBuff();
+
+	if (buffptr == NULL)
+		return FALSE;
+
+	Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data), "%s %s", Prefix, Text);
+
+	if (Len < 0 || (size_t)Len >= sizeof(buffptr->Data))
+	{
+		ReleaseBuffer(buffptr);
+		return FALSE;
+	}
+
+	buffptr->Len = (size_t)Len;
+	C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+
+	return TRUE;
+}
 
 static int ProcessLine(char * buf, int Port)
 {
@@ -1430,13 +1456,7 @@ static VOID ProcessDEDFrame(struct TNCINFO * TNC)
 		if (TNC->MSGCHANNEL == 0)			// Unproto Channel
 			return;
 
-		buffptr = GetBuff();
-
-		if (buffptr == NULL) return;			// No buffers, so ignore
-
-		buffptr->Len = sprintf(buffptr->Data,"TRK} %s", Buffer);
-
-		C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+		QueueTrackerReply(TNC, Stream, "TRK}", Buffer);
 
 		return;
 		}
@@ -1644,13 +1664,7 @@ static VOID ProcessDEDFrame(struct TNCINFO * TNC)
 		if (TNC->MSGCHANNEL == 0)			// Unproto Channel
 			return;
 
-		buffptr = GetBuff();
-
-		if (buffptr == NULL) return;			// No buffers, so ignore
-
-		buffptr->Len = sprintf(buffptr->Data,"Trk} %s", &Msg[4]);
-
-		C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+		QueueTrackerReply(TNC, Stream, "Trk}", (char *)&Msg[4]);
 
 		return;
 	}
