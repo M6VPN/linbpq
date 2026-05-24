@@ -56,6 +56,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: FLDigi UI frame reply handling rejects malformed lengths before indexing packet data and bounds generated UI replies before sending. ([73a8e67])
 - [x] High: FLDigi XML command assembly escapes string parameters, rejects wrong parameter types, and bounds generated RPC buffers before sending. ([8969235])
 - [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending. ([344c685])
+- [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 
 ## Known Problems
 
@@ -221,7 +222,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B FLDigi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the FLDigi default modem bounds fix | Completed with remaining existing unrelated warnings; the default modem command overflow warning is cleared. |
 | `make -f makefile clean` after the FLDigi default modem bounds fix | Completed. |
 | `make -f makefile nomqtt` after the FLDigi default modem bounds fix | Completed and linked `linbpq`. |
+| `git diff --check` after the MULTIPSK64 bounds fix | Completed. |
+| `make -f makefile -B MULTIPSK64.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK64 bounds fix | Blocked by existing Linux integration errors in `MULTIPSK64.c`, including `PortConfig`/`TNCInfo` conflicts and missing `Interlock`/`BytesRXed`/`BytesTXed` members. |
 
+[5d0cc10]: https://github.com/M6VPN/linbpq/commit/5d0cc104a05829979a9807e2ab65d077dfc63621
 [73a8e67]: https://github.com/M6VPN/linbpq/commit/73a8e67edf2fba824df514d74c5fb4b45f42a5f4
 [8969235]: https://github.com/M6VPN/linbpq/commit/896923589e5d572d6940e51b5464c4a3e5189bad
 [344c685]: https://github.com/M6VPN/linbpq/commit/344c685d5b6f74cfaca26f366d387aec6d5a279d
