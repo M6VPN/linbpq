@@ -1811,18 +1811,38 @@ BOOL UpdateWL2KSYSOPInfo(char * Call, char * SQL)
 		return 0;
 	}
 
-	len = recv(sock, &Buffer[0], len, 0);
+	len = recv(sock, &Buffer[0], sizeof(Buffer) - 1, 0);
 
-	len = sprintf(SendBuffer, "02%07d%-12s%s%s", (int)strlen(SQL), Call, GetChallengeResponse(Call, Buffer), SQL);
+	if (len <= 0)
+	{
+		closesocket(sock);
+		return 0;
+	}
+
+	Buffer[len] = 0;
+
+	len = snprintf(SendBuffer, sizeof(SendBuffer), "02%07d%-12s%s%s", (int)strlen(SQL), Call, GetChallengeResponse(Call, Buffer), SQL);
+
+	if (len < 0 || len >= (int)sizeof(SendBuffer))
+	{
+		closesocket(sock);
+		return 0;
+	}
 
 	send(sock, SendBuffer, len, 0);
 
-	len = 1000;
+	len = sizeof(Buffer) - 1;
 
 	len = recv(sock, &Buffer[0], len, 0);
 
+	if (len <= 0)
+	{
+		closesocket(sock);
+		return 0;
+	}
+
 	Buffer[len] = 0;
-	Debugprintf(Buffer);
+	Debugprintf("%s", Buffer);
 
 	closesocket(sock);
 
