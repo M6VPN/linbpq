@@ -30,6 +30,9 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: WebMail template form submissions reject excess multipart fields before indexing fixed key/value arrays.
 - [x] Medium: WebMail delete requests for missing message IDs return safely instead of dereferencing a missing message record.
 - [x] High: WebMail reply and quote-original requests require message ownership before exposing message content.
+- [x] High: RHP send handling rejects malformed JSON string values and invalid `\u` escapes before decoding.
+- [x] High: WebMail B2 attachment parsing rejects malformed body/file lengths, filenames, and attachment boundaries before allocation or copying.
+- [x] Medium: WebMail select-list output uses valid literal `sprintf` formats.
 
 ## Known Problems
 
@@ -118,3 +121,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `./linbpq -h` after the WebMail reply ownership fix | Exited cleanly and printed usage. |
 | `timeout 12s ./linbpq -c /tmp/linbpq-runtime-test/config -d /tmp/linbpq-runtime-test/data -l /tmp/linbpq-runtime-test/log` after the WebMail reply ownership fix | Started with `bpq32.cfg.example`, initialized Telnet, Chat, and Mail, stayed running until timeout, and closed ports. |
 | `pgrep -af linbpq` after the WebMail reply ownership fix | No running `linbpq` process remained after the timeout test. |
+| `git diff --check` after the RHP and WebMail parsing fixes | Completed. |
+| `make clean` after the RHP and WebMail parsing fixes | Completed. |
+| `make nomqtt` after the RHP and WebMail parsing fixes | Completed and linked `linbpq`; `mqtt.o` was rebuilt with `-DNOMQTT`. |

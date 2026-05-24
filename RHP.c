@@ -36,6 +36,7 @@ int SendMsgNoSem(int stream, char * msg, int len);
 
 static void GetJSONValue(char * _REPLYBUFFER, char * Name, char * Value, int Len);
 static int GetJSONInt(char * _REPLYBUFFER, char * Name);
+static int GetHexNibble(int c);
 
 // Generally Can have multiple RHP connections and each can have multiple RHF Sessions
 
@@ -461,10 +462,14 @@ int processRHCPSend(SOCKET Socket, char * Msg, char * ReplyBuffer)
 
 	int Handle = 1;
 
-	Data = malloc(strlen(Msg));
-
 	ID = GetJSONInt(Msg, "\"id\":");
 	Handle = GetJSONInt(Msg, "\"handle\":");
+
+	Data = malloc(strlen(Msg));
+
+	if (Data == NULL)
+		return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 4, \"errtext\": \"No memory\"}", ID, Handle);
+
 	GetJSONValue(Msg, "\"data\":", Data, strlen(Msg) - 1);
 
 	if (Handle < 1 || Handle > NumberofRHPSessions)
@@ -501,21 +506,43 @@ int processRHCPSend(SOCKET Socket, char * Msg, char * ReplyBuffer)
 		case 'u':
 
 			HexCode1 = HexCode2 = 0;
-			
-			n = toupper(ptr[2]) - '0';
-			if (n > 9) n = n - 7;
+
+			if (strlen(ptr) < 6)
+			{
+				free(Data);
+				return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 12, \"errtext\": \"Bad parameter\"}", ID, Handle);
+			}
+
+			n = GetHexNibble(ptr[2]);
+			if (n < 0)
+			{
+				free(Data);
+				return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 12, \"errtext\": \"Bad parameter\"}", ID, Handle);
+			}
 			HexCode1 |= n << 4;
 
-			n = toupper(ptr[3]) - '0';
-			if (n > 9) n = n - 7;
+			n = GetHexNibble(ptr[3]);
+			if (n < 0)
+			{
+				free(Data);
+				return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 12, \"errtext\": \"Bad parameter\"}", ID, Handle);
+			}
 			HexCode1 |= n;
 
-			n = toupper(ptr[4]) - '0';
-			if (n > 9) n = n - 7;
+			n = GetHexNibble(ptr[4]);
+			if (n < 0)
+			{
+				free(Data);
+				return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 12, \"errtext\": \"Bad parameter\"}", ID, Handle);
+			}
 			HexCode2 |= n << 4;
 
-			n = toupper(ptr[5]) - '0';
-			if (n > 9) n = n - 7;
+			n = GetHexNibble(ptr[5]);
+			if (n < 0)
+			{
+				free(Data);
+				return sprintf(ReplyBuffer, "{\"type\": \"sendReply\", \"id\": %d, \"handle\": %d, \"errCode\": 12, \"errtext\": \"Bad parameter\"}", ID, Handle);
+			}
 			HexCode2 |= n;
 
 			if (HexCode1 == 0 || HexCode1 == 0xC2)
@@ -802,17 +829,47 @@ static void GetJSONValue(char * _REPLYBUFFER, char * Name, char * Value, int Len
 	if (ptr1 == 0)
 		return;
 
-	ptr1 += (strlen(Name) + 1);
+	if (Len <= 0)
+		return;
+
+	ptr1 += strlen(Name);
+
+	while (*ptr1 == ' ' || *ptr1 == 9)
+		ptr1++;
+
+	if (*ptr1 != '"')
+		return;
+
+	ptr1++;
 
 //	"data":"{\"t\":\"c\",\"n\":\"John\",\"c\":\"G8BPQ\",\"lm\":1737912636,\"le\":1737883907,\"led\":1737758451,\"v\":0.33,\"cc\":[{\"cid\":1,\"lp\":1737917257201,\"le\":1737913735726,\"led\":1737905249785},{\"cid\":0,\"lp\":1737324074107,\"le\":1737323831510,\"led\":1737322973662},{\"cid\":5,\"lp\":1737992107419,\"le\":1737931466510,\"led\":1737770056244}]}\r","id":28}
 
 	// There may be escaped " in data stream
 
-	ptr2 = strchr(ptr1, '"');
+	ptr2 = ptr1;
 
-	while (*(ptr2 - 1) == '\\')
+	while (ptr2)
 	{
-		ptr2 = strchr(ptr2 + 2, '"');
+		char * EscPtr;
+		int Escapes = 0;
+
+		ptr2 = strchr(ptr2, '"');
+
+		if (ptr2 == NULL)
+			return;
+
+		EscPtr = ptr2;
+
+		while (EscPtr > ptr1 && *(EscPtr - 1) == '\\')
+		{
+			Escapes++;
+			EscPtr--;
+		}
+
+		if ((Escapes & 1) == 0)
+			break;
+
+		ptr2++;
 	}
 
 		
@@ -827,6 +884,20 @@ static void GetJSONValue(char * _REPLYBUFFER, char * Name, char * Value, int Len
 	}
 
 	return;
+}
+
+
+static int GetHexNibble(int c)
+{
+	c = toupper(c);
+
+	if (c >= '0' && c <= '9')
+		return c - '0';
+
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+
+	return -1;
 }
 
 

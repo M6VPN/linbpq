@@ -1066,9 +1066,10 @@ int ViewWebMailMessage(struct HTTPConnectionInfo * Session, char * Reply, int Nu
 
 			if (Msg->B2Flags & Attachments)
 			{
-				int BodyLen, NewLen;
+				int BodyLen = -1, NewLen;
 				int i;
-				char *ptr2, *attptr;	
+				char *ptr2, *attptr;
+				char *MsgEnd = MsgBytes + msgLen;
 
 				sprintf(DownLoad, "<td><a href=/WebMail/DL?%s&%d>Save Attachments</a></td>", Key, Msg->number);
 
@@ -1078,34 +1079,70 @@ int ViewWebMailMessage(struct HTTPConnectionInfo * Session, char * Reply, int Nu
 
 				//				ptr += sprintf(ptr, "Message has Attachments\r\n\r\n");
 
-				while(*ptr1 != 13)
+				while(ptr1 < MsgEnd && *ptr1 != 13)
 				{
-					ptr2 = strchr(ptr1, 10);	// Find CR
+					ptr2 = memchr(ptr1, 10, MsgEnd - ptr1);	// Find LF
 
-					if (memcmp(ptr1, "Body: ", 6) == 0)
+					if (ptr2 == NULL || ptr2 == ptr1 || ptr2[-1] != 13)
+						goto BadAttachment;
+
+					if ((ptr2 - ptr1) >= 6 && memcmp(ptr1, "Body: ", 6) == 0)
 					{
-						BodyLen = atoi(&ptr1[6]);
+						char * endptr;
+						long ParsedLen = strtol(&ptr1[6], &endptr, 10);
+
+						if (endptr == &ptr1[6] || ParsedLen < 0 || ParsedLen > msgLen)
+							goto BadAttachment;
+
+						BodyLen = (int)ParsedLen;
 					}
 
-					if (memcmp(ptr1, "File: ", 6) == 0)
+					if ((ptr2 - ptr1) >= 6 && memcmp(ptr1, "File: ", 6) == 0)
 					{
-						char * ptr3 = strchr(&ptr1[6], ' ');	// Find Space
-						*(ptr2 - 1) = 0;
+						char * endptr;
+						long ParsedLen;
+						int NameLen;
 
-						WebMail->FileLen[WebMail->Files] = atoi(&ptr1[6]);
-						WebMail->FileName[WebMail->Files++] = _strdup(&ptr3[1]);
-						*(ptr2 - 1) = ' ';		// put space back
+						if (WebMail->Files >= 100)
+							goto BadAttachment;
+
+						ParsedLen = strtol(&ptr1[6], &endptr, 10);
+
+						if (endptr == &ptr1[6] || ParsedLen < 0 || ParsedLen > msgLen ||
+							*endptr != ' ' || endptr >= ptr2 - 1)
+							goto BadAttachment;
+
+						NameLen = (int)(ptr2 - endptr - 2);
+
+						if (NameLen <= 0 || NameLen >= MAX_PATH)
+							goto BadAttachment;
+
+						WebMail->FileName[WebMail->Files] = malloc(NameLen + 1);
+
+						if (WebMail->FileName[WebMail->Files] == NULL)
+							goto BadAttachment;
+
+						memcpy(WebMail->FileName[WebMail->Files], endptr + 1, NameLen);
+						WebMail->FileName[WebMail->Files][NameLen] = 0;
+						WebMail->FileLen[WebMail->Files++] = (int)ParsedLen;
 					}
 
-					ptr1 = ptr2;
-					ptr1++;
+					ptr1 = ptr2 + 1;
 				}
+
+				if (ptr1 >= MsgEnd || BodyLen < 0 || WebMail->Files == 0 ||
+					MsgEnd - ptr1 < BodyLen + 2)
+					goto BadAttachment;
 
 				ptr1 += 2;			// Over Blank Line and Separator
 
 				// ptr1 is pointing to body. Save for possible reply
 
 				WebMail->Body = malloc(BodyLen + 2);
+
+				if (WebMail->Body == NULL)
+					goto BadAttachment;
+
 				memcpy(WebMail->Body, ptr1, BodyLen);
 				WebMail->Body[BodyLen] = 0;
 
@@ -1117,11 +1154,18 @@ int ViewWebMailMessage(struct HTTPConnectionInfo * Session, char * Reply, int Nu
 
 				// Save pointers to file
 
-				attptr = ptr1; 
+				attptr = ptr1;
 
 				for (i = 0; i < WebMail->Files; i++)
 				{
-					WebMail->FileBody[i] = malloc(WebMail->FileLen[i]);
+					if (MsgEnd - attptr < WebMail->FileLen[i] + 2)
+						goto BadAttachment;
+
+					WebMail->FileBody[i] = malloc(WebMail->FileLen[i] ? WebMail->FileLen[i] : 1);
+
+					if (WebMail->FileBody[i] == NULL)
+						goto BadAttachment;
+
 					memcpy(WebMail->FileBody[i], attptr, WebMail->FileLen[i]);
 					attptr += (WebMail->FileLen[i] + 2);
 				}
@@ -1300,6 +1344,15 @@ int ViewWebMailMessage(struct HTTPConnectionInfo * Session, char * Reply, int Nu
 		ptr += sprintf(ptr, "File for Message %d not found\r", Number);
 	}
 
+	goto MessageReady;
+
+BadAttachment:
+	FreeWebMailFields(WebMail);
+	free(Save);
+	DownLoad[0] = 0;
+	sprintf(Message, "Invalid attachment header\r");
+
+MessageReady:
 	if (DisplayHTML && stristr(Message, "</html>"))
 		DisplayStyle = "div";				// Use div so HTML and XML are interpreted
 
@@ -2632,7 +2685,7 @@ VOID SendTemplateSelectScreen(struct HTTPConnectionInfo * Session, char *Params,
 			n++;
 		}
 	}
-	len += sprintf(&popup[len], "%</select></td></tr></table></p>");
+	len += sprintf(&popup[len], "</select></td></tr></table></p>");
 
 	*WebMail->RLen = sprintf(WebMail->Reply, "%s", popup);
 
@@ -5821,7 +5874,7 @@ BOOL DoSelectPrompt(struct HTTPConnectionInfo * Session, char * Select)
 
 		len += sprintf(&popup[len], " <option value='%s'>%s", key, var[i]);
 	}
-	len += sprintf(&popup[len], "%s</select></td></tr></table><br><input onclick=window.history.back() value=Back type=button class='btn'></div>");
+	len += sprintf(&popup[len], "</select></td></tr></table><br><input onclick=window.history.back() value=Back type=button class='btn'></div>");
 
 	*WebMail->RLen = sprintf(WebMail->Reply, "%s", popup);
 	free(SelCopy);
@@ -6398,7 +6451,7 @@ VOID getAttachmentList(struct HTTPConnectionInfo * Session, char * Reply, int * 
 			len += sprintf(&popup[len], " <option value=%d>%s (Len %d)", i + 1, WebMail->FileName[i], WebMail->FileLen[i]);
 	}
 
-	len += sprintf(&popup[len], "%</select></td></tr></table><br><input onclick=window.history.back() value=Back type=button class='btn'></div>");
+	len += sprintf(&popup[len], "</select></td></tr></table><br><input onclick=window.history.back() value=Back type=button class='btn'></div>");
 
 	*RLen = sprintf(Reply, "%s", popup);
 	return;

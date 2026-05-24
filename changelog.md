@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-05-24
+
+Source: current RHP and WebMail fixes in this working tree.
+
+### Security
+
+- Fixed RHP send handling so malformed JSON string values and invalid `\u` escapes are rejected before decoding.
+- Fixed WebMail B2 attachment parsing so malformed body/file lengths, filenames, and attachment boundaries are rejected before allocation or copying.
+- Fixed WebMail select-list output format strings so literal HTML is not passed through malformed `sprintf` formats.
+
+### Verification
+
+- `git diff --check` completed.
+- `make clean` completed.
+- `make nomqtt` completed and linked `linbpq`.
+- Clean `nomqtt` build rebuilt `mqtt.o` with `-DNOMQTT`.
+
 ## 2026-05-22
 
 Source: current WebMail fixes in this working tree.
