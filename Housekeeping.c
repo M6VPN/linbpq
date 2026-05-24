@@ -681,11 +681,11 @@ VOID Renumber_Messages()
 			if (result)
 			{
 				char Errmsg[100];
-				sprintf(Errmsg, "Could not rename message no %d to %d, quitting", Msg->number, i);
+				snprintf(Errmsg, sizeof(Errmsg), "Could not rename message no %d to %d, quitting", Msg->number, i);
 #ifndef LINBPQ
 				MessageBox(MainWnd,Errmsg , "BPQMailChat", MB_OK);
 #else
-				Debugprintf(Errmsg);
+				Debugprintf("%s", Errmsg);
 #endif
 				SaveMessageDatabase();
 				if (NewNumber) free(NewNumber);
