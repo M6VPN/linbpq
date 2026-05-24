@@ -2542,23 +2542,31 @@ HANDLE OpenCOMPort(VOID * pPort, int speed, BOOL SetDTR, BOOL SetRTS, BOOL Quiet
 
 	int fd;
 	int hwflag = 0;
+	int len;
 	u_long param=1;
 	struct termios term;
 	struct speed_struct *s;
 
 	if ((uintptr_t)pPort < 256)
-		sprintf(Port, "%s/com%d", BPQDirectory, (int)(uintptr_t)pPort);
+		len = snprintf(Port, sizeof(Port), "%s/com%d", (char *)BPQDirectory, (int)(uintptr_t)pPort);
 	else
-		strcpy(Port, pPort);
+		len = snprintf(Port, sizeof(Port), "%s", (char *)pPort);
+
+	if (len < 0 || len >= (int)sizeof(Port))
+	{
+		if (Quiet == 0)
+			Debugprintf("COM port path is too long");
+		return 0;
+	}
 
 	if ((fd = open(Port, O_RDWR | O_NDELAY)) == -1)
 	{
 		if (Quiet == 0)
 		{
 			perror("Com Open Failed");
-			sprintf(buf," %s could not be opened \n", Port);
+			snprintf(buf, sizeof(buf), " %s could not be opened \n", Port);
 			WritetoConsoleLocal(buf);
-			Debugprintf(buf);
+			Debugprintf("%s", buf);
 		}
 		return 0;
 	}
