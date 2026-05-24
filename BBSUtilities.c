@@ -12056,26 +12056,39 @@ void sigchild_handler(int sig , siginfo_t * siginfo, void * ucontext)
 
 void run_pg(CIRCUIT * conn, struct UserInfo * user)
 {
-	register char *cp;
 	FILE *iop;
-	int argc, pdes[2];
+	int pdes[2];
 	pid_t pid;
 	int i;
+	int index;
+	int Len;
+	int argc;
+	char *ptr;
+	char *pg_name;
+	char line[MAX_PATH];
+	char call[16];
+	char index_arg[16];
+	char *args[48];
+	char *input_args;
+
+	if (conn == 0 || user == 0 || user->Temp == 0)
+	{
+		Debugprintf("run_pg conn or user null");
+		return;
+	}
 
 	pgret = 9999;
-
-	int index = user->Temp->PG_INDEX;
-
+	index = user->Temp->PG_INDEX;
 	iop = NULL;
 
 	conn->InputBuffer[conn->InputLen] = 0;
 	strlop(conn->InputBuffer, 13);
 
-	// validate command is alphanumberic
+	/* validate command is alphanumeric */
 
 	for (i = 0; i < conn->InputLen; i++)
 	{
-		if (isalnum(conn->InputBuffer[i]) == 0 && conn->InputBuffer[i] != ' ')
+		if (isalnum((unsigned char)conn->InputBuffer[i]) == 0 && conn->InputBuffer[i] != ' ')
 		{
 			BBSputs(conn, "PG commnand string invalid\r");
 			conn->InputMode=0;
@@ -12091,42 +12104,44 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 
 	user->Temp->RUNPGPARAMS->user = user;
 	user->Temp->RUNPGPARAMS->conn = conn;
-	strncpy(user->Temp->RUNPGPARAMS->InputBuffer, conn->InputBuffer, 80); // needs to be length of actual input!
+	strncpy(user->Temp->RUNPGPARAMS->InputBuffer, (char *)conn->InputBuffer,
+		sizeof(user->Temp->RUNPGPARAMS->InputBuffer) - 1);
+	user->Temp->RUNPGPARAMS->InputBuffer[sizeof(user->Temp->RUNPGPARAMS->InputBuffer) - 1] = 0;
 	user->Temp->RUNPGPARAMS->Len = conn->InputLen;
 
-	if (conn == 0 || user == 0)
+	/* Build argument list. Parameters are callsign, index, flags, record number, and words from received data. */
+
+	if (user->Temp->PG_SERVER < 0 || user->Temp->PG_SERVER >= NUM_SERVERS ||
+		SERVERLIST[user->Temp->PG_SERVER][1] == NULL)
 	{
-		Debugprintf("run_pg conn or user null");
+		BBSputs(conn, "Error running PG Server\r");
+		conn->InputMode=0;
+		SendPrompt(conn, user);
 		return;
 	}
 
-	// Build command line. Parmas are:
+	pg_name = SERVERLIST[user->Temp->PG_SERVER][1];
 
-	// - Callsign (format as F6FBB-8).
-	// - Level number (0 is the first time, up to 99).
-	// - Flags of the user (binary number as user`s mask of INIT.SRV).
-	// - Record number of the user in INF.SYS.
-	// - Received data (each word is a new argument).
+	if (pg_name[0] == 0 || pg_name[0] == '/' || strchr(pg_name, '/') ||
+		strchr(pg_name, '\\') || strstr(pg_name, ".."))
+	{
+		BBSputs(conn, "Error running PG Server\r");
+		conn->InputMode=0;
+		SendPrompt(conn, user);
+		return;
+	}
 
-	// BPQ doesn't support params 3 and 4 (but may supply copy of user record later)
+	Len = snprintf(line, sizeof(line), "%s/PG/%s", BaseDir, pg_name);
 
-	char cmd[20];
-	char *ptr = cmd;
-	char pg_dir[MAX_PATH];
-	char log_file[50] = "pg.log";
-	char call[10];
-	char data[256];
-	char line[80];
-	size_t bufsize = 80;
+	if (Len < 0 || Len >= (int)sizeof(line))
+	{
+		BBSputs(conn, "Error running PG Server\r");
+		conn->InputMode=0;
+		SendPrompt(conn, user);
+		return;
+	}
 
-	strcpy(pg_dir, BaseDir);
-	strcat(pg_dir, "/PG/");
-	sprintf(cmd, "./%s", SERVERLIST[user->Temp->PG_SERVER][1] );
-
-	sprintf(line, "%s%s", pg_dir, SERVERLIST[user->Temp->PG_SERVER][1]);
-//	printf("PG Prog %s%s\n", pg_dir, SERVERLIST[user->Temp->PG_SERVER][1]);
-
-	// check file exists and is executable
+	/* check file exists and is executable */
 
 	if (access(line, F_OK) == -1 || access(line, X_OK) == -1)
 	{
@@ -12137,26 +12152,53 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 		return;
 	}
 
-	strcpy(call, conn->UserPointer->Call);
-	index = user->Temp->PG_INDEX;
+	Len = snprintf(call, sizeof(call), "%s", user->Call);
 
-	// remove ';' from input for security reasons 
+	if (Len < 0 || Len >= (int)sizeof(call))
+	{
+		BBSputs(conn, "Error running PG Server\r");
+		conn->InputMode=0;
+		SendPrompt(conn, user);
+		return;
+	}
 
-	ptr = strchr(user->Temp->RUNPGPARAMS->InputBuffer, ';');
-	if (ptr)
-		*ptr = '\0';
+	Len = snprintf(index_arg, sizeof(index_arg), "%d", index);
 
-	sprintf(data, "%s %d 0 0 %s", call, index, user->Temp->RUNPGPARAMS->InputBuffer);
-//	printf("PG Params %s\n", data);
+	if (Len < 0 || Len >= (int)sizeof(index_arg))
+	{
+		BBSputs(conn, "Error running PG Server\r");
+		conn->InputMode=0;
+		SendPrompt(conn, user);
+		return;
+	}
 
+	argc = 0;
+	args[argc++] = line;
+	args[argc++] = call;
+	args[argc++] = index_arg;
+	args[argc++] = "0";
+	args[argc++] = "0";
+	input_args = user->Temp->RUNPGPARAMS->InputBuffer;
+	ptr = strtok(input_args, " ");
+
+	while (ptr)
+	{
+		if (argc >= (int)(sizeof(args) / sizeof(args[0])) - 1)
+		{
+			BBSputs(conn, "PG commnand string invalid\r");
+			conn->InputMode=0;
+			SendPrompt(conn, user);
+			return;
+		}
+
+		args[argc++] = ptr;
+		ptr = strtok(NULL, " ");
+	}
+
+	args[argc] = NULL;
 	conn->InputBufferLen = 0;
 
-	char buf[256];
-
-	sprintf (buf, "%s %s", line, data); // buf is command to exec
-//	printf ("PG exec cmd %s\n", buf); 
-
-	// Create pipe for reading PG program STDOUT
+	/* Create pipe for reading PG program STDOUT */
 
 	if (pipe(pdes) < 0)
 	{
@@ -12167,13 +12209,13 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 		return;
 	}
 
-	// We will just fork and execute program. For now don't create a new thread
+	/* We will just fork and execute program. For now don't create a new thread */
 
-	// Trap sigchild so we can tell when it exits and get return code
+	/* Trap sigchild so we can tell when it exits and get return code */
 
 	struct sigaction act;
 	memset(&act, 0, sizeof(struct sigaction));
-	act.sa_flags = SA_RESETHAND | SA_SIGINFO;		// Restore default handler when called
+	act.sa_flags = SA_RESETHAND | SA_SIGINFO;
 	act.sa_sigaction = sigchild_handler;
 	sigaction(SIGCHLD, &act, NULL);
 
@@ -12198,11 +12240,9 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 			(void)close(pdes[1]);
 		}
 		(void)close(pdes[0]);
-	
-		setpgid(0, pid);
 
-		char *args[] = {"sh", "-c", buf, NULL};
-		execve("/bin/sh", args, NULL);
+		setpgid(0, pid);
+		execv(line, args);
 
 		_exit(1);
 	}
@@ -12250,12 +12290,12 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 	iop = fdopen(pdes[0], "r");
 	(void)close(pdes[1]);
 
-  	char buffer[128];
+	char buffer[128];
 	while (fgets(buffer, sizeof(buffer), iop) != NULL)
 	{
 		BBSputs(conn, buffer);
 		buffer[0] = '\0';
-  	}
+	}
 
 	switch (pgret)
 	{
@@ -12270,7 +12310,7 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 		break;
 
 	case 2:
-		
+
 		index=0;			// disconnect
 		conn->InputMode=0;
 		Disconnect(conn->BPQStream);
@@ -12300,6 +12340,7 @@ void run_pg(CIRCUIT * conn, struct UserInfo * user)
 
 //	printf("runpg return index = %d\n", index);
 }
+
 
 
 /*---- G7TAJ END ----- */
