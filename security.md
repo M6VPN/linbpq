@@ -76,6 +76,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: L2 link-down event reporting bounds generated UDP JSON and does not send truncated reports. ([846f490])
 - [x] High: L2 status event reporting validates status intervals before rate calculations and bounds generated UDP JSON before sending. ([9e8f441])
 - [x] High: Node-down event reporting bounds generated UDP JSON and does not send truncated shutdown reports. ([f385422])
+- [x] High: Node status event reporting bounds generated UDP JSON and does not send truncated status reports. ([a5e9620])
 - [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 - [x] High: MULTIPSK and MULTIPSK64 default-mode and init-script handling rejects oversized config text before fixed command or script buffer writes. ([4bc6c23])
 - [x] High: MULTIPSK RADIO command rewriting and INUSE replies reject or bound oversized generated text before fixed-buffer writes. ([a6872dd])
@@ -294,7 +295,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the L2 status event reporting fix | Completed with remaining existing unrelated warnings; the `hookL2SessionStatus` format warnings are cleared. |
 | `git diff --check` after the node-down event reporting fix | Completed. |
 | `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the node-down event reporting fix | Completed with remaining existing unrelated warnings; the `hookNodeClosing` format warning is cleared. |
+| `git diff --check` after the node status event reporting fix | Completed. |
+| `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the node status event reporting fix | Completed with remaining existing unrelated warnings; the `hookNodeRunning` format warning is cleared. |
 
+[a5e9620]: https://github.com/M6VPN/linbpq/commit/a5e962084d4da08daf061c1e8c0c726cb492e2e2
 [f385422]: https://github.com/M6VPN/linbpq/commit/f385422a2af14c450e3d223d84e67ccf8e5c6c3c
 [9e8f441]: https://github.com/M6VPN/linbpq/commit/9e8f4416a4cbf080482272126bf5e99ff4308391
 [846f490]: https://github.com/M6VPN/linbpq/commit/846f49051c5d358e8053468b20302e052b617fbd
