@@ -268,33 +268,37 @@ void hookL2SessionClosed(struct _LINKTABLE * LINK, char * Reason, char * Directi
 {
 	// Link closed. Could be normal, ie disc send/received or restried out etc
 
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 	time_t Now = time(NULL);
+	int upForSecs;
 
 	if (NodeAPISocket)
 	{
 		if (LINK->receivingCall[0] == 0 || LINK->callingCall[0] == 0)
 			return;
 
+		upForSecs = (int)(Now - LINK->ConnectTime);
+
 		if (strcmp(Direction, "Out") == 0)
-			udplen = sprintf(UDPMsg, "{\"@type\":\"LinkDownEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\":\"LinkDownEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
 			"\"bytesSent\": %d, \"bytesRcvd\": %d, \"frmsSent\": %d, \"frmsRcvd\": %d, \"frmsQueued\": %d, \"frmsResent\": %d, \"reason\": \"%s\","
 			" \"time\": %d, \"upForSecs\": %d, \"frmsQdPeak\": %d, \"isRF\": %s}",
 			NODECALLLOPPED, LINK->apiSeq, LINK->LINKPORT->PORTNUMBER, LINK->receivingCall, LINK->callingCall,
 			LINK->bytesTXed , LINK->bytesRXed, LINK->framesTXed, LINK->framesRXed, COUNT_AT_L2(LINK), LINK->framesResent, Reason,
-			(int)Now, (int)Now - LINK->ConnectTime, LINK->maxQueued, (LINK->LINKPORT->isRF)?"true":"false");
+			(int)Now, upForSecs, LINK->maxQueued, (LINK->LINKPORT->isRF)?"true":"false");
 		else
-			udplen = sprintf(UDPMsg, "{\"@type\":\"LinkDownEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\":\"LinkDownEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
 			"\"bytesSent\": %d, \"bytesRcvd\": %d, \"frmsSent\": %d, \"frmsRcvd\": %d, \"frmsQueued\": %d, \"frmsResent\": %d, \"reason\": \"%s\","
 			" \"time\": %d, \"upForSecs\": %d, \"frmsQdPeak\": %d, \"isRF\": %s}",
 			NODECALLLOPPED, LINK->apiSeq, LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall,
 			LINK->bytesTXed , LINK->bytesRXed, LINK->framesTXed, LINK->framesRXed, COUNT_AT_L2(LINK), LINK->framesResent, Reason,
-			(int)Now, (int)Now - LINK->ConnectTime, LINK->maxQueued, (LINK->LINKPORT->isRF)?"true":"false");
+			(int)Now, upForSecs, LINK->maxQueued, (LINK->LINKPORT->isRF)?"true":"false");
 
 //		Debugprintf(UDPMsg);
 
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
