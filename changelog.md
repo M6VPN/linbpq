@@ -19,6 +19,7 @@ Source: current security fixes in this working tree.
 - Fixed VARA and ARDOP local and connect command assembly so oversized command text and calls are rejected before fixed-buffer writes.
 - Fixed ADIF log path, date, and comment formatting so oversized generated log records are rejected before fixed-buffer writes.
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used.
+- Fixed YAPP upload handling so malformed filenames, sizes, generated paths, logs, and rejection replies are rejected or bounded before fixed-buffer writes.
 
 ### Verification
 
@@ -64,6 +65,9 @@ Source: current security fixes in this working tree.
 - `make -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the Linux PG server command path and shell command assembly warnings are cleared.
 - `make clean` completed before the final Linux PG server execution verification build.
 - `make nomqtt` completed and linked `linbpq` after the Linux PG server execution fix.
+- `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the YAPP upload rejection reply warnings are cleared.
+- `make -f makefile clean` completed before the final YAPP upload header verification build.
+- `make -f makefile nomqtt` completed and linked `linbpq` after the YAPP upload header fix.
 
 ## 2026-05-22
 

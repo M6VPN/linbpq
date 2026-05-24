@@ -21,6 +21,8 @@ along with LinBPQ/BPQ32.  If not, see http://www.gnu.org/licenses
 //
 //	Utility Routines
 
+#include <errno.h>
+
 #include "bpqmail.h"
 #ifdef WIN32
 #include "Winspool.h"
@@ -14016,11 +14018,16 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 	char Reply[2] = {ACK};
 	int NameLen, SizeLen, OptLen;
 	char * ptr;
+	char * Size;
+	char * SizeEnd;
+	char * PktEnd;
 	int FileSize;
 	char MsgFile[MAX_PATH];
 	FILE * hFile;
 	char Mess[255];
 	int len;
+	int ReplyLen;
+	long ParsedSize;
 	char * FN = &Msg[2];
 
 	switch (Msg[0])
@@ -14048,33 +14055,56 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 
 		// YAPPC has date/time in dos format
 
-		if (Len < Msg[1] + 1)
+		if (Len < pktLen + 2)
 			return 0;
 
-		NameLen = (int)strlen(FN);
-		strcpy(conn->ARQFilename, FN);
-		ptr = &Msg[3 + NameLen];
-		SizeLen = (int)strlen(ptr);
-		FileSize = atoi(ptr);
+		if (pktLen < 4)
+			goto yapp_invalid_name;
 
-		// Check file name for unsafe characters (.. / \)
+		PktEnd = (char *)&Msg[2 + pktLen];
+		ptr = memchr(FN, 0, (size_t)pktLen);
 
-		if (strstr(FN, "..") || strchr(FN, '/') || strchr(FN, '\\'))
-		{
-			Mess[0] = NAK;
-			Mess[1] = 0;
-			QueueMsg(conn, Mess, 2);
-			Flush(conn);
-			len = sprintf_s(Mess, sizeof(Mess), "YAPP File Name %s invalid\r", FN);
-			QueueMsg(conn, Mess, len);
-			SendPrompt(conn, conn->UserPointer);
-			WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
+		if (ptr == NULL)
+			goto yapp_invalid_name;
 
-			conn->InputLen = 0;
-			conn->InputMode = 0;
+		NameLen = (int)(ptr - FN);
+		Size = ptr + 1;
 
-			return FALSE;
-		}
+		if (NameLen == 0 || NameLen >= (int)sizeof(conn->ARQFilename))
+			goto yapp_invalid_name;
+
+		if (Size >= PktEnd)
+			goto yapp_invalid_name;
+
+		SizeEnd = memchr(Size, 0, (size_t)(PktEnd - Size));
+
+		if (SizeEnd == NULL)
+			goto yapp_invalid_name;
+
+		SizeLen = (int)(SizeEnd - Size);
+
+		if (SizeLen == 0 || *Size < '0' || *Size > '9')
+			goto yapp_invalid_size;
+
+		errno = 0;
+		ParsedSize = strtol(Size, &SizeEnd, 10);
+
+		if (errno != 0 || SizeEnd == Size || *SizeEnd != 0 || ParsedSize <= 0)
+			goto yapp_invalid_size;
+
+		memcpy(conn->ARQFilename, FN, (size_t)NameLen);
+		conn->ARQFilename[NameLen] = 0;
+
+		/* Check file name for unsafe characters (.. / \). */
+
+		if (strstr(conn->ARQFilename, "..") || strchr(conn->ARQFilename, '/') || strchr(conn->ARQFilename, '\\'))
+			goto yapp_invalid_name;
+
+		if (ParsedSize > MaxRXSize)
+			goto yapp_size_limit;
+
+		FileSize = (int)ParsedSize;
+		ptr = Size;
 
 		OptLen = pktLen - (NameLen + SizeLen + 2);
 
@@ -14086,43 +14116,42 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 			conn->YAPPDate = strtol(ptr, NULL, 16);
 		}
 
-		// Check Size
+		/* Size was validated before accepting the upload header. */
 
-		if (FileSize > MaxRXSize)
-		{
-			Mess[0] = NAK;
-			Mess[1] = sprintf(&Mess[2], "YAPP File %s size %d larger than limit %d\r", conn->ARQFilename, FileSize, MaxRXSize);
-			QueueMsg(conn, Mess, Mess[1] + 2);
-	
-			Flush(conn);
-
-			len = sprintf_s(Mess, sizeof(Mess), "YAPP File %s size %d larger than limit %d\r", conn->ARQFilename, FileSize, MaxRXSize);
-			QueueMsg(conn, Mess, len);
-			SendPrompt(conn, conn->UserPointer);
-			WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
-
-			conn->InputLen = 0;
-			conn->InputMode = 0;
-
-			return FALSE;
-		}
-		
 		// Make sure file does not exist
 
 	
-		sprintf_s(MsgFile, sizeof(MsgFile), "%s/Files/%s", BaseDir, conn->ARQFilename);
+		len = snprintf(MsgFile, sizeof(MsgFile), "%s/Files/%s",
+			BaseDir, conn->ARQFilename);
+
+		if (len < 0 || len >= (int)sizeof(MsgFile))
+			goto yapp_invalid_name;
 	
 		hFile = fopen(MsgFile, "rb");
 
 		if (hFile)
 		{
 			Mess[0] = NAK;
-			Mess[1] = sprintf(&Mess[2], "YAPP File %s already exists\r", conn->ARQFilename);;
-			QueueMsg(conn, Mess, Mess[1] + 2);
+			ReplyLen = snprintf(&Mess[2], sizeof(Mess) - 2,
+				"YAPP File %s already exists\r", conn->ARQFilename);
+
+			if (ReplyLen < 0 || ReplyLen > 127)
+				ReplyLen = snprintf(&Mess[2], sizeof(Mess) - 2,
+					"YAPP file rejected\r");
+
+			if (ReplyLen < 0)
+				ReplyLen = 0;
+
+			Mess[1] = (char)ReplyLen;
+			QueueMsg(conn, Mess, ReplyLen + 2);
 	
 			Flush(conn);
 	
-			len = sprintf_s(Mess, sizeof(Mess), "YAPP File %s already exists\r", conn->ARQFilename);
+			len = snprintf(Mess, sizeof(Mess),
+				"YAPP File %s already exists\r", conn->ARQFilename);
+
+			if (len < 0 || len >= (int)sizeof(Mess))
+				len = snprintf(Mess, sizeof(Mess), "YAPP file rejected\r");
 			QueueMsg(conn, Mess, len);
 			SendPrompt(conn, conn->UserPointer);
 			WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
@@ -14146,10 +14175,77 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 
 		QueueMsg(conn, Reply, 2);
 
-		len = sprintf_s(Mess, sizeof(Mess), "YAPP upload to %s started", conn->ARQFilename);
+		len = snprintf(Mess, sizeof(Mess),
+			"YAPP upload to %s started", conn->ARQFilename);
+
+		if (len < 0 || len >= (int)sizeof(Mess))
+			len = snprintf(Mess, sizeof(Mess), "YAPP upload started");
 		WriteLogLine(conn, '!', Mess, len, LOG_BBS);
 
 		conn->InputLen = 0;
+		return FALSE;
+
+yapp_invalid_name:
+		Mess[0] = NAK;
+		Mess[1] = 0;
+		QueueMsg(conn, Mess, 2);
+		Flush(conn);
+		len = snprintf(Mess, sizeof(Mess), "YAPP File Name invalid\r");
+		QueueMsg(conn, Mess, len);
+		SendPrompt(conn, conn->UserPointer);
+		WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
+
+		conn->InputLen = 0;
+		conn->InputMode = 0;
+
+		return FALSE;
+
+yapp_invalid_size:
+		Mess[0] = NAK;
+		Mess[1] = 0;
+		QueueMsg(conn, Mess, 2);
+		Flush(conn);
+		len = snprintf(Mess, sizeof(Mess), "YAPP File size invalid\r");
+		QueueMsg(conn, Mess, len);
+		SendPrompt(conn, conn->UserPointer);
+		WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
+
+		conn->InputLen = 0;
+		conn->InputMode = 0;
+
+		return FALSE;
+
+yapp_size_limit:
+		Mess[0] = NAK;
+		ReplyLen = snprintf(&Mess[2], sizeof(Mess) - 2,
+			"YAPP File %s size %ld larger than limit %d\r",
+			conn->ARQFilename, ParsedSize, MaxRXSize);
+
+		if (ReplyLen < 0 || ReplyLen > 127)
+			ReplyLen = snprintf(&Mess[2], sizeof(Mess) - 2,
+				"YAPP file rejected\r");
+
+		if (ReplyLen < 0)
+			ReplyLen = 0;
+
+		Mess[1] = (char)ReplyLen;
+		QueueMsg(conn, Mess, ReplyLen + 2);
+
+		Flush(conn);
+
+		len = snprintf(Mess, sizeof(Mess),
+			"YAPP File %s size %ld larger than limit %d\r",
+			conn->ARQFilename, ParsedSize, MaxRXSize);
+
+		if (len < 0 || len >= (int)sizeof(Mess))
+			len = snprintf(Mess, sizeof(Mess), "YAPP file rejected\r");
+		QueueMsg(conn, Mess, len);
+		SendPrompt(conn, conn->UserPointer);
+		WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
+
+		conn->InputLen = 0;
+		conn->InputMode = 0;
+
 		return FALSE;
 		
 	case STX:
@@ -14242,8 +14338,12 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 			int ret;
 			DWORD Written = 0;
 
-			sprintf_s(MsgFile, sizeof(MsgFile), "%s/Files/%s", BaseDir, conn->ARQFilename);
-	
+			len = snprintf(MsgFile, sizeof(MsgFile), "%s/Files/%s",
+				BaseDir, conn->ARQFilename);
+
+			if (len < 0 || len >= (int)sizeof(MsgFile)) {
+				Written = 0;
+			} else {
 #ifdef WIN32
 			hFile = CreateFile(MsgFile, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -14342,6 +14442,8 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 			}
 #endif
 
+			}
+
 			free(conn->MailBuffer);
 			conn->MailBufferSize=0;
 			conn->MailBuffer=0;
@@ -14377,7 +14479,11 @@ BOOL ProcessYAPPMessage(CIRCUIT * conn)
 		conn->InputLen = 0;
 		conn->InputMode = 0;
 	
-		len = sprintf_s(Mess, sizeof(Mess), "YAPP file %s received\r", conn->ARQFilename);
+		len = snprintf(Mess, sizeof(Mess),
+			"YAPP file %s received\r", conn->ARQFilename);
+
+		if (len < 0 || len >= (int)sizeof(Mess))
+			len = snprintf(Mess, sizeof(Mess), "YAPP file received\r");
 		WriteLogLine(conn, '!', Mess, len - 1, LOG_BBS);
 		QueueMsg(conn, Mess, len);
 		SendPrompt(conn, conn->UserPointer);

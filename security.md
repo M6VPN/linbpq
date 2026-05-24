@@ -43,6 +43,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: VARA and ARDOP local and connect command assembly reject oversized command text and calls before fixed-buffer writes.
 - [x] High: ADIF log path, date, and comment formatting reject oversized generated log records before fixed-buffer writes.
 - [x] High: Linux PG server execution validates configured program names, bounds generated paths and argument lists, and avoids `/bin/sh -c`.
+- [x] High: YAPP upload handling rejects malformed filenames and sizes before fixed-buffer copies and bounds generated paths, logs, and rejection replies.
 
 ## Known Problems
 
@@ -172,3 +173,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the Linux PG server execution fix | Completed with remaining existing unrelated warnings; the PG server command path and shell command assembly warnings are cleared. |
 | `make clean` after the Linux PG server execution fix | Completed. |
 | `make nomqtt` after the Linux PG server execution fix | Completed and linked `linbpq`. |
+| `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the YAPP upload header fix | Completed with remaining existing unrelated warnings; the YAPP upload rejection reply warnings are cleared. |
+| `make -f makefile clean` after the YAPP upload header fix | Completed. |
+| `make -f makefile nomqtt` after the YAPP upload header fix | Completed and linked `linbpq`. |
