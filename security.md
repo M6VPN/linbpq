@@ -44,6 +44,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: ADIF log path, date, and comment formatting reject oversized generated log records before fixed-buffer writes.
 - [x] High: Linux PG server execution validates configured program names, bounds generated paths and argument lists, and avoids `/bin/sh -c`.
 - [x] High: YAPP upload handling rejects malformed filenames and sizes before fixed-buffer copies and bounds generated paths, logs, and rejection replies.
+- [x] High: RMS Relay sync request handling bounds generated XML and request commands and avoids use-after-free on request buffers.
 
 ## Known Problems
 
@@ -176,3 +177,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the YAPP upload header fix | Completed with remaining existing unrelated warnings; the YAPP upload rejection reply warnings are cleared. |
 | `make -f makefile clean` after the YAPP upload header fix | Completed. |
 | `make -f makefile nomqtt` after the YAPP upload header fix | Completed and linked `linbpq`. |
+| `make -f makefile -B BBSUtilities.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the RMS Relay sync request fix | Completed with remaining existing unrelated warnings; the request format and use-after-free warnings are cleared. |
+| `make -f makefile clean` after the RMS Relay sync request fix | Completed. |
+| `make -f makefile nomqtt` after the RMS Relay sync request fix | Completed and linked `linbpq`. |

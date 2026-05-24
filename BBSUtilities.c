@@ -15375,79 +15375,85 @@ VOID SendServerReply(char * Title, char * MailBuffer, int Length, char * To)
 
 void SendRequestSync(CIRCUIT * conn)
 {
-	// Only need XML Header
+	/* Only need XML Header. */
 
-	char * Buffer = malloc(4096);
-	int Len = 0;
-	
+	enum { SYNC_XML_BUFFER_SIZE = 4096 };
+
+	char * Buffer;
+	char Command[128];
+	UCHAR * SyncMessage = NULL;
+	int Len;
+	int ret;
 	struct tm *tm;
 	char Date[32];
-	char MsgTime[32];
 	time_t Time = time(NULL);
+
+	Buffer = malloc(SYNC_XML_BUFFER_SIZE);
+
+	if (Buffer == NULL)
+		return;
 
 	tm = gmtime(&Time);
 
-	sprintf_s(Date, sizeof(Date), "%04d%02d%02d%02d%02d%02d",
-		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+	if (tm == NULL)
+		goto cleanup;
 
-	sprintf_s(MsgTime, sizeof(Date), "%04d/%02d/%02d %02d:%02d",
-		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min);
+	ret = snprintf(Date, sizeof(Date), "%04d%02d%02d%02d%02d%02d",
+		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+		tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-	Len += sprintf(&Buffer[Len], "<?xml version=\"1.0\"?>\r\n");
+	if (ret < 0 || ret >= (int)sizeof(Date))
+		goto cleanup;
 
-	Len += sprintf(&Buffer[Len], "<sync_record>\r\n");
-	Len += sprintf(&Buffer[Len], "  <po_sync>\r\n");
-    Len += sprintf(&Buffer[Len], "    <transaction_type>request_sync</transaction_type>\r\n");
-    Len += sprintf(&Buffer[Len], "    <timestamp>%s</timestamp>\r\n", Date);
-    Len += sprintf(&Buffer[Len], "    <originating_station>%s</originating_station>\r\n", BBSName);
-	Len += sprintf(&Buffer[Len], "  </po_sync>\r\n");
- 	Len += sprintf(&Buffer[Len], "  <request_sync>\r\n");
- 	Len += sprintf(&Buffer[Len], "    <callsign>BBSName</callsign>\r\n");
- 	Len += sprintf(&Buffer[Len], "    <password></password>\r\n");
-	Len += sprintf(&Buffer[Len], "    <ip_address>%s</ip_address>\r\n", conn->SyncHost);
-	Len += sprintf(&Buffer[Len], "    <ip_port>%d</ip_port>\r\n", conn->SyncPort);
- 	Len += sprintf(&Buffer[Len], "    <note></note>\r\n");
- 	Len += sprintf(&Buffer[Len], "  </request_sync>\r\n");
- 	Len += sprintf(&Buffer[Len], "</sync_record>\r\n");
- 
-/*
-<?xml version="1.0"?>
-<sync_record>
-  <po_sync>
-    <transaction_type>request_sync</transaction_type>
-    <timestamp>20230205100652</timestamp>
-    <originating_station>GI8BPQ</originating_station>
-  </po_sync>
-  <request_sync>
-    <callsign>GI8BPQ</callsign>
-    <password></password>
-    <ip_address>127.0.0.1</ip_address>
-    <ip_port>8780</ip_port>
-    <note></note>
-  </request_sync>
-</sync_record>
-*/
+	Len = snprintf(Buffer, SYNC_XML_BUFFER_SIZE,
+		"<?xml version=\"1.0\"?>\r\n"
+		"<sync_record>\r\n"
+		"  <po_sync>\r\n"
+		"    <transaction_type>request_sync</transaction_type>\r\n"
+		"    <timestamp>%s</timestamp>\r\n"
+		"    <originating_station>%s</originating_station>\r\n"
+		"  </po_sync>\r\n"
+		"  <request_sync>\r\n"
+		"    <callsign>BBSName</callsign>\r\n"
+		"    <password></password>\r\n"
+		"    <ip_address>%s</ip_address>\r\n"
+		"    <ip_port>%d</ip_port>\r\n"
+		"    <note></note>\r\n"
+		"  </request_sync>\r\n"
+		"</sync_record>\r\n",
+		Date, BBSName, conn->SyncHost, conn->SyncPort);
 
-	// Need to compress it
+	if (Len < 0 || Len >= SYNC_XML_BUFFER_SIZE)
+		goto cleanup;
 
 	conn->SyncXMLLen = Len;
 	conn->SyncMsgLen = 0;
 
-	conn->SyncMessage = malloc(conn->SyncXMLLen + 4096);
+	SyncMessage = malloc((size_t)conn->SyncXMLLen + SYNC_XML_BUFFER_SIZE);
 
-	conn->SyncCompressedLen = Encode(Buffer, conn->SyncMessage, conn->SyncXMLLen, 0, 1);
+	if (SyncMessage == NULL)
+		goto cleanup;
 
-	sprintf(Buffer, "TR RequestSync_%s_%d %d %d 0 True\r",		// The True on end indicates compressed
-				50, conn->SyncCompressedLen, conn->SyncXMLLen);
+	conn->SyncCompressedLen = Encode(Buffer, (char *)SyncMessage,
+		conn->SyncXMLLen, 0, 1);
 
-	free(Buffer);
+	ret = snprintf(Command, sizeof(Command),
+		"TR RequestSync_%d %d %d 0 True\r",
+		50, conn->SyncCompressedLen, conn->SyncXMLLen);
 
+	if (ret < 0 || ret >= (int)sizeof(Command))
+		goto cleanup;
+
+	conn->SyncMessage = SyncMessage;
+	SyncMessage = NULL;
 	conn->Flags |= REQUESTINGSYNC;
 
-	BBSputs(conn, Buffer);
-	return;
-}
+	BBSputs(conn, Command);
 
+cleanup:
+	free(SyncMessage);
+	free(Buffer);
+}
 
 void ProcessSyncXML(CIRCUIT * conn, char * XML)
 {
