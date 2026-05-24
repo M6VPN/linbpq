@@ -70,6 +70,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: FLDigi XML command assembly escapes string parameters, rejects wrong parameter types, and bounds generated RPC buffers before sending. ([8969235])
 - [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending. ([344c685])
 - [x] High: FLDigi64 session traffic debug logging bounds generated traffic summaries and logs them with literal format strings. ([6e8d619])
+- [x] High: Remote PTT HAMLIB debug logging bounds generated socket and thread messages and logs them with literal format strings. ([fc2f12e])
 - [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 - [x] High: MULTIPSK and MULTIPSK64 default-mode and init-script handling rejects oversized config text before fixed command or script buffer writes. ([4bc6c23])
 - [x] High: MULTIPSK RADIO command rewriting and INUSE replies reject or bound oversized generated text before fixed-buffer writes. ([a6872dd])
@@ -276,7 +277,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK debug format fix | Completed with existing unrelated warnings. |
 | `git diff --check` after the FLDigi64 debug traffic log fix | Completed. |
 | `make -f makefile -B FLDigi64.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the FLDigi64 debug traffic log fix | Blocked by existing Linux integration errors in `FLDigi64.c`, including `PortConfig`/`TNCInfo` conflicts, `MAXBPQPORTS` redefinition, `Rig_Command` argument mismatches, and missing `BytesTXed`/`BytesRXed` members. |
+| `git diff --check` after the Remote PTT HAMLIB debug logging fix | Completed. |
+| `make -f makefile -B BPQRemotePTT.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the Remote PTT HAMLIB debug logging fix | Blocked on Linux because `BPQRemotePTT.c` includes Windows-only `windows.h`. |
 
+[fc2f12e]: https://github.com/M6VPN/linbpq/commit/fc2f12ece27bbaee5c4b2bb4fe21a3e82ab3a6df
 [6e8d619]: https://github.com/M6VPN/linbpq/commit/6e8d61992f479cecc7ed7875c0238696b054c21d
 [c7de0c5]: https://github.com/M6VPN/linbpq/commit/c7de0c50d91c0f3b9a87195e61eb52ce7b44c421
 [4e4997f]: https://github.com/M6VPN/linbpq/commit/4e4997fad3f41bfe4627b4c6b625fa9ea30b6c40
