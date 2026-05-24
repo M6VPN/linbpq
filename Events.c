@@ -306,40 +306,45 @@ void hookL2SessionStatus(struct _LINKTABLE * LINK)
 {
 	// Send at regular intervals on open links
 
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 	time_t Now = time(NULL);
-	int bpsTx, bpsRx, interval;
+	int bpsTx, bpsRx, interval, upForSecs;
 
 	if (NodeAPISocket)
 	{
-		interval = Now - (int)LINK->lastStatusSentTime;
-		bpsTx = (LINK->bytesTXed - LINK->LastStatusbytesTXed) / interval; 
-		bpsRx = (LINK->bytesRXed - LINK->LastStatusbytesRXed) / interval; 
-		
+		interval = (int)(Now - LINK->lastStatusSentTime);
+		if (interval <= 0)
+			interval = 1;
+
+		upForSecs = (int)(Now - LINK->ConnectTime);
+		bpsTx = (LINK->bytesTXed - LINK->LastStatusbytesTXed) / interval;
+		bpsRx = (LINK->bytesRXed - LINK->LastStatusbytesRXed) / interval;
+
 		LINK->lastStatusSentTime = Now;
 		LINK->LastStatusbytesTXed = LINK->bytesTXed;
 		LINK->LastStatusbytesRXed = LINK->bytesRXed;
 
 		if (strcmp(LINK->Direction, "Out") == 0)
-			udplen = sprintf(UDPMsg, "{\"@type\":\"LinkStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\":\"LinkStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
 				"\"bytesSent\": %d, \"bytesRcvd\": %d, \"frmsSent\": %d, \"frmsRcvd\": %d, \"frmsQueued\": %d, \"frmsResent\": %d,"
 				"\"upForSecs\": %d, \"frmsQdPeak\": %d, \"bpsTxMean\": %d, \"bpsRxMean\": %d, \"frmQMax\": %d, \"l2rttMs\": %d, \"isRF\": %s}",
 				NODECALLLOPPED, LINK->apiSeq, LINK->LINKPORT->PORTNUMBER, LINK->receivingCall, LINK->callingCall,
 				LINK->bytesTXed, LINK->bytesRXed, LINK->framesTXed, LINK->framesRXed, 0, LINK->framesResent,
-				(int)Now - LINK->ConnectTime, LINK->maxQueued, bpsTx, bpsRx, LINK->intervalMaxQueued, LINK->RTT, (LINK->LINKPORT->isRF)?"true":"false");
+				upForSecs, LINK->maxQueued, bpsTx, bpsRx, LINK->intervalMaxQueued, LINK->RTT, (LINK->LINKPORT->isRF)?"true":"false");
 		else
-			udplen = sprintf(UDPMsg, "{\"@type\":\"LinkStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\":\"LinkStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\","
 				"\"bytesSent\": %d, \"bytesRcvd\": %d, \"frmsSent\": %d, \"frmsRcvd\": %d, \"frmsQueued\": %d, \"frmsResent\": %d,"
 				"\"upForSecs\": %d, \"frmsQdPeak\": %d, \"bpsTxMean\": %d, \"bpsRxMean\": %d, \"frmQMax\": %d, \"l2rttMs\": %d, \"isRF\": %s}",
 				NODECALLLOPPED, LINK->apiSeq, LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall,
 				LINK->bytesTXed, LINK->bytesRXed, LINK->framesTXed, LINK->framesRXed, 0, LINK->framesResent,
-				(int)Now - LINK->ConnectTime, LINK->maxQueued, bpsTx, bpsRx, LINK->intervalMaxQueued, LINK->RTT, (LINK->LINKPORT->isRF)?"true":"false");
+				upForSecs, LINK->maxQueued, bpsTx, bpsRx, LINK->intervalMaxQueued, LINK->RTT, (LINK->LINKPORT->isRF)?"true":"false");
 
 		LINK->intervalMaxQueued = 0;
 
 //		Debugprintf(UDPMsg);
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
