@@ -879,7 +879,7 @@ VOID HAMLIBThread(int n)
 	// Opens sockets and looks for data
 	
 	char Msg[255];
-	int err, i, ret;
+	int err, ret;
 	u_long param=1;
 	BOOL bcopt=TRUE;
 	fd_set readfs;
@@ -903,8 +903,8 @@ VOID HAMLIBThread(int n)
 
 	if (HamLibSock[n] == INVALID_SOCKET)
 	{
-		i=sprintf(Msg, "Socket Failed for HAMLIB socket - error code = %d\r\n", WSAGetLastError());
-		Debugprintf(Msg);
+		snprintf(Msg, sizeof(Msg), "Socket Failed for HAMLIB socket - error code = %d\r\n", WSAGetLastError());
+		Debugprintf("%s", Msg);
 
   	 	return; 
 	}
@@ -921,8 +921,8 @@ VOID HAMLIBThread(int n)
 	else
 	{
 		err=WSAGetLastError();
-   		i=sprintf(Msg, "Connect Failed for HAMLIB socket %d - error code = %d\r\n", n, err);
-		Debugprintf(Msg);
+		snprintf(Msg, sizeof(Msg), "Connect Failed for HAMLIB socket %d - error code = %d\r\n", n, err);
+		Debugprintf("%s", Msg);
 		
 		closesocket(HamLibSock[n]);
 
@@ -968,8 +968,8 @@ VOID HAMLIBThread(int n)
 			if (FD_ISSET(HamLibSock[n], &errorfs))
 			{
 Lost:	
-				sprintf(Msg, "HAMLIB Connection lost for Port %d\r\n", n);
-				Debugprintf(Msg);
+				snprintf(Msg, sizeof(Msg), "HAMLIB Connection lost for Port %d\r\n", n);
+				Debugprintf("%s", Msg);
 
 				closesocket(HamLibSock[n]);
 				HamLibSock[n] = 0;
@@ -983,6 +983,6 @@ Lost:
 		{
 		}
 	}
-	sprintf(Msg, "HAMLIB Thread Terminated Port %d\r\n", n);
-	Debugprintf(Msg);
+	snprintf(Msg, sizeof(Msg), "HAMLIB Thread Terminated Port %d\r\n", n);
+	Debugprintf("%s", Msg);
 }
