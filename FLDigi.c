@@ -481,15 +481,20 @@ pollloop:
 
 			UILen = buffptr->LENGTH;
 			UILen -= 23;
-			UIMsg = buffptr->L2DATA;
+			UIMsg = (char *)buffptr->L2DATA;
 
-			UIMsg[UILen] = 0;
-
-			if (UILen < 129 && TNC->Streams[0].Attached == FALSE)			// Be sensible!
+			if (UILen >= 0 && (size_t)UILen < sizeof(buffptr->L2DATA))
 			{
-				// >00uG8BPQ:72 TestA
-				SendLen = sprintf(Reply, "u%s:72 %s", TNC->NodeCall, UIMsg);
-				SendPacket(TNC, Reply, SendLen);
+				UIMsg[UILen] = 0;
+
+				if (TNC->Streams[0].Attached == FALSE)			// Be sensible!
+				{
+					// >00uG8BPQ:72 TestA
+					SendLen = snprintf(Reply, sizeof(Reply), "u%s:72 %s", TNC->NodeCall, UIMsg);
+
+					if (SendLen > 0 && (size_t)SendLen < sizeof(Reply))
+						SendPacket(TNC, (UCHAR *)Reply, SendLen);
+				}
 			}
 			ReleaseBuffer(buffptr);
 		}

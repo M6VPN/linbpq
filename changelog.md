@@ -28,6 +28,7 @@ Source: current security fixes in this working tree.
 - Fixed POP3 LIST response handling so generated message-count replies are bounded before fixed-buffer writes.
 - Fixed IP adapter status logging so configured adapter names are bounded before fixed-buffer writes.
 - Fixed Linux Ethernet adapter handling so oversized adapter names are rejected before `ifreq` copies and status logging is bounded.
+- Fixed FLDigi UI frame reply handling so malformed lengths are rejected before indexing packet data and generated UI replies are bounded before sending.
 - Fixed FLDigi XML command assembly so string parameters are XML-escaped, integer commands use the integer helper, and generated RPC buffers are bounded before sending.
 - Fixed FLDigi default modem handling so oversized configured modem names are rejected before fixed-buffer copies and generated KISS commands are bounded before sending.
 
@@ -102,6 +103,9 @@ Source: current security fixes in this working tree.
 - `make -f makefile -B linether.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the Linux Ethernet adapter status overflow warning is cleared.
 - `make -f makefile clean` completed before the final Linux Ethernet adapter verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the Linux Ethernet adapter bounds fix.
+- `make -f makefile -B FLDigi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the FLDigi UI frame reply overflow warning is cleared.
+- `make -f makefile clean` completed before the final FLDigi UI frame reply verification build.
+- `make -f makefile nomqtt` completed and linked `linbpq` after the FLDigi UI frame reply bounds fix.
 - `make -f makefile -B FLDigi.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the FLDigi XML command integer format warning is cleared.
 - `make -f makefile clean` completed before the final FLDigi XML command verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the FLDigi XML command bounds fix.
