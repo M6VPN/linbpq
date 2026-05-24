@@ -574,9 +574,9 @@ static size_t ExtProc(int fn, int port, PMESSAGE buff)
 				//
 
 				sprintf(errmsg,"BPQAXIP Invalid CRC=%d Source=%s Port %d",crc,inet_ntoa(RXaddr.rxaddr.sin_addr),PORT->udpport[i]);
-				Debugprintf(errmsg);
+				Debugprintf("%s", errmsg);
 				rxbuff[len] = 0;
-				Debugprintf(rxbuff);
+				Debugprintf("%s", rxbuff);
 
 
 				return (0);
@@ -1009,7 +1009,7 @@ int OpenListeningSocket(struct AXIPPORTINFO * PORT, struct arp_table_entry * arp
 	if (bind(arp->TCPListenSock , (struct sockaddr FAR *) &local_sin, sizeof(local_sin)) == SOCKET_ERROR)
 	{
         sprintf(Msg, "bind(sock) failed Port %d Error %d\n", arp->port, WSAGetLastError());
-		Debugprintf(Msg);
+		Debugprintf("%s", Msg);
 		closesocket(arp->TCPListenSock);
 
 		return FALSE;
@@ -1018,7 +1018,7 @@ int OpenListeningSocket(struct AXIPPORTINFO * PORT, struct arp_table_entry * arp
 	if (listen(arp->TCPListenSock, 1) < 0)
 	{
 		sprintf(Msg, "listen(sock) failed Error %d", WSAGetLastError());
-		Debugprintf(Msg);
+		Debugprintf("%s", Msg);
 		closesocket(arp->TCPListenSock);
 		return FALSE;
 	}
