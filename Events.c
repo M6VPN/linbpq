@@ -382,28 +382,36 @@ void hookL4SessionAccepted(struct STREAMINFO * STREAM, char * remotecall, char *
 
 void hookL4SessionDeleted(struct TNCINFO * TNC, struct STREAMINFO * STREAM)
 {
-	char Msg[256];
+	char Msg[1024];
 
 	char timestamp[16];
 
 	if (STREAM->ConnectTime)
 	{
 		time_t sessionTime = time(NULL) - STREAM->ConnectTime;
-		double avBytesRXed = STREAM->bytesRXed / (sessionTime / 60.0);
-		double avBytesSent = STREAM->bytesTXed / (sessionTime / 60.0);
+		double avBytesRXed;
+		double avBytesSent;
+		int msgLen;
+		int timestampLen;
 		time_t Now = time(NULL);
 		struct tm * TM = localtime(&Now);
-		sprintf(timestamp, "%02d:%02d:%02d", TM->tm_hour, TM->tm_min, TM->tm_sec);
 
 		if (sessionTime == 0)
-			sessionTime = 1;				// Or will get divide by zero error 
- 
-		sprintf(Msg, "{\"mode\": \"%s\", \"direction\": \"%s\", \"port\": %d, \"callfrom\": \"%s\", \"callto\": \"%s\", \"time\": %d,  \"bytesSent\": %d," 
+			sessionTime = 1;				// Or will get divide by zero error
+
+		avBytesRXed = STREAM->bytesRXed / (sessionTime / 60.0);
+		avBytesSent = STREAM->bytesTXed / (sessionTime / 60.0);
+
+		timestampLen = snprintf(timestamp, sizeof(timestamp), "%02d:%02d:%02d", TM->tm_hour, TM->tm_min, TM->tm_sec);
+		if (timestampLen < 0 || timestampLen >= (int)sizeof(timestamp))
+			strcpy(timestamp, "00:00:00");
+
+		msgLen = snprintf(Msg, sizeof(Msg), "{\"mode\": \"%s\", \"direction\": \"%s\", \"port\": %d, \"callfrom\": \"%s\", \"callto\": \"%s\", \"time\": %d,  \"bytesSent\": %d,"
 			"\"BPMSent\": %4.2f, \"BytesReceived\": %d,  \"BPMReceived\": %4.2f, \"timestamp\": \"%s\"}",
-			Modenames[TNC->Hardware - 1], STREAM->Direction, TNC->Port, STREAM->callingCall, STREAM->receivingCall, sessionTime,
+			Modenames[TNC->Hardware - 1], STREAM->Direction, TNC->Port, STREAM->callingCall, STREAM->receivingCall, (int)sessionTime,
 			STREAM->bytesTXed,  avBytesSent, STREAM->bytesRXed, avBytesRXed, timestamp);
 
-		if (MQTT)
+		if (MQTT && msgLen > 0 && msgLen < (int)sizeof(Msg))
 			MQTTReportSession(Msg);
 
 		STREAM->ConnectTime = 0;
