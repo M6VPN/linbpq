@@ -2211,7 +2211,7 @@ int TidyString(char * Address)
 	size_t len;
 
 	_strupr(Address);
-	Debugprintf(Address);
+	Debugprintf("%s", Address);
 
 	ptr1 = strchr(Address, '<');
 
