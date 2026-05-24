@@ -6,10 +6,13 @@ Sources: commits listed on each fixed security line.
 
 ### Security
 
+- Fixed L2 link-down event reporting so generated UDP JSON is bounded and truncated reports are not sent. ([846f490])
 - Fixed L4 session MQTT report formatting so session duration is validated before rate calculations and generated session JSON is bounded before publishing. ([5414ccd])
 
 ### Verification
 
+- `git diff --check` completed after the L2 link-down event reporting fix.
+- `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the L2 link-down event reporting fix; the `hookL2SessionClosed` format warnings are cleared.
 - `git diff --check` completed after the L4 session MQTT report formatting fix.
 - `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the L4 session MQTT report formatting fix; the `hookL4SessionDeleted` format warning is cleared.
 
@@ -299,6 +302,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[846f490]: https://github.com/M6VPN/linbpq/commit/846f49051c5d358e8053468b20302e052b617fbd
 [5414ccd]: https://github.com/M6VPN/linbpq/commit/5414ccd75437865b820f44985803160f55558aea
 [3caaff4]: https://github.com/M6VPN/linbpq/commit/3caaff4552a8417f8cb54cd7f59bb7a6e781b623
 [fc2f12e]: https://github.com/M6VPN/linbpq/commit/fc2f12ece27bbaee5c4b2bb4fe21a3e82ab3a6df
