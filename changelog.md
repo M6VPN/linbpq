@@ -21,6 +21,7 @@ Sources: commits listed on each fixed security line.
 - Fixed remaining Linux WebMail form and template path lookups so oversized generated paths are rejected before fixed-buffer writes. ([c4b5f8e])
 - Fixed WebMail template date, sequence, form directory, and GPS substitutions so generated values are bounded before fixed-buffer writes. ([06e1fb5])
 - Fixed VARA modem response debug logging so PENDING, CANCELPENDING, BUFFER, CONNECTED, and DISCONNECTED text is logged with literal format strings. ([48e49fd])
+- Fixed ARDOP modem response and FEC debug logging so FAULT, TARGET, CONNECTED, and FEC text is logged with literal format strings. ([0e41414])
 - Fixed VARA and ARDOP local and connect command assembly so oversized command text and calls are rejected before fixed-buffer writes. ([75ac804])
 - Fixed ADIF log path, date, and comment formatting so oversized generated log records are rejected before fixed-buffer writes. ([839726c])
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used. ([0986ef9])
@@ -85,6 +86,8 @@ Sources: commits listed on each fixed security line.
 - `make nomqtt` completed and linked `linbpq` after the WebMail template date fix.
 - `git diff --check` completed after the VARA debug format fix.
 - `make -f makefile -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the VARA debug format fix.
+- `git diff --check` completed after the ARDOP debug format fix.
+- `make -f makefile -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the ARDOP debug format fix.
 - `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared.
 - `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared.
 - `make clean` completed before the final VARA and ARDOP command verification build.
@@ -279,6 +282,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 [c4b5f8e]: https://github.com/M6VPN/linbpq/commit/c4b5f8ee8503f2d33bada85458ef7369edba70b3
 [f13da93]: https://github.com/M6VPN/linbpq/commit/f13da93498026fe124acc1071fb5865f5259fdf9
 [48e49fd]: https://github.com/M6VPN/linbpq/commit/48e49fdff771260ef5983d8e0a6a79a3531e5cb9
+[0e41414]: https://github.com/M6VPN/linbpq/commit/0e41414796689c83e9ffc86de9af6dc057bfe0fd
 [1cfcd38]: https://github.com/M6VPN/linbpq/commit/1cfcd38bbfc8007f201e48a446bc24fb1fd74c9b
 [7ea04ad]: https://github.com/M6VPN/linbpq/commit/7ea04ad00d4dba8d456a823bcbec5093c4df07c5
 [aca8da7]: https://github.com/M6VPN/linbpq/commit/aca8da76f5043cc54c9f24d1b8cff5f99f540c0f
