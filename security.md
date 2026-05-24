@@ -45,6 +45,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: ARDOP modem response and FEC debug logging uses literal format strings for FAULT, TARGET, CONNECTED, and FEC text. ([0e41414])
 - [x] High: ARDOP AX.25 modem response debug logging uses literal format strings for modem text and generated session logs. ([a446cdc])
 - [x] High: WINMOR modem response debug logging uses literal format strings for FAULT, STATE, TARGET, CONNECTED, DISCONNECTED, MONCALL, and fallback modem text. ([328cb18])
+- [x] High: IP and PortMapper PCAP error debug logging uses literal format strings for adapter error text. ([f390151])
 - [x] High: VARA and ARDOP local and connect command assembly reject oversized command text and calls before fixed-buffer writes. ([75ac804])
 - [x] High: ADIF log path, date, and comment formatting reject oversized generated log records before fixed-buffer writes. ([839726c])
 - [x] High: Linux PG server execution validates configured program names, bounds generated paths and argument lists, and avoids `/bin/sh -c`. ([0986ef9])
@@ -195,6 +196,9 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B ARDOPAX25.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the ARDOP AX.25 debug format fix | Blocked by existing Linux integration errors in `ARDOPAX25.c`, including `PortConfig`/`TNCInfo` conflicts, `_beginthread` prototype mismatch, missing `WINMORHostName`/`WINMORDataSock`/`WINMORSock` members, and `BytesRXed`/`BytesTXed` field mismatches. |
 | `git diff --check` after the WINMOR debug format fix | Completed. |
 | `make -f makefile -B WINMOR.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the WINMOR debug format fix | Completed with existing unrelated pointer-sign and unused warnings. |
+| `git diff --check` after the PCAP error debug format fix | Completed. |
+| `make -f makefile -B IPCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the PCAP error debug format fix | Completed with existing unrelated warnings. |
+| `make -f makefile -B PortMapper.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the PCAP error debug format fix | Blocked by existing Linux integration errors in `PortMapper.c`, including `LONG`/`WM_CLOSE` portability failures and static declarations conflicting with exported declarations. |
 | `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the VARA command bounds fix | Completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared. |
 | `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the ARDOP command bounds fix | Completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared. |
 | `make clean` after the VARA and ARDOP command fix | Completed. |
@@ -258,6 +262,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `git diff --check` after the MULTIPSK debug format fix | Completed. |
 | `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK debug format fix | Completed with existing unrelated warnings. |
 
+[f390151]: https://github.com/M6VPN/linbpq/commit/f39015154915860148cf8db30c69fc0ef2c0c26e
 [328cb18]: https://github.com/M6VPN/linbpq/commit/328cb184c7cf9ac00ec8af7ff4a1ef9b44babc7c
 [a446cdc]: https://github.com/M6VPN/linbpq/commit/a446cdcf5fc131c8983c5c5e4104b3008e9a0e71
 [8c62e11]: https://github.com/M6VPN/linbpq/commit/8c62e119e3df448958bf7c9b2e8b21ec37e89699
