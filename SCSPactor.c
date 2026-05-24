@@ -2034,15 +2034,32 @@ VOID SCSPoll(int Port)
 
 			if (memcmp(Buffer, "RADIO ", 6) == 0)
 			{
-				sprintf(&Buffer[40], "%d %s", TNC->Port, &Buffer[6]);
+				char RadioCommand[256];
+				int RadioCommandLen;
 
-				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, &Buffer[40]))
+				RadioCommandLen = snprintf(RadioCommand, sizeof(RadioCommand), "%d %s", TNC->Port, &Buffer[6]);
+
+				if (RadioCommandLen < 0 || (size_t)RadioCommandLen >= sizeof(RadioCommand))
+				{
+					ReleaseBuffer(buffptr);
+					return;
+				}
+
+				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, RadioCommand))
 				{
 					ReleaseBuffer(buffptr);
 				}
 				else
 				{
-					buffptr->Len = sprintf(buffptr->Data, "%s", &Buffer[40]);
+					RadioCommandLen = snprintf((char *)buffptr->Data, sizeof(buffptr->Data), "%s", RadioCommand);
+
+					if (RadioCommandLen < 0 || (size_t)RadioCommandLen >= sizeof(buffptr->Data))
+					{
+						ReleaseBuffer(buffptr);
+						return;
+					}
+
+					buffptr->Len = (size_t)RadioCommandLen;
 					C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
 				}
 				return;
@@ -2078,9 +2095,19 @@ VOID SCSPoll(int Port)
 
 			if (memcmp(Buffer, "CHECKLEVEL", 10) == 0)
 			{
+				int ResponseLen;
+
 				CheckMode(TNC);
 
-				buffptr->Len = sprintf(buffptr->Data, "%s\r", &TNC->RXBuffer[2]);		
+				ResponseLen = snprintf((char *)buffptr->Data, sizeof(buffptr->Data), "%s\r", &TNC->RXBuffer[2]);
+
+				if (ResponseLen < 0 || (size_t)ResponseLen >= sizeof(buffptr->Data))
+				{
+					ReleaseBuffer(buffptr);
+					return;
+				}
+
+				buffptr->Len = (size_t)ResponseLen;
 				C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
 
 				return;

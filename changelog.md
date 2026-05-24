@@ -23,6 +23,7 @@ Source: current security fixes in this working tree.
 - Fixed RMS Relay sync request handling so XML and request commands are bounded, allocation failures abort cleanly, and buffers are not used after free.
 - Fixed SCS Tracker RADIO command and tracker reply handling so oversized node/TNC text is rejected or bounded before fixed-buffer writes.
 - Fixed SCS Tracker multi-stream reply handling so oversized TNC response text is bounded before fixed-buffer writes.
+- Fixed SCS Pactor RADIO command and CHECKLEVEL handling so oversized node/TNC text is rejected before fixed-buffer writes.
 
 ### Verification
 
@@ -80,6 +81,9 @@ Source: current security fixes in this working tree.
 - `make -f makefile -B SCSTrackeMulti.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the multi-stream tracker reply overflow warning is cleared.
 - `make -f makefile clean` completed before the final SCS Tracker multi-stream verification build.
 - `make -f makefile nomqtt` completed and linked `linbpq` after the SCS Tracker multi-stream bounds fix.
+- `make -f makefile -B SCSPactor.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings; the SCS Pactor RADIO command and CHECKLEVEL overflow/overlap warnings are cleared.
+- `make -f makefile clean` completed before the final SCS Pactor bounds verification build.
+- `make -f makefile nomqtt` completed and linked `linbpq` after the SCS Pactor bounds fix.
 
 ## 2026-05-22
 
