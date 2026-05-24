@@ -938,7 +938,7 @@ Pollloop:
 			if (res < 0)
 			{
 				char * error  = (char *)pcap_geterrx(adhandle) ;
-				Debugprintf(error);
+				Debugprintf("%s", error);
 				if (OpenPCAP() == FALSE)
 					pcap_reopen_delay = 300;
 			}
