@@ -814,8 +814,12 @@ int GetHTMLFormSet(char * FormSet)
 	DIR *dir;
 	struct dirent *entry;
 	char name[256];
-	
-   	sprintf(name, "%s/%s", BPQDirectory, FormSet);
+	int nameLen;
+
+	nameLen = snprintf(name, sizeof(name), "%s/%s", BPQDirectory, FormSet);
+
+	if (nameLen < 0 || nameLen >= (int)sizeof(name))
+		return 0;
 
 	if (!(dir = opendir(name)))
 	{
@@ -3413,8 +3417,12 @@ char * xxReadTemplate(char * FormSet, char * DirName, char *FileName)
 	DIR *dir;
 	struct dirent *entry;
 	char name[256];
+	int nameLen;
 
-	sprintf(name, "%s/%s/%s", BPQDirectory, FormSet, DirName);
+	nameLen = snprintf(name, sizeof(name), "%s/%s/%s", BPQDirectory, FormSet, DirName);
+
+	if (nameLen < 0 || nameLen >= (int)sizeof(name))
+		return 0;
 
 	if (!(dir = opendir(name)))
 	{
@@ -5724,8 +5732,12 @@ char * CheckFile(struct HtmlFormDir * Dir, char * FN)
 	DIR *dir;
 	struct dirent *entry;
 	char name[256];
+	int nameLen;
 
-	sprintf(name, "%s/%s/%s", BPQDirectory, Dir->FormSet, Dir->DirName);
+	nameLen = snprintf(name, sizeof(name), "%s/%s/%s", BPQDirectory, Dir->FormSet, Dir->DirName);
+
+	if (nameLen < 0 || nameLen >= (int)sizeof(name))
+		return 0;
 
 	if (!(dir = opendir(name)))
 	{
@@ -5737,10 +5749,17 @@ char * CheckFile(struct HtmlFormDir * Dir, char * FN)
 	{
         if (entry->d_type == DT_DIR)
 			continue;
-	
+
 		if (stricmp(entry->d_name, FN) == 0)
 		{
-			sprintf(MsgFile, "%s/%s/%s/%s", GetBPQDirectory(), Dir->FormSet, Dir->DirName, entry->d_name);
+			int msgFileLen = snprintf(MsgFile, sizeof(MsgFile), "%s/%s/%s/%s", GetBPQDirectory(), Dir->FormSet, Dir->DirName, entry->d_name);
+
+			if (msgFileLen < 0 || msgFileLen >= (int)sizeof(MsgFile))
+			{
+				closedir(dir);
+				return 0;
+			}
+
 			break;
 		}
 	}

@@ -14,6 +14,7 @@ Source: current security fixes in this working tree.
 - Fixed Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling so oversized command text and calls are rejected before fixed-buffer writes.
 - Fixed TNC emulator connected-status replies and serial TNC receive forwarding so oversized modem text is bounded before fixed-buffer writes.
 - Fixed WebMail form directory recursion, config radio interlock conversion, and BBS housekeeping log/report output so oversized generated text is bounded before fixed-buffer writes.
+- Fixed remaining Linux WebMail form and template path lookups so oversized generated paths are rejected before fixed-buffer writes.
 
 ### Verification
 
@@ -43,6 +44,9 @@ Source: current security fixes in this working tree.
 - `make -B Housekeeping.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the log filename and totals report warnings are cleared.
 - `make clean` completed before the final WebMail, config, and housekeeping verification build.
 - `make nomqtt` completed and linked `linbpq` after the WebMail, config, and housekeeping fix.
+- `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the remaining Linux form and template path warnings are cleared.
+- `make clean` completed before the final WebMail form path verification build.
+- `make nomqtt` completed and linked `linbpq` after the remaining WebMail form path fix.
 
 ## 2026-05-22
 
