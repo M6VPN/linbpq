@@ -1572,9 +1572,9 @@ DataLoop:
 	}
 
 	// Doesnt contain [ - just discard
-		
+
 	TNC->DataLen = 0;
-	Debugprintf(TNC->DataBuffer);
+	Debugprintf("%s", TNC->DataBuffer);
 	return;
 	
 }
