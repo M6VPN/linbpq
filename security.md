@@ -36,6 +36,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: Mail UI config updates reject oversized fields, malformed `%XX` escapes, and excessive port counts before fixed-buffer writes or array indexing.
 - [x] High: HSMODEM, FreeDATA, and MULTIPSK connect command handling rejects oversized command text before writing fixed command buffers.
 - [x] High: Cmd downlink, MULTIPSK local command forwarding, and FreeDATA chat-call handling reject oversized command text and calls before fixed-buffer writes.
+- [x] High: TNC emulator connected-status replies and serial TNC receive forwarding bound oversized modem text before fixed-buffer writes.
 
 ## Known Problems
 
@@ -140,3 +141,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B FreeDATA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the chat-call bounds fix | Completed with remaining existing unrelated warnings; the chat-call response warning is cleared. |
 | `make clean` after the downlink command bounds fix | Completed. |
 | `make nomqtt` after the downlink command bounds fix | Completed and linked `linbpq`. |
+| `make -B TNCEmulators.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the emulator status bounds fix | Completed with remaining existing unrelated warnings; the `STATUSPOLL` connected-status warning is cleared. |
+| `make -B SerialPort.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the serial receive bounds fix | Completed with remaining existing unrelated warnings; the serial receive forwarding warning is cleared. |
+| `make clean` after the TNC emulator and serial receive fix | Completed. |
+| `make nomqtt` after the TNC emulator and serial receive fix | Completed and linked `linbpq`. |

@@ -115,7 +115,6 @@ static int ProcessLine(char * buf, int Port)
 
 	return (TRUE);	
 }
-
 char * Config;
 static char * ptr1, * ptr2;
 
@@ -979,6 +978,7 @@ VOID SerialProcessTNCMessage(struct TNCINFO * TNC)
 {
 	PMSGWITHLEN buffptr;
 	struct STREAMINFO * STREAM = &TNC->Streams[0];
+	size_t MsgLen;
 
 	buffptr = GetBuff();
 
@@ -986,8 +986,20 @@ VOID SerialProcessTNCMessage(struct TNCINFO * TNC)
 	{
 		return;			// No buffers, so ignore
 	}
-	
-	buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0], "%s", TNC->RXBuffer);
+
+	MsgLen = strlen((char *)TNC->RXBuffer);
+
+	if (MsgLen >= sizeof(buffptr->Data))
+	{
+		buffptr->Len = snprintf((char *)&buffptr->Data[0], sizeof(buffptr->Data),
+			"Serial} Error - TNC message too long\r");
+	}
+	else
+	{
+		memcpy(&buffptr->Data[0], TNC->RXBuffer, MsgLen);
+		buffptr->Data[MsgLen] = 0;
+		buffptr->Len = MsgLen;
+	}
 
 	C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
 
@@ -1133,4 +1145,3 @@ int ProcessEscape(UCHAR * TXMsg)
 
 	return NewLen;
 }
-	

@@ -4955,16 +4955,27 @@ int STATUSPOLL(struct TNCDATA * TNC, struct StreamInfo * Channel)
 	{
 		//	DISCONNECTED
 
-		i = sprintf(ConMsg, "\x3(%d) DISCONNECTED fm 0:SWITCH\r", TNC->MSGCHANNEL);
+		i = snprintf(ConMsg, sizeof(ConMsg), "\x3(%d) DISCONNECTED fm 0:SWITCH\r", TNC->MSGCHANNEL);
+
+		if (i < 0 || i >= (int)sizeof(ConMsg))
+			return 0;
+
 		i++;
 	}
 	else
 	{
 		//	GET CALLSIGN
-	
+
 		GetCallsign(Channel->BPQStream, WorkString);
 		strlop(WorkString, ' ');
-		i = sprintf(ConMsg, "\x3(%d) CONNECTED to %s\r", TNC->MSGCHANNEL, WorkString);
+		i = snprintf(ConMsg, sizeof(ConMsg), "\x3(%d) CONNECTED to %s\r", TNC->MSGCHANNEL, WorkString);
+
+		if (i < 0 || i >= (int)sizeof(ConMsg))
+			i = snprintf(ConMsg, sizeof(ConMsg), "\x3(%d) CONNECTED\r", TNC->MSGCHANNEL);
+
+		if (i < 0 || i >= (int)sizeof(ConMsg))
+			return 0;
+
 		i++;
 	}
 
