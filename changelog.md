@@ -6,6 +6,7 @@ Sources: commits listed on each fixed security line.
 
 ### Security
 
+- Fixed L2 session MQTT report formatting so session duration is validated before rate calculations and generated KISS session JSON is bounded before publishing. ([3caaff4])
 - Fixed Remote PTT HAMLIB debug logging so generated socket and thread messages are bounded and logged with literal format strings. ([fc2f12e])
 - Fixed FLDigi64 session traffic debug logging so generated traffic summaries are bounded and logged with literal format strings. ([6e8d619])
 - Fixed MULTIPSK and MULTIPSK64 data discard debug logging so TNC text is logged with a literal format string. ([8c62e11])
@@ -53,6 +54,8 @@ Sources: commits listed on each fixed security line.
 
 ### Verification
 
+- `git diff --check` completed after the L2 session MQTT report formatting fix.
+- `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the L2 session MQTT report formatting fix; the `hookL2SessionDeleted` format-overflow warning is cleared.
 - `git diff --check` completed after the Remote PTT HAMLIB debug logging fix.
 - `make -f makefile -B BPQRemotePTT.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` is blocked on Linux because `BPQRemotePTT.c` includes Windows-only `windows.h`.
 - `git diff --check` completed after the FLDigi64 debug traffic log fix.
@@ -283,6 +286,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[3caaff4]: https://github.com/M6VPN/linbpq/commit/3caaff4552a8417f8cb54cd7f59bb7a6e781b623
 [fc2f12e]: https://github.com/M6VPN/linbpq/commit/fc2f12ece27bbaee5c4b2bb4fe21a3e82ab3a6df
 [6e8d619]: https://github.com/M6VPN/linbpq/commit/6e8d61992f479cecc7ed7875c0238696b054c21d
 [c7de0c5]: https://github.com/M6VPN/linbpq/commit/c7de0c50d91c0f3b9a87195e61eb52ce7b44c421
