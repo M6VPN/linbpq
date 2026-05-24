@@ -6,6 +6,7 @@ Sources: commits listed on each fixed security line.
 
 ### Security
 
+- Fixed MULTIPSK and MULTIPSK64 default-mode and init-script handling so oversized config text cannot overflow fixed command or script buffers. ([4bc6c23])
 - Fixed MULTIPSK64 local command handling so RADIO, MODE, connect, generic command, and internal command replies reject oversized text before fixed-buffer writes. ([5d0cc10])
 - Fixed RHP send handling so malformed JSON string values and invalid `\u` escapes are rejected before decoding. ([8f15e89])
 - Fixed WebMail B2 attachment parsing so malformed body/file lengths, filenames, and attachment boundaries are rejected before allocation or copying. ([8f15e89])
@@ -35,6 +36,8 @@ Sources: commits listed on each fixed security line.
 
 ### Verification
 
+- `git diff --check` completed after the MULTIPSK default command bounds fix.
+- `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the MULTIPSK default command bounds fix.
 - `git diff --check` completed after the MULTIPSK64 bounds fix.
 - `make -f makefile -B MULTIPSK64.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` is blocked by existing Linux integration errors in `MULTIPSK64.c`, including `PortConfig`/`TNCInfo` conflicts and missing `Interlock`/`BytesRXed`/`BytesTXed` members.
 - `git diff --check` completed.
@@ -228,6 +231,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[4bc6c23]: https://github.com/M6VPN/linbpq/commit/4bc6c231dc914f048e933f89af4613ff0a87ce78
 [5d0cc10]: https://github.com/M6VPN/linbpq/commit/5d0cc104a05829979a9807e2ab65d077dfc63621
 [73a8e67]: https://github.com/M6VPN/linbpq/commit/73a8e67edf2fba824df514d74c5fb4b45f42a5f4
 [8969235]: https://github.com/M6VPN/linbpq/commit/896923589e5d572d6940e51b5464c4a3e5189bad
