@@ -481,8 +481,9 @@ void hookNodeClosing(char * Reason)
 
 void hookNodeRunning()
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
+	int uptimeSecs;
 #ifdef LINBPQ
 	char Software[80] = "LinBPQ";
 
@@ -495,15 +496,17 @@ void hookNodeRunning()
 	if (NodeAPISocket)
 	{
 
-		udplen = sprintf(UDPMsg, "{\"@type\": \"NodeStatus\", \"nodeCall\": \"%s\", \"nodeAlias\": \"%s\", \"locator\": \"%s\","
+		uptimeSecs = (int)(time(NULL) - TimeLoaded);
+		udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"NodeStatus\", \"nodeCall\": \"%s\", \"nodeAlias\": \"%s\", \"locator\": \"%s\","
 			"\"latitude\": %f, \"longitude\": %f, \"software\": \"%s\", \"version\": \"%s\", \"uptimeSecs\": %d,"
 			"\"linksIn\": %d, \"linksOut\": %d, \"cctsIn\": %d, \"cctsOut\": %d, \"l3Relayed\": %d}",
-			NODECALLLOPPED, MYALIASLOPPED, LOC, LatFromLOC, LonFromLOC, Software, VersionString, time(NULL) - TimeLoaded,
+			NODECALLLOPPED, MYALIASLOPPED, LOC, LatFromLOC, LonFromLOC, Software, VersionString, uptimeSecs,
 			L2CONNECTSIN, L2CONNECTSOUT, L4CONNECTSIN, L4CONNECTSOUT, L3FRAMES);
 
 //		Debugprintf(UDPMsg);
 
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
