@@ -2008,7 +2008,7 @@ VOID VARAProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 	if (_memicmp(&Buffer[0], "PENDING", 7) == 0)	// Save Pending state for scan control
 	{
 		TNC->ConnectPending = 6;				// Time out after 6 Scanintervals
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 //		WritetoTrace(TNC, Buffer, MsgLen - 1);
 		return;
 	}
@@ -2016,7 +2016,7 @@ VOID VARAProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 	if (_memicmp(&Buffer[0], "CANCELPENDING", 13) == 0)
 	{
 		TNC->ConnectPending = FALSE;
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		// If a callsign is present it is the calling station - add to MH
 
@@ -2050,7 +2050,7 @@ VOID VARAProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "BUFFER", 6) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		sscanf(&Buffer[7], "%d", &TNC->Streams[0].BytesOutstanding);
 
@@ -2097,7 +2097,7 @@ VOID VARAProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 		struct WL2KInfo * WL2K = TNC->WL2K;
 		int Speed = 0;
 
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		WritetoTrace(TNC, Buffer, MsgLen - 1);
 
 		STREAM->bytesRXed = STREAM->bytesTXed = STREAM->PacketsSent = 0;
@@ -2416,7 +2416,7 @@ VOID VARAProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "DISCONNECTED", 12) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		TNC->ConnectPending = FALSE;			// Cancel Scan Lock
 
