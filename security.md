@@ -48,6 +48,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: SCS Tracker RADIO command and tracker reply handling rejects or bounds oversized node/TNC text before fixed-buffer writes.
 - [x] High: SCS Tracker multi-stream reply handling bounds oversized TNC response text before fixed-buffer writes.
 - [x] High: SCS Pactor RADIO command and CHECKLEVEL handling rejects oversized node/TNC text before fixed-buffer writes.
+- [x] High: Manual KISS command response handling rejects oversized text and hex replies before fixed-buffer writes.
 
 ## Known Problems
 
@@ -192,3 +193,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B SCSPactor.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the SCS Pactor bounds fix | Completed with remaining existing unrelated warnings; the RADIO command and CHECKLEVEL overflow/overlap warnings are cleared. |
 | `make -f makefile clean` after the SCS Pactor bounds fix | Completed. |
 | `make -f makefile nomqtt` after the SCS Pactor bounds fix | Completed and linked `linbpq`. |
+| `make -f makefile -B kiss.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the manual KISS response bounds fix | Completed with remaining existing unrelated warnings; the manual response overflow warning is cleared. |
+| `make -f makefile clean` after the manual KISS response bounds fix | Completed. |
+| `make -f makefile nomqtt` after the manual KISS response bounds fix | Completed and linked `linbpq`. |

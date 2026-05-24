@@ -1681,9 +1681,11 @@ SeeifMore:
 				int i;
 				unsigned char c;
 				int hex = 0;
+				int ReplyLen;
+				size_t MaxHexLen;
 
-				// Could be text or hex response
-		
+				/* Could be text or hex response */
+
 				for (i = 0; i < len; i++)
 				{
 					c  = Msg[i];
@@ -1696,28 +1698,75 @@ SeeifMore:
 				}
 
 				Buffer->PID = 0xf0;
-				Buffer->LENGTH = MSGHDDRLEN + 1; // Includes PID
+				Buffer->LENGTH = MSGHDDRLEN + 1; /* Includes PID */
 
 				if (hex == 0)
-					Buffer->LENGTH += sprintf(Buffer->L2DATA, "%s\r", Msg);
+				{
+					ReplyLen = snprintf((char *)Buffer->L2DATA, sizeof(Buffer->L2DATA), "%s\r", Msg);
+
+					if (ReplyLen < 0 || (size_t)ReplyLen >= sizeof(Buffer->L2DATA))
+					{
+						ReleaseBuffer(Buffer);
+						Buffer = NULL;
+					}
+					else
+					{
+						Buffer->LENGTH += ReplyLen;
+					}
+				}
 				else
 				{
-					if (len == 80)
-						len = 80;			// Protect buffer
+					MaxHexLen = (sizeof(Buffer->L2DATA) - 2) / 3;
 
-					for (i = 0; i < len; i++)
+					if ((size_t)len > MaxHexLen)
 					{
-						Buffer->LENGTH += sprintf(&Buffer->L2DATA[i * 3], "%02X ", Msg[i]); 
+						ReleaseBuffer(Buffer);
+						Buffer = NULL;
 					}
-					Buffer->LENGTH += sprintf(&Buffer->L2DATA[i * 3], "\r"); 
+					else
+					{
+						for (i = 0; i < len; i++)
+						{
+							ReplyLen = snprintf((char *)&Buffer->L2DATA[i * 3],
+								sizeof(Buffer->L2DATA) - (size_t)(i * 3), "%02X ", Msg[i]);
+
+							if (ReplyLen != 3)
+							{
+								ReleaseBuffer(Buffer);
+								Buffer = NULL;
+								break;
+							}
+
+							Buffer->LENGTH += ReplyLen;
+						}
+
+						if (Buffer)
+						{
+							ReplyLen = snprintf((char *)&Buffer->L2DATA[i * 3],
+								sizeof(Buffer->L2DATA) - (size_t)(i * 3), "\r");
+
+							if (ReplyLen < 0 || (size_t)ReplyLen >= sizeof(Buffer->L2DATA) - (size_t)(i * 3))
+							{
+								ReleaseBuffer(Buffer);
+								Buffer = NULL;
+							}
+							else
+							{
+								Buffer->LENGTH += ReplyLen;
+							}
+						}
+					}
 				}
-				
-				VEC = PORT->Session->L4TARGET.HOST;
-				C_Q_ADD(&PORT->Session->L4TX_Q, (UINT *)Buffer);
+
+				if (Buffer)
+				{
+					VEC = PORT->Session->L4TARGET.HOST;
+					C_Q_ADD(&PORT->Session->L4TX_Q, (UINT *)Buffer);
 #ifdef BPQ32
-				if (VEC)
-					PostMessage(VEC->HOSTHANDLE, BPQMsg, VEC->HOSTSTREAM, 2);  
+					if (VEC)
+						PostMessage(VEC->HOSTHANDLE, BPQMsg, VEC->HOSTSTREAM, 2);
 #endif
+				}
 			}
 			PORT->Session = 0;
 		}
