@@ -48,6 +48,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: RMS Relay sync request handling bounds generated XML and request commands and avoids use-after-free on request buffers. ([38f91a1])
 - [x] High: SCS Tracker RADIO command and tracker reply handling rejects or bounds oversized node/TNC text before fixed-buffer writes. ([3be7619])
 - [x] High: SCS Tracker multi-stream reply handling bounds oversized TNC response text before fixed-buffer writes. ([4cf53bb])
+- [x] High: SCS Pactor serial receive debug logging uses a literal format string for TNC text. ([e96206a])
 - [x] High: SCS Pactor RADIO command and CHECKLEVEL handling rejects oversized node/TNC text before fixed-buffer writes. ([129a552])
 - [x] High: Manual KISS command response handling rejects oversized text and hex replies before fixed-buffer writes. ([bc3d541])
 - [x] High: POP3 LIST response handling bounds generated message-count replies before fixed-buffer writes. ([57edf61])
@@ -201,6 +202,8 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B SCSTrackeMulti.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the SCS Tracker multi-stream bounds fix | Completed with remaining existing unrelated warnings; the tracker reply overflow warning is cleared. |
 | `make -f makefile clean` after the SCS Tracker multi-stream bounds fix | Completed. |
 | `make -f makefile nomqtt` after the SCS Tracker multi-stream bounds fix | Completed and linked `linbpq`. |
+| `git diff --check` after the SCS Pactor debug format fix | Completed. |
+| `make -f makefile -B SCSPactor.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the SCS Pactor debug format fix | Completed with existing unrelated warnings. |
 | `make -f makefile -B SCSPactor.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the SCS Pactor bounds fix | Completed with remaining existing unrelated warnings; the RADIO command and CHECKLEVEL overflow/overlap warnings are cleared. |
 | `make -f makefile clean` after the SCS Pactor bounds fix | Completed. |
 | `make -f makefile nomqtt` after the SCS Pactor bounds fix | Completed and linked `linbpq`. |
@@ -245,6 +248,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 [a30cbd3]: https://github.com/M6VPN/linbpq/commit/a30cbd3101867692436824a9b7ff02de9234ea96
 [57edf61]: https://github.com/M6VPN/linbpq/commit/57edf61cc5eb2498d6f127a152d78f676dc30535
 [bc3d541]: https://github.com/M6VPN/linbpq/commit/bc3d5410cf0c3398bcbb5ed61ddb9610d7d08daf
+[e96206a]: https://github.com/M6VPN/linbpq/commit/e96206aec4c6c419acde028aa06d8b173011bf54
 [129a552]: https://github.com/M6VPN/linbpq/commit/129a5521e28d0c82367eb1e822c3aad790c013f6
 [4cf53bb]: https://github.com/M6VPN/linbpq/commit/4cf53bb96f11fd4140c751048fb49a89f5cbe8a7
 [3be7619]: https://github.com/M6VPN/linbpq/commit/3be76198feaa7f3c30bea2f4ceeeeda80ddce11c
