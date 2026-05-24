@@ -22,6 +22,7 @@ Sources: commits listed on each fixed security line.
 - Fixed WebMail template date, sequence, form directory, and GPS substitutions so generated values are bounded before fixed-buffer writes. ([06e1fb5])
 - Fixed VARA modem response debug logging so PENDING, CANCELPENDING, BUFFER, CONNECTED, and DISCONNECTED text is logged with literal format strings. ([48e49fd])
 - Fixed ARDOP modem response and FEC debug logging so FAULT, TARGET, CONNECTED, and FEC text is logged with literal format strings. ([0e41414])
+- Fixed ARDOP AX.25 modem response debug logging so modem text and generated session logs are logged with literal format strings. ([a446cdc])
 - Fixed VARA and ARDOP local and connect command assembly so oversized command text and calls are rejected before fixed-buffer writes. ([75ac804])
 - Fixed ADIF log path, date, and comment formatting so oversized generated log records are rejected before fixed-buffer writes. ([839726c])
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used. ([0986ef9])
@@ -88,6 +89,8 @@ Sources: commits listed on each fixed security line.
 - `make -f makefile -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the VARA debug format fix.
 - `git diff --check` completed after the ARDOP debug format fix.
 - `make -f makefile -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the ARDOP debug format fix.
+- `git diff --check` completed after the ARDOP AX.25 debug format fix.
+- `make -f makefile -B ARDOPAX25.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` is blocked by existing Linux integration errors in `ARDOPAX25.c`, including `PortConfig`/`TNCInfo` conflicts, `_beginthread` prototype mismatch, missing `WINMORHostName`/`WINMORDataSock`/`WINMORSock` members, and `BytesRXed`/`BytesTXed` field mismatches.
 - `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared.
 - `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared.
 - `make clean` completed before the final VARA and ARDOP command verification build.
@@ -255,6 +258,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[a446cdc]: https://github.com/M6VPN/linbpq/commit/a446cdcf5fc131c8983c5c5e4104b3008e9a0e71
 [8c62e11]: https://github.com/M6VPN/linbpq/commit/8c62e119e3df448958bf7c9b2e8b21ec37e89699
 [a6872dd]: https://github.com/M6VPN/linbpq/commit/a6872ddfb58ced805b0a3519895b636f3b28c453
 [4bc6c23]: https://github.com/M6VPN/linbpq/commit/4bc6c231dc914f048e933f89af4613ff0a87ce78
