@@ -40,6 +40,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: WebMail form recursion, config radio conversion, and BBS housekeeping output bound oversized generated text before fixed-buffer writes.
 - [x] High: Remaining Linux WebMail form and template path lookups reject oversized generated paths before fixed-buffer writes.
 - [x] High: WebMail template date, sequence, form directory, and GPS substitutions bound generated values before fixed-buffer writes.
+- [x] High: VARA and ARDOP local and connect command assembly reject oversized command text and calls before fixed-buffer writes.
 
 ## Known Problems
 
@@ -159,3 +160,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the WebMail template date bounds fix | Completed with remaining existing unrelated warnings; the template date, sequence, form directory, and GPS formatting warnings are cleared. |
 | `make clean` after the WebMail template date fix | Completed. |
 | `make nomqtt` after the WebMail template date fix | Completed and linked `linbpq`. |
+| `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the VARA command bounds fix | Completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared. |
+| `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the ARDOP command bounds fix | Completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared. |
+| `make clean` after the VARA and ARDOP command fix | Completed. |
+| `make nomqtt` after the VARA and ARDOP command fix | Completed and linked `linbpq`. |

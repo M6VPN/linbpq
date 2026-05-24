@@ -16,6 +16,7 @@ Source: current security fixes in this working tree.
 - Fixed WebMail form directory recursion, config radio interlock conversion, and BBS housekeeping log/report output so oversized generated text is bounded before fixed-buffer writes.
 - Fixed remaining Linux WebMail form and template path lookups so oversized generated paths are rejected before fixed-buffer writes.
 - Fixed WebMail template date, sequence, form directory, and GPS substitutions so generated values are bounded before fixed-buffer writes.
+- Fixed VARA and ARDOP local and connect command assembly so oversized command text and calls are rejected before fixed-buffer writes.
 
 ### Verification
 
@@ -51,6 +52,10 @@ Source: current security fixes in this working tree.
 - `make -B WebMail.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the template date, sequence, form directory, and GPS formatting warnings are cleared.
 - `make clean` completed before the final WebMail template date verification build.
 - `make nomqtt` completed and linked `linbpq` after the WebMail template date fix.
+- `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared.
+- `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared.
+- `make clean` completed before the final VARA and ARDOP command verification build.
+- `make nomqtt` completed and linked `linbpq` after the VARA and ARDOP command fix.
 
 ## 2026-05-22
 

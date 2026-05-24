@@ -1054,6 +1054,8 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 
 			if (InterlockedCheckBusy(TNC) == FALSE)
 			{
+				char * ptr;
+
 				// No, so send
 
 //				ARDOPSendCommand(TNC, "LISTEN TRUE", TRUE);  // !!!! Temp bug workaround !!!!
@@ -1062,7 +1064,9 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 				TNC->Streams[0].Connecting = TRUE;
 
 				memset(TNC->Streams[0].RemoteCall, 0, 10);
-				memcpy(TNC->Streams[0].RemoteCall, &TNC->ConnectCmd[8], (int)strlen(TNC->ConnectCmd)-10);
+				ptr = &TNC->ConnectCmd[8];
+				strlop(ptr, ' ');
+				memcpy(TNC->Streams[0].RemoteCall, ptr, strlen(ptr));
 
 				sprintf(TNC->WEB_TNCSTATE, "%s Connecting to %s", TNC->Streams[0].MyCall, TNC->Streams[0].RemoteCall);
 				MySetWindowText(TNC->xIDC_TNCSTATE, TNC->WEB_TNCSTATE);
@@ -1638,23 +1642,51 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 			if (toupper(buff->L2DATA[0]) == 'C' && buff->L2DATA[1] == ' ' && txlen > 2)	// Connect
 			{
 				char Connect[80];
-				char * ptr = strchr(&buff->L2DATA[2], 13);
+				char * Call = (char *)&buff->L2DATA[2];
+				char * ptr = strchr(Call, 13);
+				int ConnectLen;
+				size_t CallLen;
 
 				if (ptr)
 					*ptr = 0;
 
-				_strupr(&buff->L2DATA[2]);
+				_strupr(Call);
 
-				if (strlen(&buff->L2DATA[2]) > 9)
-					buff->L2DATA[11] = 0;
+				CallLen = strlen(Call);
+
+				if (CallLen == 0 || CallLen > 9)
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((char *)buffptr->Data, "ARDOP} Error - Connect command too long\r");
+						C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
 
 				if (Stream == 0)
 				{
-					sprintf(Connect, "ARQCALL %s %d", &buff->L2DATA[2], TNC->MaxConReq);
+					ConnectLen = snprintf(Connect, sizeof(Connect), "ARQCALL %s %d", Call, TNC->MaxConReq);
+
+					if (ConnectLen < 0 || ConnectLen >= (int)sizeof(Connect))
+					{
+						PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+						if (buffptr)
+						{
+							buffptr->Len = sprintf((char *)buffptr->Data, "ARDOP} Error - Connect command too long\r");
+							C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+						}
+
+						return 0;
+					}
 
 					ARDOPChangeMYC(TNC, TNC->Streams[0].MyCall);
 
-					hookL4SessionAttempt(STREAM, &buff->L2DATA[2], TNC->Streams[0].MyCall);
+					hookL4SessionAttempt(STREAM, Call, TNC->Streams[0].MyCall);
 
 					// See if Busy
 
@@ -1665,7 +1697,7 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 						if (TNC->OverrideBusy == 0)
 						{
 							// Save Command, and wait up to 10 secs
-						
+
 							sprintf(TNC->WEB_TNCSTATE, "Waiting for clear channel");
 							MySetWindowText(TNC->xIDC_TNCSTATE, TNC->WEB_TNCSTATE);
 
@@ -1680,7 +1712,7 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 //					ARDOPSendCommand(TNC, "LISTEN TRUE", TRUE);  // !!!! Temp bug workaround !!!!
 
 					memset(TNC->Streams[0].RemoteCall, 0, 10);
-					strcpy(TNC->Streams[0].RemoteCall, &buff->L2DATA[2]);
+					memcpy(TNC->Streams[0].RemoteCall, Call, CallLen + 1);
 
 					sprintf(TNC->WEB_TNCSTATE, "%s Connecting to %s", STREAM->MyCall, STREAM->RemoteCall);
 					ARDOPSendCommand(TNC, Connect, TRUE);
@@ -1689,8 +1721,22 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 				else
 				{
 					// Packet Connect
-				
-					sprintf(Connect, "%cPKTCALL %s %s", Stream, &buff->L2DATA[2], STREAM->MyCall);
+
+					ConnectLen = snprintf(Connect, sizeof(Connect), "%cPKTCALL %s %s", Stream, Call, STREAM->MyCall);
+
+					if (ConnectLen < 0 || ConnectLen >= (int)sizeof(Connect))
+					{
+						PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+						if (buffptr)
+						{
+							buffptr->Len = sprintf((char *)buffptr->Data, "ARDOP} Error - Connect command too long\r");
+							C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+						}
+
+						return 0;
+					}
+
 					ARDOPSendPktCommand(TNC, Stream, Connect);
 				}
 

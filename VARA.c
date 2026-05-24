@@ -435,14 +435,24 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 
 			if (InterlockedCheckBusy(TNC) == FALSE)
 			{
+				char * ptr;
+
 				// No, so send
 
 				VARASendCommand(TNC, TNC->ConnectCmd, TRUE);
 				TNC->Streams[0].Connecting = TRUE;
-				TNC->Streams[0].ConnectTime = time(NULL); 
+				TNC->Streams[0].ConnectTime = time(NULL);
 
 				memset(TNC->Streams[0].RemoteCall, 0, 10);
-				memcpy(TNC->Streams[0].RemoteCall, &TNC->ConnectCmd[8], strlen(TNC->ConnectCmd)-10);
+				ptr = strchr(&TNC->ConnectCmd[8], ' ');
+
+				if (ptr)
+				{
+					ptr++;
+					strlop(ptr, 13);
+					strlop(ptr, ' ');
+					memcpy(TNC->Streams[0].RemoteCall, ptr, strlen(ptr));
+				}
 
 				sprintf(TNC->WEB_TNCSTATE, "%s Connecting to %s", TNC->Streams[0].MyCall, TNC->Streams[0].RemoteCall);
 				SetWindowText(TNC->xIDC_TNCSTATE, TNC->WEB_TNCSTATE);
@@ -747,7 +757,30 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 
 			if (_memicmp(buff->L2DATA, "RADIO ", 6) == 0)
 			{
-				sprintf(buff->L2DATA, "%d %s", TNC->Port, &buff->L2DATA[6]);
+				char RadioCommand[256];
+				int CommandLen;
+
+				if ((size_t)txlen < sizeof(buff->L2DATA))
+					buff->L2DATA[txlen] = 0;
+				else
+					buff->L2DATA[sizeof(buff->L2DATA) - 1] = 0;
+
+				CommandLen = snprintf(RadioCommand, sizeof(RadioCommand), "%d %s", TNC->Port, &buff->L2DATA[6]);
+
+				if (CommandLen < 0 || CommandLen >= (int)sizeof(RadioCommand))
+				{
+					PMSGWITHLEN buffptr = GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((char *)buffptr->Data, "VARA} Error - Radio command too long\r");
+						C_Q_ADD(&TNC->WINMORtoBPQ_Q, buffptr);
+					}
+
+					return 1;
+				}
+
+				memcpy(buff->L2DATA, RadioCommand, CommandLen + 1);
 
 				if (Rig_Command(TNC->PortRecord->ATTACHEDSESSIONS[0]->L4CROSSLINK, buff->L2DATA))
 				{
@@ -824,14 +857,45 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 			if (toupper(buff->L2DATA[0]) == 'C' && buff->L2DATA[1] == ' ' && txlen > 2)	// Connect
 			{
 				char Connect[80];
+				char * Call = (char *)&buff->L2DATA[2];
 				char * ptr = strchr(&buff->L2DATA[2], 13);
+				int ConnectLen;
+				size_t CallLen;
 
 				if (ptr)
 					*ptr = 0;
 
-				_strupr(&buff->L2DATA[2]);
+				_strupr(Call);
 
-				sprintf(Connect, "CONNECT %s %s\r", TNC->Streams[0].MyCall, &buff->L2DATA[2]);
+				CallLen = strlen(Call);
+
+				if (CallLen == 0 || CallLen > 9)
+				{
+					PMSGWITHLEN buffptr = GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((char *)buffptr->Data, "VARA} Error - Connect command too long\r");
+						C_Q_ADD(&TNC->WINMORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
+
+				ConnectLen = snprintf(Connect, sizeof(Connect), "CONNECT %s %s\r", TNC->Streams[0].MyCall, Call);
+
+				if (ConnectLen < 0 || ConnectLen >= (int)sizeof(Connect))
+				{
+					PMSGWITHLEN buffptr = GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((char *)buffptr->Data, "VARA} Error - Connect command too long\r");
+						C_Q_ADD(&TNC->WINMORtoBPQ_Q, buffptr);
+					}
+
+					return 0;
+				}
 
 				// Need to set connecting here as if we delay for busy we may incorrectly process OK response
 
@@ -861,11 +925,11 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 				TNC->OverrideBusy = FALSE;
 
 				VARASendCommand(TNC, Connect, TRUE);
-				TNC->Streams[0].ConnectTime = time(NULL); 
+				TNC->Streams[0].ConnectTime = time(NULL);
 
 
 				memset(TNC->Streams[0].RemoteCall, 0, 10);
-				strcpy(TNC->Streams[0].RemoteCall, &buff->L2DATA[2]);
+				memcpy(TNC->Streams[0].RemoteCall, Call, CallLen + 1);
 
 				sprintf(TNC->WEB_TNCSTATE, "%s Connecting to %s", TNC->Streams[0].MyCall, TNC->Streams[0].RemoteCall);
 				MySetWindowText(TNC->xIDC_TNCSTATE, TNC->WEB_TNCSTATE);
