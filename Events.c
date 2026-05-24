@@ -188,29 +188,36 @@ void hookL2SessionDeleted(struct _LINKTABLE * LINK)
 		}
 		else
 		{
-			char Msg[256];
+			char Msg[1024];
 			char timestamp[64];
 			time_t sessionTime = time(NULL) - LINK->ConnectTime;
-			double avBytesSent = LINK->bytesTXed / (sessionTime / 60.0);
-			double avBytesRXed = LINK->bytesRXed / (sessionTime / 60.0);
+			double avBytesSent;
+			double avBytesRXed;
+			int msgLen;
+			int timestampLen;
 			time_t Now = time(NULL);
 			struct tm * TM = localtime(&Now);
 
-			sprintf(timestamp, "%02d:%02d:%02d", TM->tm_hour, TM->tm_min, TM->tm_sec);
-
 			if (sessionTime == 0)
-				sessionTime = 1;				// Or will get divide by zero error 
+				sessionTime = 1;				// Or will get divide by zero error
 
-			Debugprintf("KISS Session Stats Port %d %s %s %d secs Bytes Sent %d  BPM %4.2f Bytes Received %d %4.2f BPM ", 
-				LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall, sessionTime, LINK->bytesTXed, avBytesSent, LINK->bytesRXed, avBytesRXed, timestamp);
+			avBytesSent = LINK->bytesTXed / (sessionTime / 60.0);
+			avBytesRXed = LINK->bytesRXed / (sessionTime / 60.0);
+
+			timestampLen = snprintf(timestamp, sizeof(timestamp), "%02d:%02d:%02d", TM->tm_hour, TM->tm_min, TM->tm_sec);
+			if (timestampLen < 0 || timestampLen >= (int)sizeof(timestamp))
+				strcpy(timestamp, "00:00:00");
+
+			Debugprintf("KISS Session Stats Port %d %s %s %d secs Bytes Sent %d  BPM %4.2f Bytes Received %d %4.2f BPM ",
+				LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall, (int)sessionTime, LINK->bytesTXed, avBytesSent, LINK->bytesRXed, avBytesRXed, timestamp);
 
 
-			sprintf(Msg, "{\"mode\": \"%s\", \"direction\": \"%s\", \"port\": %d, \"callfrom\": \"%s\", \"callto\": \"%s\", \"time\": %d,  \"bytesSent\": %d," 
+			msgLen = snprintf(Msg, sizeof(Msg), "{\"mode\": \"%s\", \"direction\": \"%s\", \"port\": %d, \"callfrom\": \"%s\", \"callto\": \"%s\", \"time\": %d,  \"bytesSent\": %d,"
 				"\"BPMSent\": %4.2f, \"BytesReceived\": %d,  \"BPMReceived\": %4.2f, \"timestamp\": \"%s\"}",
-				"KISS", LINK->Direction, LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall, sessionTime,
+				"KISS", LINK->Direction, LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall, (int)sessionTime,
 				LINK->bytesTXed,  avBytesSent, LINK->bytesRXed, avBytesRXed, timestamp);
 
-			if (MQTT)
+			if (MQTT && msgLen > 0 && msgLen < (int)sizeof(Msg))
 				MQTTReportSession(Msg);
 
 			LINK->ConnectTime = 0;
