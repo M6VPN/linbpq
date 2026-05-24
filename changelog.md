@@ -10,6 +10,7 @@ Source: current RHP and WebMail fixes in this working tree.
 - Fixed WebMail B2 attachment parsing so malformed body/file lengths, filenames, and attachment boundaries are rejected before allocation or copying.
 - Fixed WebMail select-list output format strings so literal HTML is not passed through malformed `sprintf` formats.
 - Fixed Mail UI config updates so oversized fields, malformed `%XX` escapes, and excessive port counts are rejected before fixed-buffer writes or array indexing.
+- Fixed HSMODEM, FreeDATA, and MULTIPSK connect command handling so oversized command text is rejected before writing fixed command buffers.
 
 ### Verification
 
@@ -20,6 +21,11 @@ Source: current RHP and WebMail fixes in this working tree.
 - `make -B BBSHTMLConfig.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the `ProcessUIUpdate` format-overflow warnings are cleared.
 - `make clean` completed before the final Mail UI config verification build.
 - `make nomqtt` completed and linked `linbpq` after the Mail UI config fix.
+- `make -B HSMODEM.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the connect command format-overflow warning is cleared.
+- `make -B FreeDATA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the connect command format-overflow warning is cleared.
+- `make -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the missing-call and command-response warnings are cleared.
+- `make clean` completed before the final TNC connect command verification build.
+- `make nomqtt` completed and linked `linbpq` after the TNC connect command fix.
 
 ## 2026-05-22
 

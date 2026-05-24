@@ -34,6 +34,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: WebMail B2 attachment parsing rejects malformed body/file lengths, filenames, and attachment boundaries before allocation or copying.
 - [x] Medium: WebMail select-list output uses valid literal `sprintf` formats.
 - [x] High: Mail UI config updates reject oversized fields, malformed `%XX` escapes, and excessive port counts before fixed-buffer writes or array indexing.
+- [x] High: HSMODEM, FreeDATA, and MULTIPSK connect command handling rejects oversized command text before writing fixed command buffers.
 
 ## Known Problems
 
@@ -128,3 +129,8 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -B BBSHTMLConfig.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the Mail UI config fix | Completed with remaining existing unrelated warnings; the `ProcessUIUpdate` format-overflow warnings are cleared. |
 | `make clean` after the Mail UI config fix | Completed. |
 | `make nomqtt` after the Mail UI config fix | Completed and linked `linbpq`. |
+| `make -B HSMODEM.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the TNC connect command fix | Completed with remaining existing unrelated warnings; the connect command format-overflow warning is cleared. |
+| `make -B FreeDATA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the TNC connect command fix | Completed with remaining existing unrelated warnings; the connect command format-overflow warning is cleared. |
+| `make -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the TNC connect command fix | Completed with remaining existing unrelated warnings; the missing-call and command-response warnings are cleared. |
+| `make clean` after the TNC connect command fix | Completed. |
+| `make nomqtt` after the TNC connect command fix | Completed and linked `linbpq`. |

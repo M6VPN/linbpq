@@ -709,6 +709,7 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 		if (toupper(buff->L2DATA[0]) == 'C' && buff->L2DATA[1] == ' ' && txlen > 2)	// Connect
 		{
 			char Connect[80];
+			int ConnectLen;
 			char * ptr = strchr(&buff->L2DATA[2], 13);
 
 			if (ptr)
@@ -719,7 +720,23 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 			if (strlen(&buff->L2DATA[2]) > 9)
 				buff->L2DATA[11] = 0;
 
-			txlen = sprintf(Connect, "C %s\r", &buff->L2DATA[2]);
+			ConnectLen = snprintf(Connect, sizeof(Connect), "C %s\r", &buff->L2DATA[2]);
+
+			if (ConnectLen < 0 || ConnectLen >= (int)sizeof(Connect))
+			{
+				PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+				if (buffptr)
+				{
+					buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+						"HSMODEM} Error - Connect command too long\r");
+					C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+				}
+
+				return 0;
+			}
+
+			txlen = ConnectLen;
 
 			HSMODEMChangeMYC(TNC, TNC->Streams[0].MyCall);
 

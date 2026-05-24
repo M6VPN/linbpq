@@ -390,6 +390,7 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 		else
 		{
 			char Command[80];
+			int CommandLen;
 			int len;
 
 			buff->L2DATA[txlen] = 0;
@@ -503,7 +504,23 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 					if (buffptr)
 					{
 						buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
-							"MPSK} Error - Call missing from C command\r", STREAM->MyCall, STREAM->RemoteCall);
+							"MPSK} Error - Call missing from C command\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					STREAM->DiscWhenAllSent = 10;
+					return 0;
+				}
+
+				if (strlen(ptr) > 9)
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+							"MPSK} Error - Call too long\r");
 
 						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
 					}
@@ -514,8 +531,26 @@ static size_t ExtProc(int fn, int port,  PDATAMESSAGE buff)
 
 				strcpy(STREAM->RemoteCall, ptr);
 
-				len = sprintf(Command,"%cCALLSIGN_TO_CALL_ARQ_FAE %s%c%cSELECTIVE_CALL_ARQ_FAE\x1b",
+				CommandLen = snprintf(Command, sizeof(Command), "%cCALLSIGN_TO_CALL_ARQ_FAE %s%c%cSELECTIVE_CALL_ARQ_FAE\x1b",
 					'\x1a', STREAM->RemoteCall, '\x1b', '\x1a');
+
+				if (CommandLen < 0 || CommandLen >= (int)sizeof(Command))
+				{
+					PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+					if (buffptr)
+					{
+						buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+							"MPSK} Error - Connect command too long\r");
+
+						C_Q_ADD(&STREAM->PACTORtoBPQ_Q, buffptr);
+					}
+
+					STREAM->DiscWhenAllSent = 10;
+					return 0;
+				}
+
+				len = CommandLen;
 
 				if (TNC->MPSKInfo->TX)
 					TNC->CmdSet = TNC->CmdSave = _strdup(Command);		// Save till not transmitting
@@ -1208,8 +1243,18 @@ VOID ProcessMSPKCmd(struct TNCINFO * TNC)
 
 				if (buffptr)
 				{
-					buffptr->Len= sprintf(buffptr->Data, "MPSK} %s\r", TNC->CmdBuffer);
-					C_Q_ADD(&TNC->Streams[0].PACTORtoBPQ_Q, buffptr);
+					int Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+						"MPSK} %s\r", TNC->CmdBuffer);
+
+					if (Len < 0 || Len >= (int)sizeof(buffptr->Data))
+						Len = snprintf((char *)buffptr->Data, sizeof(buffptr->Data),
+							"MPSK} Error - Command response too long\r");
+
+					if (Len > 0 && Len < (int)sizeof(buffptr->Data))
+					{
+						buffptr->Len = Len;
+						C_Q_ADD(&TNC->Streams[0].PACTORtoBPQ_Q, buffptr);
+					}
 				}
 
 				if (strstr(TNC->CmdBuffer, "STOP_SELECTIVE_CALL_ARQ_FAE OK"))

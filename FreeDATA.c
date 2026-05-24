@@ -901,7 +901,8 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 		{
 			char Connect[80];
 			char loppedCall[10];
-			
+			int ConnectLen;
+
 			char * ptr = strchr(&buff->L2DATA[2], 13);
 
 			if (ptr)
@@ -913,17 +914,32 @@ static size_t ExtProc(int fn, int port, PDATAMESSAGE buff)
 			if (strlen(&buff->L2DATA[2]) > 9)
 				buff->L2DATA[11] = 0;
 
+			// MYCALL and Target call are end to end concepts - the TNC cam can only use one call, set at TNC start. and no SSID's
+			// Messages are sent at TNC level to the tnc call, so we send our tnc call to the other end
+
+			ConnectLen = snprintf(Connect, sizeof(Connect), "C %s %s %s ", &buff->L2DATA[2], STREAM->MyCall, TNC->FreeDataInfo->ourCall);
+
+			if (ConnectLen < 0 || ConnectLen >= (int)sizeof(Connect))
+			{
+				PMSGWITHLEN buffptr = (PMSGWITHLEN)GetBuff();
+
+				if (buffptr)
+				{
+					buffptr->Len = sprintf((UCHAR *)&buffptr->Data[0],
+						"FreeData} Error - Connect command too long\r");
+					C_Q_ADD(&TNC->Streams[Stream].PACTORtoBPQ_Q, buffptr);
+				}
+
+				return 0;
+			}
+
+			txlen = ConnectLen;
+
 			strcpy(TNC->FreeDataInfo->toCall, &buff->L2DATA[2]);
 			strcpy(loppedCall, TNC->FreeDataInfo->toCall);
 			if (TNC->FreeDataInfo->useBaseCall)
 				strlop(loppedCall, '-');
 			strcpy(TNC->FreeDataInfo->farCall, loppedCall); 
-
-			// MYCALL and Target call are end to end concepts - the TNC cam can only use one call, set at TNC start. and no SSID's
-			// Messages are sent at TNC level to the tnc call, so we send our tnc call to the other end
-	
-
-			txlen = sprintf(Connect, "C %s %s %s ", &buff->L2DATA[2], STREAM->MyCall, TNC->FreeDataInfo->ourCall);
 
 			// See if Busy
 /*
