@@ -243,7 +243,7 @@ void processDRATSFrame(unsigned char * Message, int Len, struct ConnectionInfo *
 	char CallTo[10] = "";
 
 	Message[Len] = 0;
-	Debugprintf(Message);
+	Debugprintf("%s", (char *)Message);
 
 	Payload = strstr(Message, "[SOB]");
 	
@@ -293,7 +293,7 @@ void processDRATSFrame(unsigned char * Message, int Len, struct ConnectionInfo *
 		memcpy(Header->Message, dest, outLen + 1);
 		Header->Length = outLen;
 	}
-	Debugprintf(Header->Message);
+	Debugprintf("%s", (char *)Header->Message);
 
 	// Look for a matching From/To/Session
 
@@ -508,7 +508,7 @@ void sendDRATSFrame(struct ConnectionInfo * sockptr, struct DRATSHeader * Header
 	len = yEncode((unsigned char *)Header, out + 5, packetLen, BANNED);
 
 	memcpy(&out[len + 5], "[EOB]", 5);
-	Debugprintf(out);
+	Debugprintf("%s", (char *)out);
 	send(sockptr->socket, out, len + 10, 0);
 }
 
