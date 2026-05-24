@@ -3014,7 +3014,7 @@ VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "FAULT failure to Restart Sound card", 20) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 	
 		// Force a restart
 
@@ -3110,7 +3110,7 @@ VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 	if (_memicmp(Buffer, "TARGET", 6) == 0)
 	{
 		TNC->ConnectPending = 6;					// This comes before Pending
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		WritetoTrace(TNC, Buffer, MsgLen - 1);
 		memcpy(TNC->TargetCall, &Buffer[7], 10);
 		return;
@@ -3168,7 +3168,7 @@ VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 		struct WL2KInfo * WL2K = TNC->WL2K;
 		int Speed = 0;
 
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		WritetoTrace(TNC, Buffer, MsgLen - 1);
 
 		STREAM->ConnectTime = time(NULL); 
@@ -3545,7 +3545,7 @@ VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "FAULT", 5) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		WritetoTrace(TNC, Buffer, MsgLen - 1);
 //		return;
 	}
@@ -3958,7 +3958,7 @@ VOID ARDOPProcessDataPacket(struct TNCINFO * TNC, UCHAR * Type, UCHAR * Data, in
 		int Len = Length;
 		char Call[10] = "";
 
-		Debugprintf(Data);
+		Debugprintf("%s", Data);
 
 		if (*ptr == '^' || TNC->ARDOPAPRSLen)
 		{
