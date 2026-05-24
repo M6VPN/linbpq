@@ -1477,8 +1477,15 @@ static int ProcessLine(char * buf, int Port)
 				if (Freq)
 				{
 					*(Freq++) = 0;
-					strcpy(TNC->FLInfo->DefaultMode, &buf[13]);
-					TNC->FLInfo->DefaultFreq = atoi(Freq);
+					if (strlen(&buf[13]) < sizeof(TNC->FLInfo->DefaultMode))
+					{
+						strcpy(TNC->FLInfo->DefaultMode, &buf[13]);
+						TNC->FLInfo->DefaultFreq = atoi(Freq);
+					}
+					else
+					{
+						WritetoConsoleLocal("FLDigi DEFAULTMODEM mode too long\n");
+					}
 				}
 			}
 			else
@@ -3195,12 +3202,17 @@ VOID FLReleaseTNC(struct TNCINFO * TNC)
 
 	if (TNC->FLInfo->DefaultMode[0])
 	{
-		char txbuff[80];
-				
+		char txbuff[128];
+
 		if (TNC->FLInfo->KISSMODE)
 		{
-			sprintf(txbuff, "WFF:%d MODEM:%s MODEM: WFF:", TNC->FLInfo->DefaultFreq, TNC->FLInfo->DefaultMode);
-			SendKISSCommand(TNC, txbuff);
+			int txlen;
+
+			txlen = snprintf(txbuff, sizeof(txbuff), "WFF:%d MODEM:%s MODEM: WFF:",
+				TNC->FLInfo->DefaultFreq, TNC->FLInfo->DefaultMode);
+
+			if (txlen > 0 && (size_t)txlen < sizeof(txbuff))
+				SendKISSCommand(TNC, txbuff);
 		}
 		else
 		{
