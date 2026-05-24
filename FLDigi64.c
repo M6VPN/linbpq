@@ -2865,12 +2865,12 @@ SendKReply:
 			if (Duration == 0)
 				Duration = 1;
 			
-			sprintf(logmsg,"Port %2d %9s Bytes Sent %d  BPS %d Bytes Received %d BPS %d Time %d Seconds",
+			snprintf(logmsg, sizeof(logmsg), "Port %2d %9s Bytes Sent %d  BPS %d Bytes Received %d BPS %d Time %d Seconds",
 				TNC->Port, STREAM->RemoteCall,
 				STREAM->BytesTXed, (int)(STREAM->BytesTXed/Duration),
 				STREAM->BytesRXed, (int)(STREAM->BytesRXed/Duration), (int)Duration);
 
-			Debugprintf(logmsg);
+			Debugprintf("%s", logmsg);
 		}
 
 		STREAM->Connecting = FALSE;
