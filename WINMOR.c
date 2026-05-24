@@ -2030,7 +2030,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "FAULT failure to Restart Sound card", 20) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 	
 		// Force a restart
 
@@ -2045,7 +2045,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "STATE ", 6) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 	
 		if (_memicmp(&Buffer[6], "OFFLINE", 7) == 0)
 		{
@@ -2101,7 +2101,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "TARGET", 6) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		GetSemaphore(&Semaphore, 50);
 		WritetoTrace(TNC, Buffer, MsgLen - 2);
 		FreeSemaphore(&Semaphore);
@@ -2126,7 +2126,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 		char Appl[10];
 		struct WL2KInfo * WL2K = TNC->WL2K;
 
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		GetSemaphore(&Semaphore, 50);
 		WritetoTrace(TNC, Buffer, MsgLen - 2);
@@ -2345,7 +2345,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "DISCONNECTED", 12) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		if (TNC->FECMode)
 			return;
@@ -2417,7 +2417,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 
 	if (_memicmp(Buffer, "MONCALL", 7) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		// Add to MHEARD
 
@@ -2475,7 +2475,7 @@ VOID ProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLen)
 		return;
 	}
 
-	Debugprintf(Buffer);
+	Debugprintf("%s", Buffer);
 
 	if (_memicmp(Buffer, "MODE", 4) == 0)
 	{
