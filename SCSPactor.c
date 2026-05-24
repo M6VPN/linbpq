@@ -2518,9 +2518,9 @@ BOOL CheckRXText(struct TNCINFO * TNC)
 	CloseLogFile(TNC->Port);
 
 	TNC->RXBuffer[TNC->RXLen] = 0;
-	
+
 	if (TNC->RIG->RIG_DEBUG)
-		Debugprintf(TNC->RXBuffer);
+		Debugprintf("%s", TNC->RXBuffer);
 
 	TNC->RXLen = 0;		// Ready for next frame
 
