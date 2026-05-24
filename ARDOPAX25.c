@@ -1471,7 +1471,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 
 	if (_memicmp(Buffer, "FAULT failure to Restart Sound card", 20) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 	
 		// Force a restart
 
@@ -1486,7 +1486,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 
 	if (_memicmp(Buffer, "STATE ", 6) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 	
 		if (_memicmp(&Buffer[6], "OFFLINE", 7) == 0)
 		{
@@ -1546,7 +1546,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 	if (_memicmp(Buffer, "TARGET", 6) == 0)
 	{
 		TNC->ConnectPending = 6;					// This comes before Pending
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		WritetoTrace(TNC, Buffer, MsgLen - 3);
 		memcpy(TNC->TargetCall, &Buffer[7], 10);
 		ARDOPSendCommand(TNC, "RDY", FALSE);
@@ -1562,7 +1562,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 
 	if (_memicmp(Buffer, "BUFFER", 6) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		sscanf(&Buffer[7], "%d", &TNC->Streams[0].BytesOutstanding);
 
@@ -1613,7 +1613,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 		struct WL2KInfo * WL2K = TNC->WL2K;
 		int Speed = 0;
 
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 		WritetoTrace(TNC, Buffer, MsgLen - 3);
 
 		ARDOPSendCommand(TNC, "RDY", FALSE);
@@ -1799,7 +1799,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 		|| _memicmp(Buffer, "STATUS CONNECT TO", 17) == 0  
 		|| _memicmp(Buffer, "STATUS ARQ TIMEOUT FROM PROTOCOL STATE", 24) == 0)
 	{
-		Debugprintf(Buffer);
+		Debugprintf("%s", Buffer);
 
 		ARDOPSendCommand(TNC, "RDY", FALSE);
 		TNC->ConnectPending = FALSE;			// Cancel Scan Lock
@@ -1856,7 +1856,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 				STREAM->BytesTXed, (int)(STREAM->BytesTXed/Duration),
 				STREAM->BytesRXed, (int)(STREAM->BytesRXed/Duration), (int)Duration);
 
-			Debugprintf(logmsg);
+			Debugprintf("%s", logmsg);
 		}
 
 
@@ -1872,7 +1872,7 @@ static VOID ARDOPProcessResponse(struct TNCINFO * TNC, UCHAR * Buffer, int MsgLe
 		return;
 	}
 
-	Debugprintf(Buffer);
+	Debugprintf("%s", Buffer);
 
 	if (_memicmp(Buffer, "STATUS ", 7) == 0)
 	{
