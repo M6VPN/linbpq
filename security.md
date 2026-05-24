@@ -69,6 +69,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: FLDigi UI frame reply handling rejects malformed lengths before indexing packet data and bounds generated UI replies before sending. ([73a8e67])
 - [x] High: FLDigi XML command assembly escapes string parameters, rejects wrong parameter types, and bounds generated RPC buffers before sending. ([8969235])
 - [x] High: FLDigi default modem handling rejects oversized configured modem names before fixed-buffer copies and bounds generated KISS commands before sending. ([344c685])
+- [x] High: FLDigi64 session traffic debug logging bounds generated traffic summaries and logs them with literal format strings. ([6e8d619])
 - [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 - [x] High: MULTIPSK and MULTIPSK64 default-mode and init-script handling rejects oversized config text before fixed command or script buffer writes. ([4bc6c23])
 - [x] High: MULTIPSK RADIO command rewriting and INUSE replies reject or bound oversized generated text before fixed-buffer writes. ([a6872dd])
@@ -273,7 +274,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK RADIO/INUSE bounds fix | Completed with existing unrelated warnings. |
 | `git diff --check` after the MULTIPSK debug format fix | Completed. |
 | `make -f makefile -B MULTIPSK.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the MULTIPSK debug format fix | Completed with existing unrelated warnings. |
+| `git diff --check` after the FLDigi64 debug traffic log fix | Completed. |
+| `make -f makefile -B FLDigi64.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the FLDigi64 debug traffic log fix | Blocked by existing Linux integration errors in `FLDigi64.c`, including `PortConfig`/`TNCInfo` conflicts, `MAXBPQPORTS` redefinition, `Rig_Command` argument mismatches, and missing `BytesTXed`/`BytesRXed` members. |
 
+[6e8d619]: https://github.com/M6VPN/linbpq/commit/6e8d61992f479cecc7ed7875c0238696b054c21d
 [c7de0c5]: https://github.com/M6VPN/linbpq/commit/c7de0c50d91c0f3b9a87195e61eb52ce7b44c421
 [4e4997f]: https://github.com/M6VPN/linbpq/commit/4e4997fad3f41bfe4627b4c6b625fa9ea30b6c40
 [bcef51e]: https://github.com/M6VPN/linbpq/commit/bcef51e294c3e213ed8af70cd7635f1e5f3b6120
