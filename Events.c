@@ -461,18 +461,21 @@ void hookNodeStarted()
 
 void hookNodeClosing(char * Reason)
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
+	int uptimeSecs;
 
 	if (NodeAPISocket)
 	{
-		udplen = sprintf(UDPMsg, "{\"@type\": \"NodeDownEvent\", \"nodeCall\": \"%s\", \"nodeAlias\": \"%s\", \"reason\": \"%s\", \"uptimeSecs\": %d,"
+		uptimeSecs = (int)(time(NULL) - TimeLoaded);
+		udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"NodeDownEvent\", \"nodeCall\": \"%s\", \"nodeAlias\": \"%s\", \"reason\": \"%s\", \"uptimeSecs\": %d,"
 			"\"linksIn\": %d, \"linksOut\": %d, \"cctsIn\": %d, \"cctsOut\": %d, \"l3Relayed\": %d}",
-			NODECALLLOPPED, MYALIASLOPPED, Reason, time(NULL) - TimeLoaded, L2CONNECTSIN, L2CONNECTSOUT, L4CONNECTSIN, L4CONNECTSOUT, L3FRAMES);
-   
+			NODECALLLOPPED, MYALIASLOPPED, Reason, uptimeSecs, L2CONNECTSIN, L2CONNECTSOUT, L4CONNECTSIN, L4CONNECTSOUT, L3FRAMES);
+
 //		Debugprintf(UDPMsg);
 
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
