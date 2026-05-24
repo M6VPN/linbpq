@@ -25,6 +25,7 @@ Sources: commits listed on each fixed security line.
 - Fixed ARDOP AX.25 modem response debug logging so modem text and generated session logs are logged with literal format strings. ([a446cdc])
 - Fixed WINMOR modem response debug logging so FAULT, STATE, TARGET, CONNECTED, DISCONNECTED, MONCALL, and fallback modem text is logged with literal format strings. ([328cb18])
 - Fixed IP and PortMapper PCAP error debug logging so adapter error text is logged with literal format strings. ([f390151])
+- Fixed WL2K sysop update response handling so short or failed receives are rejected, response text is null-terminated before use, generated update requests are bounded, and received text is logged with a literal format string. ([5fcffcb])
 - Fixed VARA and ARDOP local and connect command assembly so oversized command text and calls are rejected before fixed-buffer writes. ([75ac804])
 - Fixed ADIF log path, date, and comment formatting so oversized generated log records are rejected before fixed-buffer writes. ([839726c])
 - Fixed Linux PG server execution so configured program names and generated paths are validated, argument lists are bounded, and `/bin/sh -c` is no longer used. ([0986ef9])
@@ -98,6 +99,8 @@ Sources: commits listed on each fixed security line.
 - `git diff --check` completed after the PCAP error debug format fix.
 - `make -f makefile -B IPCode.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the PCAP error debug format fix.
 - `make -f makefile -B PortMapper.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` is blocked by existing Linux integration errors in `PortMapper.c`, including `LONG`/`WM_CLOSE` portability failures and static declarations conflicting with exported declarations.
+- `git diff --check` completed after the WL2K sysop update response handling fix.
+- `make -f makefile -B HFCommon.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with existing unrelated warnings after the WL2K sysop update response handling fix.
 - `make -B VARA.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the radio and connect command format-overflow and overlap warnings are cleared.
 - `make -B ARDOP.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` completed with remaining existing unrelated warnings; the ARQ and packet connect command format-overflow warnings are cleared.
 - `make clean` completed before the final VARA and ARDOP command verification build.
@@ -265,6 +268,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[5fcffcb]: https://github.com/M6VPN/linbpq/commit/5fcffcb385638630c2673e158d1584bb4daf53ef
 [f390151]: https://github.com/M6VPN/linbpq/commit/f39015154915860148cf8db30c69fc0ef2c0c26e
 [328cb18]: https://github.com/M6VPN/linbpq/commit/328cb184c7cf9ac00ec8af7ff4a1ef9b44babc7c
 [a446cdc]: https://github.com/M6VPN/linbpq/commit/a446cdcf5fc131c8983c5c5e4104b3008e9a0e71
