@@ -658,13 +658,14 @@ void L4DisconnectEvent(TRANSPORTENTRY * L4, char * Direction, char * Reason)
 
 void L4StatusSeport(TRANSPORTENTRY * L4)
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 	char remotecall[64];
 	char ourcall[64];
 	char nodecall[16];
 	char circuitinfo[32];
 	int Count;
+	int upForSecs;
 	time_t Now = time(NULL);
 	int Service = L4->Service;
 
@@ -691,17 +692,20 @@ void L4StatusSeport(TRANSPORTENTRY * L4)
 		else
 			Count = CountFramesQueuedOnSession(L4);
 
+		upForSecs = (int)(Now - L4->ConnectTime);
+
 		if (Service == -1)
-			udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"%s\","
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"%s\","
 			"\"upForSecs\": %d,\"remote\": \"%s\", \"local\": \"%s\", \"segsSent\": %d, \"segsRcvd\": %d, \"segsResent\": %d, \"segsQueued\": %d}",
-			NODECALLLOPPED, L4->apiSeq, L4->Direction, Now - L4->ConnectTime, remotecall, ourcall,L4->segsSent, L4->segsRcvd, L4->segsResent, Count);
+			NODECALLLOPPED, L4->apiSeq, L4->Direction, upForSecs, remotecall, ourcall,L4->segsSent, L4->segsRcvd, L4->segsResent, Count);
 		else
-			udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"%s\","
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitStatus\", \"node\": \"%s\", \"id\": %d, \"direction\": \"%s\","
 			"\"upForSecs\": %d, \"service\": %d, \"remote\": \"%s\", \"local\": \"%s\", \"segsSent\": %d, \"segsRcvd\": %d, \"segsResent\": %d, \"segsQueued\": %d}",
-			NODECALLLOPPED, L4->apiSeq, L4->Direction, Now - L4->ConnectTime, Service, remotecall, ourcall,L4->segsSent, L4->segsRcvd, L4->segsResent, Count);
+			NODECALLLOPPED, L4->apiSeq, L4->Direction, upForSecs, Service, remotecall, ourcall,L4->segsSent, L4->segsRcvd, L4->segsResent, Count);
 
 //		Debugprintf(UDPMsg);
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
