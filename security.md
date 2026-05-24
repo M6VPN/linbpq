@@ -33,6 +33,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: RHP send handling rejects malformed JSON string values and invalid `\u` escapes before decoding.
 - [x] High: WebMail B2 attachment parsing rejects malformed body/file lengths, filenames, and attachment boundaries before allocation or copying.
 - [x] Medium: WebMail select-list output uses valid literal `sprintf` formats.
+- [x] High: Mail UI config updates reject oversized fields, malformed `%XX` escapes, and excessive port counts before fixed-buffer writes or array indexing.
 
 ## Known Problems
 
@@ -124,3 +125,6 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `git diff --check` after the RHP and WebMail parsing fixes | Completed. |
 | `make clean` after the RHP and WebMail parsing fixes | Completed. |
 | `make nomqtt` after the RHP and WebMail parsing fixes | Completed and linked `linbpq`; `mqtt.o` was rebuilt with `-DNOMQTT`. |
+| `make -B BBSHTMLConfig.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds'` after the Mail UI config fix | Completed with remaining existing unrelated warnings; the `ProcessUIUpdate` format-overflow warnings are cleared. |
+| `make clean` after the Mail UI config fix | Completed. |
+| `make nomqtt` after the Mail UI config fix | Completed and linked `linbpq`. |

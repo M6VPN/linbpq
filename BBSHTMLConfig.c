@@ -53,6 +53,7 @@ extern int PopupMode;
 extern int reportMailEvents;
 
 #define MaxCMS	10				// Numbr of addresses we can keep - currently 4 are used.
+#define MAIL_FOR_TEXT_SIZE	100
 
 struct UserInfo * BBSLIST[NBBBS + 1];
 
@@ -77,6 +78,8 @@ VOID ProcessFWDUpdate(struct HTTPConnectionInfo * Session, char * MsgPtr, char *
 VOID SendStatusPage(char * Reply, int * ReplyLen, char * Key);
 VOID SendUIPage(char * Reply, int * ReplyLen, char * Key);
 VOID GetParam(char * input, char * key, char * value);
+static int GetParamBounded(char * input, char * key, char * value, size_t valueLen);
+static int GetURLHexNibble(int c);
 BOOL GetConfig(char * ConfigName);
 VOID ProcessDisUser(struct HTTPConnectionInfo * Session, char * MsgPtr, char * Reply, int * RLen, char * Rest);
 int APIENTRY SessionControl(int stream, int command, int param);
@@ -1401,6 +1404,84 @@ VOID GetParam(char * input, char * key, char * value)
 	}
 }
 
+static int GetParamBounded(char * input, char * key, char * value, size_t valueLen)
+{
+	char * ptr;
+	char * ptr1;
+	char * end;
+	size_t used = 0;
+
+	if (valueLen == 0)
+		return -1;
+
+	value[0] = 0;
+
+	ptr = strstr(input, key);
+
+	if (ptr == NULL)
+		return 0;
+
+	ptr1 = ptr + strlen(key);
+	end = strchr(ptr1, '&');
+
+	while (*ptr1 && (end == NULL || ptr1 < end))
+	{
+		char c = *(ptr1++);
+
+		if (c == '%')
+		{
+			int high;
+			int low;
+
+			if (ptr1[0] == 0 || ptr1[1] == 0 ||
+				(end != NULL && ptr1 + 1 >= end))
+			{
+				value[0] = 0;
+				return -1;
+			}
+
+			high = GetURLHexNibble(ptr1[0]);
+			low = GetURLHexNibble(ptr1[1]);
+
+			if (high < 0 || low < 0)
+			{
+				value[0] = 0;
+				return -1;
+			}
+
+			c = high * 16 + low;
+			ptr1 += 2;
+		}
+		else if (c == '+')
+			c = ' ';
+
+		if (used + 1 >= valueLen)
+		{
+			value[0] = 0;
+			return -1;
+		}
+
+		value[used++] = c;
+	}
+
+	value[used] = 0;
+
+	return 1;
+}
+
+static int GetURLHexNibble(int c)
+{
+	c = toupper(c);
+
+	if (c >= '0' && c <= '9')
+		return c - '0';
+
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+
+	return -1;
+}
+
 VOID GetCheckBox(char * input, char * key, int * value)
 {
 	char * ptr = strstr(input, key);
@@ -1809,9 +1890,19 @@ VOID ProcessConfUpdate(struct HTTPConnectionInfo * Session, char * MsgPtr, char 
 
 VOID ProcessUIUpdate(struct HTTPConnectionInfo * Session, char * MsgPtr, char * Reply, int * RLen, char * Key)
 {
-	int ReplyLen = 0, i;
+	int i;
+	int mailForFound = 0;
+	int paramResult;
+	int portCount;
 	char * input;
-	struct UserInfo * USER = NULL;
+	char NewMailFor[MAIL_FOR_TEXT_SIZE];
+	char * NewDigi[MaxBPQPortNo + 1];
+	BOOL NewUIEnabled[MaxBPQPortNo + 1];
+	BOOL NewUIMF[MaxBPQPortNo + 1];
+	BOOL NewUIHDDR[MaxBPQPortNo + 1];
+	BOOL NewUINull[MaxBPQPortNo + 1];
+
+	memset(NewDigi, 0, sizeof(NewDigi));
 
 	input = strstr(MsgPtr, "\r\n\r\n");	// End of headers
 
@@ -1823,9 +1914,22 @@ VOID ProcessUIUpdate(struct HTTPConnectionInfo * Session, char * MsgPtr, char * 
 			return;
 		}
 
-		GetParam(input, "MailFor=", &MailForText[0]);
+		portCount = GetNumberofPorts();
 
-		for (i = 1; i <= GetNumberofPorts(); i++)
+		if (portCount > MaxBPQPortNo)
+			portCount = MaxBPQPortNo;
+
+		if (portCount < 0)
+			portCount = 0;
+
+		paramResult = GetParamBounded(input, "MailFor=", NewMailFor, sizeof(NewMailFor));
+
+		if (paramResult < 0)
+			goto BadUIUpdate;
+
+		mailForFound = paramResult;
+
+		for (i = 1; i <= portCount; i++)
 		{
 			char EnKey[10];
 			char DigiKey[10];
@@ -1833,25 +1937,71 @@ VOID ProcessUIUpdate(struct HTTPConnectionInfo * Session, char * MsgPtr, char * 
 			char HDDRKey[12];
 			char NullKey[12];
 			char Temp[100];
+			char * NewPath;
+			int Len;
 
-			sprintf(EnKey, "En%d=", i);
-			sprintf(DigiKey, "Path%d=", i);
-			sprintf(MFKey, "SndMF%d=", i);
-			sprintf(HDDRKey, "SndHDDR%d=", i);
-			sprintf(NullKey, "SndNull%d=", i);
+			Len = snprintf(EnKey, sizeof(EnKey), "En%d=", i);
+			if (Len < 0 || Len >= (int)sizeof(EnKey))
+				goto BadUIUpdate;
 
-			GetCheckBox(input, EnKey, &UIEnabled[i]);
-			GetParam(input, DigiKey, Temp);
+			Len = snprintf(DigiKey, sizeof(DigiKey), "Path%d=", i);
+			if (Len < 0 || Len >= (int)sizeof(DigiKey))
+				goto BadUIUpdate;
+
+			Len = snprintf(MFKey, sizeof(MFKey), "SndMF%d=", i);
+			if (Len < 0 || Len >= (int)sizeof(MFKey))
+				goto BadUIUpdate;
+
+			Len = snprintf(HDDRKey, sizeof(HDDRKey), "SndHDDR%d=", i);
+			if (Len < 0 || Len >= (int)sizeof(HDDRKey))
+				goto BadUIUpdate;
+
+			Len = snprintf(NullKey, sizeof(NullKey), "SndNull%d=", i);
+			if (Len < 0 || Len >= (int)sizeof(NullKey))
+				goto BadUIUpdate;
+
+			GetCheckBox(input, EnKey, &NewUIEnabled[i]);
+
+			paramResult = GetParamBounded(input, DigiKey, Temp, sizeof(Temp));
+
+			if (paramResult < 0)
+				goto BadUIUpdate;
+
+			NewPath = _strdup(Temp);
+
+			if (NewPath == NULL)
+				goto BadUIUpdate;
+
+			NewDigi[i] = NewPath;
+			GetCheckBox(input, MFKey, &NewUIMF[i]);
+			GetCheckBox(input, HDDRKey, &NewUIHDDR[i]);
+			GetCheckBox(input, NullKey, &NewUINull[i]);
+		}
+
+		if (mailForFound)
+			strcpy(MailForText, NewMailFor);
+
+		for (i = 1; i <= portCount; i++)
+		{
+			UIEnabled[i] = NewUIEnabled[i];
 			if (UIDigi[i])
 				free (UIDigi[i]);
-			UIDigi[i] = _strdup(Temp);
-			GetCheckBox(input, MFKey, &UIMF[i]);
-			GetCheckBox(input, HDDRKey, &UIHDDR[i]);
-			GetCheckBox(input, NullKey, &UINull[i]);
+			UIDigi[i] = NewDigi[i];
+			NewDigi[i] = NULL;
+			UIMF[i] = NewUIMF[i];
+			UIHDDR[i] = NewUIHDDR[i];
+			UINull[i] = NewUINull[i];
 		}
 
 		SaveConfig(ConfigName);
 		GetConfig(ConfigName);
+	}
+
+BadUIUpdate:
+	for (i = 1; i <= MaxBPQPortNo; i++)
+	{
+		if (NewDigi[i])
+			free(NewDigi[i]);
 	}
 
 	SendUIPage(Reply, RLen, Key);
