@@ -80,6 +80,7 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 - [x] High: Circuit status event reporting bounds generated UDP JSON and does not send truncated status reports. ([2c3e1e0])
 - [x] High: Circuit up/down event reporting bounds generated UDP JSON and does not send truncated transition reports. ([0d5592e])
 - [x] High: L2 and node-up event reporting bounds generated UDP JSON and does not send truncated startup/link reports. ([1307b2e])
+- [x] High: NET/ROM trace report assembly bounds L2/L3 trace JSON appends and returns safely on truncated output or short packet data. ([218a157])
 - [x] High: MULTIPSK64 local command handling rejects oversized RADIO, MODE, connect, generic command, and internal command reply text before fixed-buffer writes. ([5d0cc10])
 - [x] High: MULTIPSK and MULTIPSK64 default-mode and init-script handling rejects oversized config text before fixed command or script buffer writes. ([4bc6c23])
 - [x] High: MULTIPSK RADIO command rewriting and INUSE replies reject or bound oversized generated text before fixed-buffer writes. ([a6872dd])
@@ -306,7 +307,10 @@ This file tracks fixed security issues and known open problems in this LinBPQ tr
 | `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the circuit up/down event reporting fix | Completed with remaining existing unrelated warnings. |
 | `git diff --check` after the L2 and node-up event reporting fix | Completed. |
 | `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the L2 and node-up event reporting fix | Completed with remaining existing unrelated warnings. |
+| `git diff --check` after the NET/ROM trace report assembly fix | Completed. |
+| `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` after the NET/ROM trace report assembly fix | Completed with remaining existing unrelated warnings. |
 
+[218a157]: https://github.com/M6VPN/linbpq/commit/218a157c8553546ab3e0c741d906043db9d38b3c
 [1307b2e]: https://github.com/M6VPN/linbpq/commit/1307b2ec8111680eb676be1cc189157cc79111c4
 [0d5592e]: https://github.com/M6VPN/linbpq/commit/0d5592e7c5c6a52b56649170d78eb9ef4642f706
 [2c3e1e0]: https://github.com/M6VPN/linbpq/commit/2c3e1e0d0d32f7207d1a1950f5cd4eb4dbd39679

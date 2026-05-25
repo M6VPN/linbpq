@@ -6,6 +6,7 @@ Sources: commits listed on each fixed security line.
 
 ### Security
 
+- Fixed NET/ROM trace report assembly so L2/L3 trace JSON appends and NET/ROM decoders stop safely on truncation or short packet data. ([218a157])
 - Fixed L2 and node-up event reporting so generated UDP JSON is bounded and truncated startup/link reports are not sent. ([1307b2e])
 - Fixed circuit up/down event reporting so generated UDP JSON is bounded and truncated transition reports are not sent. ([0d5592e])
 - Fixed circuit status event reporting so generated UDP JSON is bounded and truncated status reports are not sent. ([2c3e1e0])
@@ -17,6 +18,8 @@ Sources: commits listed on each fixed security line.
 
 ### Verification
 
+- `git diff --check` completed after the NET/ROM trace report assembly fix.
+- `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the NET/ROM trace report assembly fix.
 - `git diff --check` completed after the L2 and node-up event reporting fix.
 - `make -f makefile -B Events.o CFLAGS='-DLINBPQ -MMD -g -fcommon -fasynchronous-unwind-tables -Wall -Wextra -Wformat -Wformat-security -Wstringop-overflow -Warray-bounds -DNOMQTT'` completed with remaining existing unrelated warnings after the L2 and node-up event reporting fix.
 - `git diff --check` completed after the circuit up/down event reporting fix.
@@ -320,6 +323,7 @@ Source: commit `3d14e3d7d48da4ff4e800884a95f48e65e02036b` (`first set of securit
 - Full object checks for `HTTPcode.c`, `APRSCode.c`, and `nodeapi.c` are blocked by the existing `Rigresource.h` include case mismatch.
 - `mailapi.c` object compile is blocked by the existing missing `dbghelp.h` include.
 
+[218a157]: https://github.com/M6VPN/linbpq/commit/218a157c8553546ab3e0c741d906043db9d38b3c
 [1307b2e]: https://github.com/M6VPN/linbpq/commit/1307b2ec8111680eb676be1cc189157cc79111c4
 [0d5592e]: https://github.com/M6VPN/linbpq/commit/0d5592e7c5c6a52b56649170d78eb9ef4642f706
 [2c3e1e0]: https://github.com/M6VPN/linbpq/commit/2c3e1e0d0d32f7207d1a1950f5cd4eb4dbd39679
