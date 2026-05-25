@@ -22,6 +22,7 @@ along with LinBPQ/BPQ32.  If not, see http://www.gnu.org/licenses
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "compatbits.h"
+#include <stdarg.h>
 #include <string.h>
 #include "asmstrucs.h"
 #include "tncinfo.h"
@@ -63,6 +64,9 @@ extern double LonFromLOC;
 extern int NUMBEROFNODES, MAXDESTS, L4CONNECTSOUT, L4CONNECTSIN, L4FRAMESTX, L4FRAMESRX, L4FRAMESRETRIED, OLDFRAMES;
 extern int  L2CONNECTSOUT, L2CONNECTSIN;
 
+static int append_report_char(char * Buffer, int BufferLen, int * Len, char c);
+static int append_report_text(char * Buffer, int BufferLen, int * Len, const char * Format, ...);
+
 void hookL2SessionClosed(struct _LINKTABLE * LINK, char * Reason, char * Direction);
 int ConvFromAX25(unsigned char * incall, unsigned char * outcall);
 int COUNT_AT_L2(struct _LINKTABLE * LINK);
@@ -74,6 +78,38 @@ int decodeRecordRoute(L3MESSAGE * L3, int iLen, char * Buffer, int BufferLen);
 char * byte_base64_encode(char *str, int len);
 
 // Runs use specified routine on certain event
+
+static int append_report_char(char * Buffer, int BufferLen, int * Len, char c)
+{
+	if (*Len < 0 || *Len >= BufferLen - 1)
+		return 0;
+
+	Buffer[*Len] = c;
+	(*Len)++;
+	Buffer[*Len] = 0;
+
+	return 1;
+}
+
+static int append_report_text(char * Buffer, int BufferLen, int * Len, const char * Format, ...)
+{
+	va_list args;
+	int written;
+
+	if (*Len < 0 || *Len >= BufferLen)
+		return 0;
+
+	va_start(args, Format);
+	written = vsnprintf(&Buffer[*Len], BufferLen - *Len, Format, args);
+	va_end(args);
+
+	if (written < 0 || written >= BufferLen - *Len)
+		return 0;
+
+	*Len += written;
+
+	return 1;
+}
 
 #ifndef WIN32
 
@@ -688,10 +724,10 @@ void L4StatusSeport(TRANSPORTENTRY * L4)
 		remotecall[ConvFromAX25(L4->L4USER, remotecall)] = 0;
 		ourcall[ConvFromAX25(L4->L4MYCALL, ourcall)] = 0;
 		
-		sprintf(circuitinfo, ":%02x%02x", L4->FARINDEX, L4->FARID);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->FARINDEX, L4->FARID);
 		strcat(remotecall, circuitinfo);
 
-		sprintf(circuitinfo, ":%02x%02x", L4->CIRCUITINDEX, L4->CIRCUITID);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->CIRCUITINDEX, L4->CIRCUITID);
 		strcat(ourcall, circuitinfo);
 
 
@@ -959,35 +995,49 @@ void APIL2Trace(struct _MESSAGE * Message, char * Dirn)
 
 	// Common to all frame types
 
-	udplen = snprintf(UDPMsg, 2048, 
+	udplen = 0;
+	if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen,
 		"{\"@type\": \"L2Trace\", \"serial\": %d, \"time\": %.3f, \"dirn\": \"%s\", \"isRF\": %s, \"reportFrom\": \"%s\", \"port\": \"%d\", \"srce\": \"%s\", \"dest\": \"%s\", \"ctrl\": %d,"
 		"\"l2Type\": \"%s\", \"modulo\": 8, \"cr\": \"%s\"",
-		UDPSeq++, NowMs, Dirn, (PORT->isRF)?"true":"false", NODECALLLOPPED, Message->PORT, srcecall, destcall, Message->CTL, Type, CR);
+		UDPSeq++, NowMs, Dirn, (PORT->isRF)?"true":"false", NODECALLLOPPED, Message->PORT, srcecall, destcall, Message->CTL, Type, CR))
+		return;
 
 	if (UIFlag)
 	{
-		udplen += snprintf(&UDPMsg[udplen], 2048 - udplen,
-			", \"ilen\": %d, \"pid\": %d, \"ptcl\": \"%s\"", iLen, Message->PID, PIDtoText(Message->PID));
+		if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen,
+			", \"ilen\": %d, \"pid\": %d, \"ptcl\": \"%s\"", iLen, Message->PID, PIDtoText(Message->PID)))
+			return;
 
 		if (Message->PID == NETROM_PID)
 		{
-			udplen += decodeNETROMUIMsg(Message->L2DATA, iLen, &UDPMsg[udplen], 2048 - udplen);
+			int n = decodeNETROMUIMsg(Message->L2DATA, iLen, &UDPMsg[udplen], sizeof(UDPMsg) - udplen);
+
+			if (n == 0)
+				return;
+
+			udplen += n;
 		}
 	}
 	else if (IFlag)
 	{
 		if (PF[0])
-			udplen += snprintf(&UDPMsg[udplen], 2048 - udplen,
+		{
+			if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen,
 				", \"ilen\": %d, \"pid\": %d, \"ptcl\": \"%s\", \"pf\": \"%s\", \"rseq\": %d, \"tseq\": %d",
-				iLen, Message->PID, PIDtoText(Message->PID), PF, NR, NS);
+				iLen, Message->PID, PIDtoText(Message->PID), PF, NR, NS))
+				return;
+		}
 		else
-			udplen += snprintf(&UDPMsg[udplen], 2048 - udplen,
+		{
+			if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen,
 				", \"ilen\": %d, \"pid\": %d, \"ptcl\": \"%s\", \"rseq\": %d, \"tseq\": %d",
-				iLen, Message->PID, PIDtoText(Message->PID), NR, NS);
+				iLen, Message->PID, PIDtoText(Message->PID), NR, NS))
+				return;
+		}
 
 		if (Message->PID == NETROM_PID)
 		{
-			int n = decodeNETROMIFrame(Message->L2DATA, iLen, &UDPMsg[udplen], 2048 - udplen);
+			int n = decodeNETROMIFrame(Message->L2DATA, iLen, &UDPMsg[udplen], sizeof(UDPMsg) - udplen);
 
 			if (n == 0)
 				return;				// Can't decode so don't trace anything;
@@ -999,20 +1049,29 @@ void APIL2Trace(struct _MESSAGE * Message, char * Dirn)
 	else if (UFlag)
 	{
 		if (PF[0])
-			udplen += snprintf(&UDPMsg[udplen], 2048 - udplen, ", \"pf\": \"%s\"", PF);
+		{
+			if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen, ", \"pf\": \"%s\"", PF))
+				return;
+		}
 	}
 	else
 	{
 		// supervisory
 
 		if (PF[0])
-			udplen += snprintf(&UDPMsg[udplen], 2048 - udplen, ", \"pf\": \"%s\", \"rseq\": %d", PF, NR);
+		{
+			if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen, ", \"pf\": \"%s\", \"rseq\": %d", PF, NR))
+				return;
+		}
 		else
-			udplen += snprintf(&UDPMsg[udplen], 2048 - udplen, ", \"rseq\": %d", NR);
+		{
+			if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen, ", \"rseq\": %d", NR))
+				return;
+		}
 	}
 
-	UDPMsg[udplen++] = '}';
-	UDPMsg[udplen] = 0;
+	if (!append_report_char(UDPMsg, sizeof(UDPMsg), &udplen, '}'))
+		return;
 //	Debugprintf(UDPMsg);
 	sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 }
@@ -1029,18 +1088,21 @@ void NetromTCPTrace(struct _MESSAGE * Message, char * Dirn)
 	int isRF = 0;
 
 
-	udplen = snprintf(UDPMsg, 2048, 
+	udplen = 0;
+	if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen,
 		"{\"@type\": \"L3Trace\", \"serial\": %d, \"time\": %d, \"dirn\": \"%s\", \"isRF\": %s, \"reportFrom\": \"%s\", \"port\": %d",
-		UDPSeq++, (int)Now, Dirn, (isRF)?"true":"false", NODECALLLOPPED, Message->PORT);
+		UDPSeq++, (int)Now, Dirn, (isRF)?"true":"false", NODECALLLOPPED, Message->PORT))
+		return;
 
 
-	udplen += snprintf(&UDPMsg[udplen], 2048 - udplen,
+	if (!append_report_text(UDPMsg, sizeof(UDPMsg), &udplen,
 		", \"ilen\": %d, \"pid\": %d, \"ptcl\": \"%s\"",
-		iLen, Message->PID, PIDtoText(Message->PID));
+		iLen, Message->PID, PIDtoText(Message->PID)))
+		return;
 
 	if (Message->PID == NETROM_PID)
 	{
-		int n = decodeNETROMIFrame(Message->L2DATA, iLen, &UDPMsg[udplen], 2048 - udplen);
+		int n = decodeNETROMIFrame(Message->L2DATA, iLen, &UDPMsg[udplen], sizeof(UDPMsg) - udplen);
 
 		if (n == 0)
 			return;				// Can't decode so don't trace anything;
@@ -1050,8 +1112,8 @@ void NetromTCPTrace(struct _MESSAGE * Message, char * Dirn)
 
 
 
-	UDPMsg[udplen++] = '}';
-	UDPMsg[udplen] = 0;
+	if (!append_report_char(UDPMsg, sizeof(UDPMsg), &udplen, '}'))
+		return;
 //	Debugprintf(UDPMsg);
 	sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 
@@ -1072,12 +1134,17 @@ int decodeNETROMUIMsg(unsigned char * Msg, int iLen, char * Buffer, int BufferLe
 	char Node[10];
 	char Alias[10] = "";
 
+	if (iLen < 7)
+		return 0;
+
 	memcpy(Alias, &Msg[1], 6);
 	strlop(Alias, ' ');
 
 	if (Msg[0] == 0xfe)			// Paula's Nodes Poll
 	{
-		Len = snprintf(Buffer, BufferLen, ", \"l3Type\": \"Routing info\", \"type\": \"Routing poll\"");
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l3Type\": \"Routing info\", \"type\": \"Routing poll\""))
+			return 0;
+
 		return Len;
 	}
 
@@ -1086,13 +1153,16 @@ int decodeNETROMUIMsg(unsigned char * Msg, int iLen, char * Buffer, int BufferLe
 
 	Msg += 7;			// to first field
 
-	Len = snprintf(Buffer, BufferLen, ", \"l3Type\": \"Routing info\", \"type\": \"NODES\", \"fromAlias\": \"%s\", \"nodes\": [", Alias);
+	if (!append_report_text(Buffer, BufferLen, &Len, ", \"l3Type\": \"Routing info\", \"type\": \"NODES\", \"fromAlias\": \"%s\", \"nodes\": [", Alias))
+		return 0;
 
 	iLen -= 7;					//Header, mnemonic and signature length
 
 	if (iLen < 21)				// No Entries
 	{
-		Buffer[Len++] = ']';
+		if (!append_report_char(Buffer, BufferLen, &Len, ']'))
+			return 0;
+
 		return Len;
 	}
 
@@ -1106,11 +1176,16 @@ int decodeNETROMUIMsg(unsigned char * Msg, int iLen, char * Buffer, int BufferLe
 		Node[ConvFromAX25(Msg, Node)] = 0;
 		Msg +=7;
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, "{\"call\":  \"%s\", \"alias\": \"%s\", \"via\": \"%s\", \"qual\": %d},", Dest, Alias, Node, Msg[0]);
+		if (!append_report_text(Buffer, BufferLen, &Len, "{\"call\":  \"%s\", \"alias\": \"%s\", \"via\": \"%s\", \"qual\": %d},", Dest, Alias, Node, Msg[0]))
+			return 0;
+
 		Msg++;
 		iLen -= 21;
 	}
 	// Have to replace trailing , with ]
+
+	if (Len <= 0)
+		return 0;
 
 	Buffer[Len - 1] = ']';
 	return Len;
@@ -1128,6 +1203,9 @@ int decodeNETROMIFrame(unsigned char * Msg, int iLen, char * Buffer, int BufferL
 	int netromx = 0;
 	int service = 0;
 
+
+	if (iLen < 20)
+		return 0;
 
 	if (Msg[0] == 0xff)				// RIF?
 		return decodeINP3RIF(&Msg[1], iLen - 1, Buffer, BufferLen);
@@ -1147,7 +1225,8 @@ int decodeNETROMIFrame(unsigned char * Msg, int iLen, char * Buffer, int BufferL
 	if (strcmp(destcall, "KEEPLI") == 0)
 		return 0;
 
-	Len = snprintf(Buffer, BufferLen, ", \"l3Type\": \"NetRom\", \"l3src\": \"%s\", \"l3dst\": \"%s\", \"ttl\": %d", srcecall, destcall, L3MSG->L3TTL);
+	if (!append_report_text(Buffer, BufferLen, &Len, ", \"l3Type\": \"NetRom\", \"l3src\": \"%s\", \"l3dst\": \"%s\", \"ttl\": %d", srcecall, destcall, L3MSG->L3TTL))
+		return 0;
 
 	// L4 Stuff
 
@@ -1164,7 +1243,12 @@ int decodeNETROMIFrame(unsigned char * Msg, int iLen, char * Buffer, int BufferL
 
 		if (L3MSG->L4ID == 1 && L3MSG->L4INDEX == 0)
 		{
-			Len += decodeRecordRoute(L3MSG, iLen, &Buffer[Len], BufferLen - Len);
+			int n = decodeRecordRoute(L3MSG, iLen, &Buffer[Len], BufferLen - Len);
+
+			if (n == 0)
+				return 0;
+
+			Len += n;
 			return Len;
 		}
 
@@ -1187,11 +1271,17 @@ int decodeNETROMIFrame(unsigned char * Msg, int iLen, char * Buffer, int BufferL
 
 
 		if (netromx)
-			Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"CONN REQX\", \"fromCct\": %d, \"srcUser\": \"%s\", \"srcNode\": \"%s\", \"window\": %d, \"service\": %d",
-				(L3MSG->L4INDEX << 8) | L3MSG->L4ID, srcUser, srcNode, L3MSG->L4DATA[0], service);
+		{
+			if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"CONN REQX\", \"fromCct\": %d, \"srcUser\": \"%s\", \"srcNode\": \"%s\", \"window\": %d, \"service\": %d",
+				(L3MSG->L4INDEX << 8) | L3MSG->L4ID, srcUser, srcNode, L3MSG->L4DATA[0], service))
+				return 0;
+		}
 		else
-			Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"CONN REQ\", \"fromCct\": %d, \"srcUser\": \"%s\", \"srcNode\": \"%s\", \"window\": %d",
-				(L3MSG->L4INDEX << 8) | L3MSG->L4ID, srcUser, srcNode, L3MSG->L4DATA[0]);
+		{
+			if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"CONN REQ\", \"fromCct\": %d, \"srcUser\": \"%s\", \"srcNode\": \"%s\", \"window\": %d",
+				(L3MSG->L4INDEX << 8) | L3MSG->L4ID, srcUser, srcNode, L3MSG->L4DATA[0]))
+				return 0;
+		}
 
 		return Len;
 
@@ -1199,44 +1289,55 @@ int decodeNETROMIFrame(unsigned char * Msg, int iLen, char * Buffer, int BufferL
 
 		// Can be ACK or NACK depending on Choke flag
 
-		if (L3MSG->L4FLAGS & L4BUSY)	
-			Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"CONN NAK\", \"toCct\": %d",
-				(L3MSG->L4INDEX << 8) | L3MSG->L4ID);
+		if (L3MSG->L4FLAGS & L4BUSY)
+		{
+			if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"CONN NAK\", \"toCct\": %d",
+				(L3MSG->L4INDEX << 8) | L3MSG->L4ID))
+				return 0;
+		}
 		else
-			Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"CONN ACK\", \"toCct\": %d, \"fromCct\": %d, \"accWin\": %d",
-				(L3MSG->L4INDEX << 8) | L3MSG->L4ID, (L3MSG->L4TXNO << 8) | L3MSG->L4RXNO, L3MSG->L4DATA[0]);
+		{
+			if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"CONN ACK\", \"toCct\": %d, \"fromCct\": %d, \"accWin\": %d",
+				(L3MSG->L4INDEX << 8) | L3MSG->L4ID, (L3MSG->L4TXNO << 8) | L3MSG->L4RXNO, L3MSG->L4DATA[0]))
+				return 0;
+		}
 
 		return Len;
 
 
 	case L4INFO:
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"INFO\", \"toCct\": %d, \"txSeq\": %d, \"rxSeq\": %d, \"paylen\": %d",
-			(L3MSG->L4INDEX << 8) | L3MSG->L4ID, L3MSG->L4TXNO, L3MSG->L4RXNO, iLen - 20);
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"INFO\", \"toCct\": %d, \"txSeq\": %d, \"rxSeq\": %d, \"paylen\": %d",
+			(L3MSG->L4INDEX << 8) | L3MSG->L4ID, L3MSG->L4TXNO, L3MSG->L4RXNO, iLen - 20))
+			return 0;
 
 		return Len;
 
 	case L4IACK:
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"INFO ACK\", \"toCct\": %d,  \"rxSeq\": %d",
-			(L3MSG->L4INDEX << 8) | L3MSG->L4ID, L3MSG->L4RXNO);
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"INFO ACK\", \"toCct\": %d,  \"rxSeq\": %d",
+			(L3MSG->L4INDEX << 8) | L3MSG->L4ID, L3MSG->L4RXNO))
+			return 0;
 
 		return Len;
 
 		
 	case L4DREQ:
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"DISC REQ\", \"toCct\": %d", (L3MSG->L4INDEX << 8) | L3MSG->L4ID);
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"DISC REQ\", \"toCct\": %d", (L3MSG->L4INDEX << 8) | L3MSG->L4ID))
+			return 0;
 		return Len;
 
 	case L4DACK:
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"DISC ACK\", \"toCct\": %d", (L3MSG->L4INDEX << 8) | L3MSG->L4ID);
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"DISC ACK\", \"toCct\": %d", (L3MSG->L4INDEX << 8) | L3MSG->L4ID))
+			return 0;
 		return Len;
 
 	case L4RESET:
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"RSET\", \"fromCct\": %d", (L3MSG->L4INDEX << 8) | L3MSG->L4ID);
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"RSET\", \"fromCct\": %d", (L3MSG->L4INDEX << 8) | L3MSG->L4ID))
+			return 0;
 		return Len;
 
 		
@@ -1272,22 +1373,27 @@ int decodeRecordRoute(L3MESSAGE * L3, int iLen, char * Buffer, int BufferLen)
 {
 	int Len = 0;
 	char callList[512];
-	char * ptr1 = callList;
+	int callListLen = 0;
 	unsigned char * ptr = L3->L4DATA;
 	char call[16];
 	int Response = 0;
 
+	callList[0] = 0;
+
 	iLen -= 20;
 
-	while (iLen > 0)
+	while (iLen >= 8)
 	{
 		call[ConvFromAX25(ptr, call)] = 0;
-		
-		ptr1 += sprintf(ptr1, " %s", call);
-			
+
+		if (!append_report_text(callList, sizeof(callList), &callListLen, " %s", call))
+			return 0;
+
 		if ((ptr[7] & 0x80) == 0x80)			// Check turnround bit
 		{
-			*ptr1++ = '*';
+			if (!append_report_char(callList, sizeof(callList), &callListLen, '*'))
+				return 0;
+
 			Response = 1;
 		}
 
@@ -1295,14 +1401,18 @@ int decodeRecordRoute(L3MESSAGE * L3, int iLen, char * Buffer, int BufferLen)
 		iLen -= 8;
 	}
 
-	*ptr1 = 0;
-
 	if (Response)
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"NRR Reply\", \"nrrId\": %d, \"nrrRoute\": \"%s\"", 
-			(L3->L4TXNO << 8) | L3->L4RXNO, callList);
+	{
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"NRR Reply\", \"nrrId\": %d, \"nrrRoute\": \"%s\"",
+			(L3->L4TXNO << 8) | L3->L4RXNO, callList))
+			return 0;
+	}
 	else
-		Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"l4Type\": \"NRR Request\", \"nrrId\": %d, \"nrrRoute\": \"%s\"", 
-			(L3->L4TXNO << 8) | L3->L4RXNO, callList);
+	{
+		if (!append_report_text(Buffer, BufferLen, &Len, ", \"l4Type\": \"NRR Request\", \"nrrId\": %d, \"nrrRoute\": \"%s\"",
+			(L3->L4TXNO << 8) | L3->L4RXNO, callList))
+			return 0;
+	}
 
 //	Debugprintf(Buffer);
 
@@ -1323,11 +1433,14 @@ int decodeINP3RIF(unsigned char * Msg, int iLen, char * Buffer, int BufferLen)
 	int i;
 	int Len = 0;
 
-	Len = snprintf(Buffer, BufferLen, ", \"l3Type\": \"Routing info\", \"type\": \"INP3\", \"nodes\": [");
+	if (!append_report_text(Buffer, BufferLen, &Len, ", \"l3Type\": \"Routing info\", \"type\": \"INP3\", \"nodes\": ["))
+		return 0;
 
 	if (iLen < 10)				// No Entries
 	{
-		Buffer[Len++] = ']';
+		if (!append_report_char(Buffer, BufferLen, &Len, ']'))
+			return 0;
+
 		return Len;
 	}
 
@@ -1359,6 +1472,9 @@ int decodeINP3RIF(unsigned char * Msg, int iLen, char * Buffer, int BufferLen)
 
 		while (*Msg && iLen > 0)			//  Have an option
 		{
+			if (iLen < 2)
+				return 0;
+
 			len = *Msg;
 			opcode = *(Msg+1);
 
@@ -1379,19 +1495,29 @@ int decodeINP3RIF(unsigned char * Msg, int iLen, char * Buffer, int BufferLen)
 
 		}
 
-		Len += snprintf(&Buffer[Len], BufferLen - Len, "{\"call\": \"%s\", \"hops\": %d, \"tt\": %d", call, hops, rtt);
+		if (!append_report_text(Buffer, BufferLen, &Len, "{\"call\": \"%s\", \"hops\": %d, \"tt\": %d", call, hops, rtt))
+			return 0;
 
 		if (alias[0] > ' ')
-			Len += snprintf(&Buffer[Len], BufferLen - Len, ", \"alias\":  \"%s\"", alias);
+		{
+			if (!append_report_text(Buffer, BufferLen, &Len, ", \"alias\":  \"%s\"", alias))
+				return 0;
+		}
 
-		Buffer[Len++] = '}';
-		Buffer[Len++] = ',';
+		if (!append_report_char(Buffer, BufferLen, &Len, '}'))
+			return 0;
+
+		if (!append_report_char(Buffer, BufferLen, &Len, ','))
+			return 0;
 
 		Msg++;
 		iLen--;		// Over EOP
 
 	}
 	// Have to replace trailing , with ]
+
+	if (Len <= 0)
+		return 0;
 
 	Buffer[Len - 1] = ']';
 	return Len;
