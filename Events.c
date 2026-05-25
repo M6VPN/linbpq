@@ -512,7 +512,7 @@ void hookNodeRunning()
 
 void IncomingL4ConnectionEvent(TRANSPORTENTRY * L4)
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 
 	char remotecall[64];
@@ -533,31 +533,32 @@ void IncomingL4ConnectionEvent(TRANSPORTENTRY * L4)
 	//	remotecall[ConvFromAX25(L4->L4USER, remotecall)] = 0;
 		ourcall[ConvFromAX25(L4->L4MYCALL, ourcall)] = 0;
 		
-		sprintf(circuitinfo, ":%02x%02x", L4->FARINDEX, L4->FARID);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->FARINDEX, L4->FARID);
 		strcat(remotecall, circuitinfo);
 
-		sprintf(circuitinfo, ":%02x%02x", L4->CIRCUITINDEX, L4->CIRCUITID);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->CIRCUITINDEX, L4->CIRCUITID);
 		strcat(ourcall, circuitinfo);
 
 		if (Service == -1)
-			udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", "
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", "
 			"\"remote\": \"%s\", \"local\": \"%s\"}",
 			NODECALLLOPPED, L4->apiSeq, remotecall, ourcall);
 		else
-			udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", "
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", "
 			"\"service\": %d, \"remote\": \"%s\", \"local\": \"%s\"}",
 			NODECALLLOPPED, L4->apiSeq, Service, remotecall, ourcall);
 
 
 //		Debugprintf(UDPMsg);
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
 
 void OutgoingL4ConnectionEvent(TRANSPORTENTRY * L4)
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 	char remotecall[64];
 	char ourcall[64];
@@ -578,23 +579,24 @@ void OutgoingL4ConnectionEvent(TRANSPORTENTRY * L4)
 	//	remotecall[ConvFromAX25(L4->L4USER, remotecall)] = 0;
 		ourcall[ConvFromAX25(L4->L4MYCALL, ourcall)] = 0;
 		
-		sprintf(circuitinfo, ":%02x%02x", L4->FARID, L4->FARINDEX);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->FARID, L4->FARINDEX);
 		strcat(remotecall, circuitinfo);
 
-		sprintf(circuitinfo, ":%02x%02x", L4->CIRCUITID, L4->CIRCUITINDEX);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->CIRCUITID, L4->CIRCUITINDEX);
 		strcat(ourcall, circuitinfo);
 
 		if (Service == -1)
-			udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", "
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", "
 			"\"remote\": \"%s\", \"local\": \"%s\"}",
 			NODECALLLOPPED, L4->apiSeq, remotecall, ourcall);
 		else
-			udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", "
+			udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", "
 			"\"service\": %d, \"remote\": \"%s\", \"local\": \"%s\"}",
 			NODECALLLOPPED, L4->apiSeq, Service, remotecall, ourcall);
 
 //		Debugprintf(UDPMsg);
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
@@ -620,7 +622,7 @@ void OutgoingL4ConnectionEvent(TRANSPORTENTRY * L4)
 
 void L4DisconnectEvent(TRANSPORTENTRY * L4, char * Direction, char * Reason)
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 	char remotecall[64];
 	char ourcall[64];
@@ -635,10 +637,10 @@ void L4DisconnectEvent(TRANSPORTENTRY * L4, char * Direction, char * Reason)
 //		remotecall[ConvFromAX25(L4->L4USER, remotecall)] = 0;
 		ourcall[ConvFromAX25(L4->L4MYCALL, ourcall)] = 0;
 		
-		sprintf(circuitinfo, ":%02x%02x", L4->FARINDEX, L4->FARID);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->FARINDEX, L4->FARID);
 		strcat(remotecall, circuitinfo);
 
-		sprintf(circuitinfo, ":%02x%02x", L4->CIRCUITINDEX, L4->CIRCUITID);
+		snprintf(circuitinfo, sizeof(circuitinfo), ":%02x%02x", L4->CIRCUITINDEX, L4->CIRCUITID);
 		strcat(ourcall, circuitinfo);
 
 			
@@ -647,12 +649,13 @@ void L4DisconnectEvent(TRANSPORTENTRY * L4, char * Direction, char * Reason)
 		else
 			Count = CountFramesQueuedOnSession(L4);
 
-		udplen = sprintf(UDPMsg, "{\"@type\": \"CircuitDownEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"%s\","
+		udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"CircuitDownEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"%s\","
 			"\"service\": %d, \"remote\": \"%s\", \"local\": \"%s\", \"segsSent\": %d, \"segsRcvd\": %d, \"segsResent\": %d, \"segsQueued\": %d, \"reason\": \"%s\"}",
 			NODECALLLOPPED, L4->apiSeq, Direction, 0, remotecall, ourcall,L4->segsSent, L4->segsRcvd, L4->segsResent, Count, Reason);
 
 //		Debugprintf(UDPMsg);
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
