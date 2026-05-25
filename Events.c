@@ -148,7 +148,7 @@ void hookL2SessionAccepted(int Port, char * remotecall, char * ourcall, struct _
 {
 	// Incoming SABM accepted
 
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 
 	L2CONNECTSIN++;
@@ -165,12 +165,13 @@ void hookL2SessionAccepted(int Port, char * remotecall, char * ourcall, struct _
 	{
 		LINK->lastStatusSentTime = time(NULL);
 
-		udplen = sprintf(UDPMsg, "{\"@type\":\"LinkUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\", \"isRF\": %s}",
+		udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\":\"LinkUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"incoming\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\", \"isRF\": %s}",
 			NODECALLLOPPED, LINK->apiSeq, LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall, (LINK->LINKPORT->isRF)?"true":"false");
 
 //		Debugprintf(UDPMsg);
 
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
@@ -245,7 +246,7 @@ void hookL2SessionConnected(struct _LINKTABLE * LINK)
 {
 	// UA received in reponse to SABM
 
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 
 	L2CONNECTSOUT++;
@@ -255,12 +256,13 @@ void hookL2SessionConnected(struct _LINKTABLE * LINK)
 	{
 		LINK->lastStatusSentTime = time(NULL);
 
-		udplen = sprintf(UDPMsg, "{\"@type\":\"LinkUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\", \"isRF\": %s}",
+		udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\":\"LinkUpEvent\", \"node\": \"%s\", \"id\": %d, \"direction\": \"outgoing\", \"port\": \"%d\", \"remote\": \"%s\", \"local\": \"%s\", \"isRF\": %s}",
 			NODECALLLOPPED, LINK->apiSeq, LINK->LINKPORT->PORTNUMBER, LINK->callingCall, LINK->receivingCall, (LINK->LINKPORT->isRF)?"true":"false");
 
 //		Debugprintf(UDPMsg);
 
-		sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+			sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 	}
 }
 
@@ -431,7 +433,7 @@ void hookL4SessionDeleted(struct TNCINFO * TNC, struct STREAMINFO * STREAM)
 
 void hookNodeStarted()
 {
-	char UDPMsg[1024];	
+	char UDPMsg[1024];
 	int udplen;
 #ifdef LINBPQ
 	char Software[80] = "LinBPQ";
@@ -446,14 +448,17 @@ void hookNodeStarted()
 	{
 		int ret;
 
-		udplen = sprintf(UDPMsg, "{\"@type\": \"NodeUpEvent\", \"nodeCall\": \"%s\", \"nodeAlias\": \"%s\", \"locator\": \"%s\","
+		udplen = snprintf(UDPMsg, sizeof(UDPMsg), "{\"@type\": \"NodeUpEvent\", \"nodeCall\": \"%s\", \"nodeAlias\": \"%s\", \"locator\": \"%s\","
 			"\"latitude\": %f, \"longitude\": %f, \"software\": \"%s\", \"version\": \"%s\"}",
 			NODECALLLOPPED, MYALIASLOPPED, LOC, LatFromLOC, LonFromLOC, Software, VersionString);
-   
-		ret = sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
 
-		if (ret != udplen)
-			Debugprintf("%d %d %s", ret, WSAGetLastError(), UDPMsg);
+		if (udplen > 0 && udplen < (int)sizeof(UDPMsg))
+		{
+			ret = sendto(NodeAPISocket, UDPMsg, udplen, 0, (struct sockaddr *)&UDPreportdest, sizeof(UDPreportdest));
+
+			if (ret != udplen)
+				Debugprintf("%d %d %s", ret, WSAGetLastError(), UDPMsg);
+		}
 
 	}
 }
